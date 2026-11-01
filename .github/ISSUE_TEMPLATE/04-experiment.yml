@@ -1,0 +1,49 @@
+name: "🧪 Experiment"
+description: 설계 판단을 위한 실험·측정
+title: "[Experiment] "
+labels: ["type:experiment"]
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: 질문 / 가설
+      description: 무엇을 판단하려고 하는가? 예상하는 결과는?
+      placeholder: "예: 동시 주문 100건에서 비관적 락과 원자적 UPDATE의 처리량 차이는?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: candidates
+    attributes:
+      label: 비교 대상
+      placeholder: |
+        - 후보 A
+        - 후보 B
+    validations:
+      required: true
+
+  - type: textarea
+    id: method
+    attributes:
+      label: 실험 방법
+      description: 조건, 데이터 규모, 반복 횟수, 측정 지표
+    validations:
+      required: true
+
+  - type: textarea
+    id: limits
+    attributes:
+      label: 검증하지 않는 범위
+      description: 이 실험 결과를 일반화하면 안 되는 조건
+    validations:
+      required: false
+
+  - type: textarea
+    id: dod
+    attributes:
+      label: 완료 조건
+      placeholder: |
+        - [ ] 측정 결과 기록
+        - [ ] 결론을 ADR에 반영 (docs/decisions/)
+    validations:
+      required: true
