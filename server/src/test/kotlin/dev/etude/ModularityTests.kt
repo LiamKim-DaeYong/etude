@@ -17,5 +17,4 @@ class ModularityTests {
     fun writesDocumentation() {
         Documenter(modules).writeDocumentation()
     }
-
 }

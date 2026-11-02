@@ -18,8 +18,7 @@ class Money private constructor(
         return Money(amount + other.amount, currency)
     }
 
-    override fun equals(other: Any?): Boolean =
-        other is Money && amount == other.amount && currency == other.currency
+    override fun equals(other: Any?): Boolean = other is Money && amount == other.amount && currency == other.currency
 
     override fun hashCode(): Int = 31 * amount.hashCode() + currency.hashCode()
 
@@ -33,5 +32,4 @@ class Money private constructor(
             return Money(amount.setScale(currency.defaultFractionDigits, ROUNDING), currency)
         }
     }
-
 }

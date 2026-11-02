@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.jpa)
     alias(libs.plugins.spring.boot)
     alias(libs.plugins.spring.dependency.management)
+    alias(libs.plugins.ktlint)
 }
 
 group = "dev.etude"
@@ -51,6 +52,10 @@ kotlin {
     compilerOptions {
         freeCompilerArgs.addAll("-Xjsr305=strict", "-Xannotation-default-target=param-property")
     }
+}
+
+ktlint {
+    version.set(libs.versions.ktlint.get())
 }
 
 allOpen {

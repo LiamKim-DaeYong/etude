@@ -41,7 +41,6 @@ class Product(
 
     val price: Money
         get() = Money.of(priceAmount, Currency.getInstance(priceCurrency))
-
 }
 
 enum class SalesStatus {
