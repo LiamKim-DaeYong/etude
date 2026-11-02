@@ -24,6 +24,7 @@ The repository owner writes the design and core code. Claude explains concepts, 
 
 - Declare dependency versions in `server/gradle/libs.versions.toml`, not in build scripts.
 - `ModularityTests` verifies module boundaries. Fix a violation instead of bypassing the test.
+- `dev.etude.shared` holds only value types that every module uses with the same meaning (e.g. `Money`). Business rules and module-specific concepts stay in their own module.
 - Keep decision status separate from implementation and verification status. If something is unverified, say so.
 - Back performance and concurrency claims with measurements, and state the environment and conditions.
 - To change a decision, write a new ADR linked to the old one. See `docs/README.md` for documentation rules.
