@@ -31,6 +31,8 @@ spring-boot-starter-test-actuator = { module = "org.springframework.boot:spring-
 spring-boot-starter-test-data-jpa = { module = "org.springframework.boot:spring-boot-starter-data-jpa-test" }
 spring-boot-starter-test-validation = { module = "org.springframework.boot:spring-boot-starter-validation-test" }
 spring-boot-starter-test-webmvc = { module = "org.springframework.boot:spring-boot-starter-webmvc-test" }
+spring-boot-testcontainers = { module = "org.springframework.boot:spring-boot-testcontainers" }
+testcontainers-postgresql = { module = "org.testcontainers:testcontainers-postgresql" }
 kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 
