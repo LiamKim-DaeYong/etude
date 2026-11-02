@@ -61,5 +61,4 @@ class MoneyTest {
     fun `rejects a currency without fraction digits`() {
         assertFailsWith<IllegalArgumentException> { Money.of(BigDecimal("1"), Currency.getInstance("XAU")) }
     }
-
 }
