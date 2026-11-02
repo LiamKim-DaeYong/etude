@@ -15,6 +15,9 @@
 ```bash
 cd server
 ./gradlew build        # Windows: .\gradlew.bat build
+./gradlew bootRun      # compose.yaml의 PostgreSQL을 함께 기동
 ```
+
+빌드(테스트)와 실행 모두 Docker가 필요하다. 테스트는 Testcontainers로, 로컬 실행은 Docker Compose로 PostgreSQL을 띄운다.
 
 의존성 버전은 [server/gradle/libs.versions.toml](server/gradle/libs.versions.toml)에서 관리한다.

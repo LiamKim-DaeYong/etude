@@ -25,13 +25,16 @@ dependencies {
 
     implementation(libs.spring.boot.starter.actuator)
     implementation(libs.spring.boot.starter.data.jpa)
+    implementation(libs.spring.boot.starter.flyway)
     implementation(libs.spring.boot.starter.validation)
     implementation(libs.spring.boot.starter.webmvc)
     implementation(libs.spring.modulith.starter.core)
     implementation(libs.kotlin.reflect)
     implementation(libs.jackson.module.kotlin)
     developmentOnly(libs.spring.boot.devtools)
+    developmentOnly(libs.spring.boot.docker.compose)
     runtimeOnly(libs.postgresql)
+    runtimeOnly(libs.flyway.database.postgresql)
 
     testImplementation(libs.spring.boot.starter.test.actuator)
     testImplementation(libs.spring.boot.starter.test.data.jpa)
