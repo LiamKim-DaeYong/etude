@@ -1,4 +1,4 @@
-package dev.etude.catalog.entity
+package dev.etude.catalog.domain
 
 import dev.etude.shared.Money
 import jakarta.persistence.Column
@@ -41,9 +41,6 @@ class Product(
 
     val price: Money
         get() = Money.of(priceAmount, Currency.getInstance(priceCurrency))
-}
 
-enum class SalesStatus {
-    ON_SALE,
-    SUSPENDED,
+    fun isOrderable(): Boolean = salesStatus == SalesStatus.ON_SALE
 }
