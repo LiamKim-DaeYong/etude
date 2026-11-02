@@ -12,6 +12,9 @@ Run from `server/` (on Windows use `.\gradlew.bat`):
 
 - Build and test: `./gradlew build`
 - Single test class: `./gradlew test --tests dev.etude.ModularityTests`
+- Run locally: `./gradlew bootRun` (starts PostgreSQL from `compose.yaml`)
+
+Docker must be running: tests use Testcontainers, `bootRun` uses Docker Compose. Schema changes go in Flyway migrations under `server/src/main/resources/db/migration`; JPA only validates the schema.
 
 ## Working agreement
 
