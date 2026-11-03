@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.assertj.MockMvcTester
+import org.springframework.test.web.servlet.assertj.MvcTestResult
 import java.util.UUID
 
 @Import(TestcontainersConfiguration::class)
@@ -21,10 +22,7 @@ class ProductControllerTest(
 
     @Test
     fun `registers a product and reads it back`() {
-        val created = mvc.post().uri("/api/products")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content("""{"name":"Keyboard","priceAmount":10000.4,"priceCurrency":"KRW"}""")
-            .exchange()
+        val created = register("""{"name":"Keyboard","priceAmount":10000.4,"priceCurrency":"KRW"}""")
 
         assertThat(created).hasStatus(HttpStatus.CREATED)
         val location = requireNotNull(created.response.getHeader("Location"))
@@ -38,18 +36,47 @@ class ProductControllerTest(
     }
 
     @Test
-    fun `returns 404 for an unknown product`() {
-        assertThat(mvc.get().uri("/api/products/{id}", UUID.randomUUID()).exchange())
-            .hasStatus(HttpStatus.NOT_FOUND)
+    fun `returns 404 problem for an unknown product`() {
+        val id = UUID.randomUUID()
+
+        assertProblem(mvc.get().uri("/api/products/{id}", id).exchange(), HttpStatus.NOT_FOUND)
+            .isLenientlyEqualTo("""{"detail":"Product not found: $id"}""")
     }
 
     @Test
-    fun `rejects a blank name`() {
-        val result = mvc.post().uri("/api/products")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content("""{"name":" ","priceAmount":1000,"priceCurrency":"KRW"}""")
-            .exchange()
-
-        assertThat(result).hasStatus(HttpStatus.BAD_REQUEST)
+    fun `returns 400 problem for a malformed id`() {
+        assertProblem(mvc.get().uri("/api/products/not-a-uuid").exchange(), HttpStatus.BAD_REQUEST)
     }
+
+    @Test
+    fun `returns 400 problem for a blank name`() {
+        assertProblem(
+            register("""{"name":" ","priceAmount":1000,"priceCurrency":"KRW"}"""),
+            HttpStatus.BAD_REQUEST,
+        )
+    }
+
+    @Test
+    fun `returns 400 problem for an unknown currency`() {
+        assertProblem(
+            register("""{"name":"Keyboard","priceAmount":1000,"priceCurrency":"ABC"}"""),
+            HttpStatus.BAD_REQUEST,
+        ).isLenientlyEqualTo("""{"detail":"Unsupported currency: ABC"}""")
+    }
+
+    @Test
+    fun `returns 400 problem for malformed json`() {
+        assertProblem(register("""{"name":"""), HttpStatus.BAD_REQUEST)
+    }
+
+    private fun register(body: String): MvcTestResult = mvc.post().uri("/api/products")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(body)
+        .exchange()
+
+    private fun assertProblem(result: MvcTestResult, status: HttpStatus) = assertThat(result)
+        .hasStatus(status)
+        .hasContentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+        .bodyJson()
+        .isLenientlyEqualTo("""{"status":${status.value()},"title":"${status.reasonPhrase}"}""")
 }
