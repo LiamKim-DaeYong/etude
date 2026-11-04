@@ -8,6 +8,8 @@ import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.JoinColumn
+import jakarta.persistence.NamedAttributeNode
+import jakarta.persistence.NamedEntityGraph
 import jakarta.persistence.OneToMany
 import jakarta.persistence.OrderBy
 import jakarta.persistence.Table
@@ -18,6 +20,7 @@ import java.util.UUID
 
 @Entity
 @Table(name = "orders")
+@NamedEntityGraph(name = "Order.lines", attributeNodes = [NamedAttributeNode("_lines")])
 class Order(
     customerId: UUID,
     lines: List<OrderLine>,
@@ -38,7 +41,7 @@ class Order(
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    var status: OrderStatus = OrderStatus.CREATED
+    var status: OrderStatus = OrderStatus.PLACED
         protected set
 
     @Column(nullable = false)
