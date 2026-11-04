@@ -15,7 +15,7 @@ Run from `server/` (on Windows use `.\gradlew.bat`):
 - Run locally: `./gradlew bootRun` (starts PostgreSQL from `compose.yaml`)
 - Format Kotlin: `./gradlew ktlintFormat` (`build` runs `ktlintCheck`; style is `intellij_idea`, set in `.editorconfig`)
 
-Docker must be running: tests use Testcontainers, `bootRun` uses Docker Compose. Schema changes go in Flyway migrations under `server/src/main/resources/db/migration`; JPA only validates the schema.
+Docker must be running: tests use Testcontainers, `bootRun` uses Docker Compose. Schema changes go in Flyway migrations under `server/src/main/resources/db/migration/<module>` (Spring Modulith runs them per module, each with its own history table and version numbers); JPA only validates the schema.
 
 ## Working agreement
 
