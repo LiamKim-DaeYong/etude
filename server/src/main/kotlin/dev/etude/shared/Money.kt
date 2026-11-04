@@ -18,6 +18,11 @@ class Money private constructor(
         return Money(amount + other.amount, currency)
     }
 
+    operator fun times(quantity: Int): Money {
+        require(quantity >= 0) { "Quantity must not be negative: $quantity" }
+        return Money(amount * quantity.toBigDecimal(), currency)
+    }
+
     override fun equals(other: Any?): Boolean = other is Money && amount == other.amount && currency == other.currency
 
     override fun hashCode(): Int = 31 * amount.hashCode() + currency.hashCode()

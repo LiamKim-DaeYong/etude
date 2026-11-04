@@ -34,6 +34,7 @@ dependencies {
     implementation(libs.jackson.module.kotlin)
     developmentOnly(libs.spring.boot.devtools)
     developmentOnly(libs.spring.boot.docker.compose)
+    runtimeOnly(libs.spring.modulith.runtime)
     runtimeOnly(libs.postgresql)
     runtimeOnly(libs.flyway.database.postgresql)
 

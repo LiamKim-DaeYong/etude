@@ -8,3 +8,6 @@ spring:
   mvc:
     problemdetails:
       enabled: true
+  modulith:
+    runtime:
+      flyway-enabled: true
