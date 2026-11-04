@@ -1,7 +1,6 @@
 package dev.etude.order.web
 
-import dev.etude.order.domain.Order
-import dev.etude.order.domain.OrderLine
+import dev.etude.order.application.OrderDetails
 import java.math.BigDecimal
 import java.time.Instant
 import java.util.UUID
@@ -26,8 +25,8 @@ data class OrderResponse(
         val status: String,
     ) {
         companion object {
-            fun from(line: OrderLine) = Line(
-                id = requireNotNull(line.id),
+            fun from(line: OrderDetails.Line) = Line(
+                id = line.id,
                 lineNo = line.lineNo,
                 productId = line.productId,
                 productName = line.productName,
@@ -40,8 +39,8 @@ data class OrderResponse(
     }
 
     companion object {
-        fun from(order: Order) = OrderResponse(
-            id = requireNotNull(order.id),
+        fun from(order: OrderDetails) = OrderResponse(
+            id = order.id,
             customerId = order.customerId,
             status = order.status.name,
             orderedAt = order.orderedAt,

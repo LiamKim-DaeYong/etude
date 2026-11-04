@@ -17,11 +17,11 @@ class ProductService(
 ) : ProductCatalog {
 
     @Transactional
-    fun register(name: String, price: Money): Product = productRepository.save(Product(name, price))
+    fun register(name: String, price: Money): ProductDetails = ProductDetails.from(productRepository.save(Product(name, price)))
 
-    fun getProduct(id: UUID): Product? = productRepository.findByIdOrNull(id)
+    fun getProduct(id: UUID): ProductDetails? = productRepository.findByIdOrNull(id)?.let(ProductDetails::from)
 
-    override fun find(id: UUID): ProductInfo? = getProduct(id)?.let {
+    override fun find(id: UUID): ProductInfo? = productRepository.findByIdOrNull(id)?.let {
         ProductInfo(
             id = requireNotNull(it.id),
             name = it.name,
