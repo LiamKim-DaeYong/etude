@@ -1,28 +1,19 @@
 package dev.etude.catalog.domain
 
+import dev.etude.shared.BaseEntity
 import dev.etude.shared.Money
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.Id
-import org.hibernate.annotations.UuidGenerator
 import java.math.BigDecimal
 import java.util.Currency
-import java.util.UUID
 
 @Entity
 class Product(
     name: String,
     price: Money,
-) {
-
-    @Id
-    @GeneratedValue
-    @UuidGenerator(style = UuidGenerator.Style.VERSION_7)
-    var id: UUID? = null
-        protected set
+) : BaseEntity() {
 
     @Column(nullable = false, length = 200)
     var name: String = name

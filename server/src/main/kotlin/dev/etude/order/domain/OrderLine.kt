@@ -1,14 +1,12 @@
 package dev.etude.order.domain
 
+import dev.etude.shared.BaseEntity
 import dev.etude.shared.Money
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.Id
 import jakarta.persistence.Table
-import org.hibernate.annotations.UuidGenerator
 import java.math.BigDecimal
 import java.util.Currency
 import java.util.UUID
@@ -20,13 +18,7 @@ class OrderLine(
     productName: String,
     quantity: Int,
     unitPrice: Money,
-) {
-
-    @Id
-    @GeneratedValue
-    @UuidGenerator(style = UuidGenerator.Style.VERSION_7)
-    var id: UUID? = null
-        protected set
+) : BaseEntity() {
 
     @Column(nullable = false)
     var lineNo: Int = 0
@@ -47,8 +39,8 @@ class OrderLine(
     @Column(name = "unit_price_amount", nullable = false, precision = 19, scale = 4)
     private var unitPriceAmount: BigDecimal = unitPrice.amount
 
-    @Column(name = "unit_price_currency", nullable = false, length = 3)
-    private var unitPriceCurrency: String = unitPrice.currency.currencyCode
+    @Column(name = "currency_code", nullable = false, length = 3)
+    private var currencyCode: String = unitPrice.currency.currencyCode
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
@@ -60,7 +52,7 @@ class OrderLine(
     }
 
     val unitPrice: Money
-        get() = Money.of(unitPriceAmount, Currency.getInstance(unitPriceCurrency))
+        get() = Money.of(unitPriceAmount, Currency.getInstance(currencyCode))
 
     val amount: Money
         get() = unitPrice * quantity

@@ -25,7 +25,7 @@ The repository owner writes the design and core code. Claude explains concepts, 
 
 - Declare dependency versions in `server/gradle/libs.versions.toml`, not in build scripts.
 - `ModularityTests` verifies module boundaries. Fix a violation instead of bypassing the test.
-- `dev.etude.shared` holds only value types that every module uses with the same meaning (e.g. `Money`). Business rules and module-specific concepts stay in their own module.
+- `dev.etude.shared` holds only value types that every module uses with the same meaning (e.g. `Money`) and the common persistence base `BaseEntity` (UUIDv7 id per ADR-0001, id-based `equals`/`hashCode`). Business rules and module-specific concepts stay in their own module. Entities extend `BaseEntity`.
 - API errors use ProblemDetail (`spring.mvc.problemdetails.enabled`). Turn invalid client input into 400 at the web boundary (e.g. a request's `toMoney()`); do not map `IllegalArgumentException` to 400 globally.
 - Keep decision status separate from implementation and verification status. If something is unverified, say so.
 - Back performance and concurrency claims with measurements, and state the environment and conditions.
