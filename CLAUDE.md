@@ -25,6 +25,8 @@ Docker must be running: tests use Testcontainers, `bootRun` uses Docker Compose.
 - Application services return DTOs built inside the transaction (e.g. `OrderDetails`), never entities: `open-in-view` is off, so the web layer runs after the transaction ends. Web response DTOs map from these and own the JSON representation.
 - API errors are ProblemDetail with a `code` property. `dev.etude.web.GlobalExceptionHandler` adds common codes (`INVALID_REQUEST`, `NOT_FOUND`, `INTERNAL_ERROR`, otherwise the status name), validation `errors`, and hides details of unexpected exceptions. A module's handler sets business codes for its own exceptions and must be annotated `@Order(Ordered.HIGHEST_PRECEDENCE)` so the global catch-all does not take them.
 - Turn invalid client input into 400 at the web boundary (e.g. a request's `toMoney()`); do not map `IllegalArgumentException` to 400 globally.
+- Get the current time from the injected `Clock` (`Instant.now(clock)`), never `Instant.now()`. The clock ticks in microseconds to match PostgreSQL `timestamptz`.
+- Do not use the system default time zone or locale (`LocalDateTime.now()`, `ZoneId.systemDefault()`, `Locale.getDefault()`, `String.format` without a locale). Pass the zone or locale explicitly.
 - Mark PRs that change API paths, requests, responses or error formats with `api-change` and fill in the template's API section.
 
 ## Workflow

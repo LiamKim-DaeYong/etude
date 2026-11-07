@@ -9,14 +9,23 @@ Order, inventory and payment system for exploring design problems under high con
 ## Roles
 
 - The repository owner sets direction, approves designs and approves every merge.
-- Claude implements the backend (`server/`). Codex implements the frontend (`web/`).
-- Change only your own area. Shared files (root `README.md`, `CONTRIBUTING.md`, `AGENTS.md`, `CLAUDE.md`, `.github/`, `docs/README.md`) change in a separate `area:shared` PR.
+- Claude implements the backend (`server/`). Codex implements the frontend (`web/`). Root `CLAUDE.md` holds Claude's backend rules and belongs to the backend area.
+- Change only your own area. Shared files (root `README.md`, `CONTRIBUTING.md`, `AGENTS.md`, `.github/`, `docs/README.md`) change in a separate `area:shared` PR.
 - For design decisions, present options with a recommendation and get the owner's approval before implementing.
 - Record progress, dependencies and API changes in issues and PRs, not only in chat, so the other agent can read them with `gh`.
 
 ## Workflow
 
 Follow `CONTRIBUTING.md` for branches, commits, PRs, issues, labels, the BE/FE collaboration rules and the writing language.
+
+## Global service baseline
+
+Build as a service for many countries from the start, so a new market does not require data or API changes.
+
+- **Time:** store and exchange instants in UTC (ISO-8601 with `Z`). Business dates such as "today" or a daily settlement use the market's time zone explicitly (e.g. `Asia/Seoul`). Display conversion to the user's time zone happens in the client.
+- **Money:** an amount always travels with its ISO 4217 currency code. Never assume a currency. Rounding follows the currency's minor units.
+- **Text:** the server returns machine-readable values (`code`, enum names), not display text. Clients localize. Error `detail` is English for developers.
+- **Environment:** results must not depend on the server's default time zone or locale.
 
 ## Rules
 
@@ -28,5 +37,7 @@ Follow `CONTRIBUTING.md` for branches, commits, PRs, issues, labels, the BE/FE c
 
 - Customer API under `/api/v1`, back-office API under `/admin/v1`.
 - Errors are ProblemDetail (`application/problem+json`) with a `code` property; validation failures add `errors: [{field, message}]`. Branch on `code`, not on `detail`.
+- Instants are ISO-8601 UTC strings ending in `Z`.
+- Amounts are decimal strings (e.g. `"10000"`, `"12.50"`) next to an ISO 4217 currency code. Do not parse them into floating-point numbers for arithmetic.
 - Run the backend locally: `cd server && ./gradlew bootRun` (Docker must be running; starts PostgreSQL from `compose.yaml`).
 - PRs labeled `api-change` change paths, requests, responses or errors.
