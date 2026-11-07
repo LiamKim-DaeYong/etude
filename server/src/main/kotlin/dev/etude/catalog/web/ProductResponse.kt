@@ -1,6 +1,6 @@
 package dev.etude.catalog.web
 
-import dev.etude.catalog.domain.Product
+import dev.etude.catalog.application.ProductDetails
 import java.math.BigDecimal
 import java.util.UUID
 
@@ -12,8 +12,8 @@ data class ProductResponse(
     val salesStatus: String,
 ) {
     companion object {
-        fun from(product: Product) = ProductResponse(
-            id = requireNotNull(product.id),
+        fun from(product: ProductDetails) = ProductResponse(
+            id = product.id,
             name = product.name,
             priceAmount = product.price.amount,
             priceCurrency = product.price.currency.currencyCode,

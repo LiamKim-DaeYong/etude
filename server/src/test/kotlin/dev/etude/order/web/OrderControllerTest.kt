@@ -150,9 +150,7 @@ class OrderControllerTest(
             .isLenientlyEqualTo("""{"detail":"Order not found: $id"}""")
     }
 
-    private fun product(name: String, price: String, currency: String): UUID = requireNotNull(
-        productService.register(name, Money.of(BigDecimal(price), Currency.getInstance(currency))).id,
-    )
+    private fun product(name: String, price: String, currency: String): UUID = productService.register(name, Money.of(BigDecimal(price), Currency.getInstance(currency))).id
 
     private fun line(productId: UUID, quantity: Int = 1) = """[{"productId":"$productId","quantity":$quantity}]"""
 

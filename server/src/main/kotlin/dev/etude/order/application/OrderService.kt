@@ -18,7 +18,7 @@ class OrderService(
 ) {
 
     @Transactional
-    fun place(command: PlaceOrderCommand): Order {
+    fun place(command: PlaceOrderCommand): OrderDetails {
         val lines = command.lines.map { line ->
             val product = productCatalog.find(line.productId)
                 ?: throw OrderRejectedException(Reason.PRODUCT_NOT_FOUND, "Product not found: ${line.productId}")
@@ -39,8 +39,8 @@ class OrderService(
                 currentTotal = order.total,
             )
         }
-        return orderRepository.save(order)
+        return OrderDetails.from(orderRepository.save(order))
     }
 
-    fun getOrder(id: UUID): Order? = orderRepository.findById(id)
+    fun getOrder(id: UUID): OrderDetails? = orderRepository.findById(id)?.let(OrderDetails::from)
 }
