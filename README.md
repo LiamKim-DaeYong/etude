@@ -39,3 +39,11 @@ npm run dev
 ## 자동 검사
 
 PR과 `main` 푸시에서 BE의 `CI / build`와 FE의 `Web CI / web`을 독립적으로 실행한다. FE는 Node.js 24에서 의존성 감사, 타입·lint·포맷·빌드, lint 규칙 검사와 Chromium 데스크톱·모바일 검사를 수행한다. 실패한 브라우저 검사 보고서·추적 파일은 7일간 보관한다.
+
+`main` ruleset의 필수 검사는 GitHub Actions의 `build`와 `web`이다. 두 검사를 통과한 PR만 Squash 머지한다.
+
+## 의존성 업데이트
+
+[Dependabot 설정](.github/dependabot.yml)은 매주 월요일 한국 시간 기준 FE npm 의존성(04:00)과 GitHub Actions(04:15)를 확인한다. npm PR은 `area:frontend`, Actions PR은 `area:shared`로 구분한다. React·Tailwind·Playwright 관련 의존성은 함께 검토할 수 있도록 묶고, Actions의 minor·patch 업데이트도 묶는다. 버전 업데이트 PR 수는 각각 5개·2개로 제한한다.
+
+업데이트는 자동으로 머지하지 않는다. 변경 사항과 라이선스·원본 UI 수정 영향을 검토하고 두 필수 CI를 통과한 뒤 승인된 범위에서 반영한다. 봇의 첫 실행 결과와 취약점 해결 여부는 실제 PR·감사 결과로 확인한다.
