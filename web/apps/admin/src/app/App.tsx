@@ -4,6 +4,8 @@ import { LoaderCircle } from 'lucide-react';
 import { AdminLayout } from './layout/AdminLayout';
 import { routes } from './routes';
 import { NotFound } from '@/pages/NotFound';
+import { ErrorBoundary } from './ErrorBoundary';
+import { PageErrorFallback } from './PageErrorFallback';
 
 export function App() {
   const { pathname } = useLocation();
@@ -21,24 +23,26 @@ export function App() {
 
   return (
     <AdminLayout>
-      <Suspense
-        fallback={
-          <div
-            className="grid min-h-72 place-items-center"
-            role="status"
-            aria-label="화면 불러오는 중"
-          >
-            <LoaderCircle className="size-5 animate-spin text-muted-foreground" />
-          </div>
-        }
-      >
-        <Routes>
-          {routes.map(({ path, Component }) => (
-            <Route key={path} path={path} element={<Component />} />
-          ))}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Suspense>
+      <ErrorBoundary key={pathname} fallback={<PageErrorFallback />}>
+        <Suspense
+          fallback={
+            <div
+              className="grid min-h-72 place-items-center"
+              role="status"
+              aria-label="화면 불러오는 중"
+            >
+              <LoaderCircle className="size-5 animate-spin text-muted-foreground" />
+            </div>
+          }
+        >
+          <Routes>
+            {routes.map(({ path, Component }) => (
+              <Route key={path} path={path} element={<Component />} />
+            ))}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
+      </ErrorBoundary>
     </AdminLayout>
   );
 }

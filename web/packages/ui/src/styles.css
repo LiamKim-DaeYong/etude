@@ -1,10 +1,9 @@
 @import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
-@import 'tailwindcss';
+@import 'tailwindcss' source(none);
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 
 @source '.';
-@source '../../../apps/admin/src';
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

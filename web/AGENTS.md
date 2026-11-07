@@ -6,6 +6,7 @@ Follow the root `AGENTS.md` and `CONTRIBUTING.md`. Codex owns `web/`; shared rep
 
 - npm workspaces: `apps/admin` uses React, TypeScript, Vite and React Router. `packages/ui` contains official shadcn `base-nova` components on Base UI. Tailwind v4, Lucide and self-hosted Pretendard provide styling, icons and typography.
 - Apps depend on shared packages. Shared UI must not import an app, router or business rules. Future storefront and CS apps choose their own framework and deploy independently.
+- Each app owns its CSS entry point and source scanning. Shared CSS scans only shared sources. Keep the root error fallback independent of UI providers; page error recovery must preserve the admin shell.
 - Use official CLI components; do not recreate their appearance or behavior. Run `npm run ui:add -- <component>` from `web/` and review diffs before overwriting generated files. Keep local component adaptations documented in `packages/ui/README.md`.
 - Keep product text in Korean. Do not present example data as live metrics or enable navigation to unfinished features.
 - Public UI copy describes available functions and user actions. Do not add personal learning narratives, portfolio pitches or motivational slogans.
