@@ -15,10 +15,12 @@
 ```bash
 cd server
 ./gradlew build        # Windows: .\gradlew.bat build
-./gradlew bootRun      # compose.yaml의 PostgreSQL을 함께 기동
+./gradlew bootRun      # local 프로필, compose.yaml의 PostgreSQL을 함께 기동
 ```
 
 빌드(테스트)와 실행 모두 Docker가 필요하다. 테스트는 Testcontainers로, 로컬 실행은 Docker Compose로 PostgreSQL을 띄운다.
+
+API 계약은 코드에서 생성한 OpenAPI 명세다. 고객 API는 [server/openapi/customer.json](server/openapi/customer.json), 관리자 API는 [server/openapi/admin.json](server/openapi/admin.json)이며, 코드와 다르면 테스트가 실패한다. 로컬 실행 중에는 `http://localhost:8080/swagger-ui.html`에서 볼 수 있다. 운영 기본 설정에서는 명세와 Swagger UI가 꺼져 있다.
 
 의존성 버전은 [server/gradle/libs.versions.toml](server/gradle/libs.versions.toml)에서 관리한다.
 

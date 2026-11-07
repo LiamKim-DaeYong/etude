@@ -11,7 +11,7 @@ Etude는 주문·재고·결제 시스템을 중심으로 높은 동시성과 �
 
 | 번호 | 주제 | 결정 | 상태 | 구현·검증 |
 | --- | --- | --- | --- | --- |
-| ADR-0001 | [엔티티 식별자](decisions/0001-entity-identifiers.md) | UUIDv7 채택 | 채택 | 로컬 검증 완료, 상품에 적용 |
+| ADR-0001 | [엔티티 식별자](decisions/0001-entity-identifiers.md) | UUIDv7 채택 | 채택 | 로컬 검증 완료, 모든 엔티티에 적용(`BaseEntity`) |
 | ADR-0002 | [웹 앱 분리와 공통 UI](decisions/0002-web-foundation.md) | 독립 앱과 shadcn/ui 공통 기반 | 채택 | 관리자 기반과 로컬 검사 완료, 원격 결과는 Web CI에서 확인 |
 
 ## 개념 노트
