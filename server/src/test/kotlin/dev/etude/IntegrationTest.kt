@@ -1,6 +1,7 @@
 package dev.etude
 
 import dev.etude.platform.web.FailingTestController
+import dev.etude.platform.web.OpenApiContractConfiguration
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.context.annotation.Import
@@ -12,7 +13,7 @@ import org.springframework.test.context.ActiveProfiles
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
-@Import(TestcontainersConfiguration::class, FailingTestController::class)
+@Import(TestcontainersConfiguration::class, FailingTestController::class, OpenApiContractConfiguration::class)
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")

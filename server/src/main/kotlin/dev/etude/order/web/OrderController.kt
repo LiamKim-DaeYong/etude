@@ -1,6 +1,10 @@
 package dev.etude.order.web
 
+import dev.etude.order.application.OrderRejectedException
 import dev.etude.order.application.OrderService
+import dev.etude.platform.Rejects
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -16,6 +20,7 @@ import java.net.URI
 import java.util.UUID
 
 @RestController
+@Tag(name = "Orders")
 @RequestMapping("/api/v1/orders")
 class OrderController(
     private val orderService: OrderService,
@@ -23,6 +28,8 @@ class OrderController(
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Place an order")
+    @Rejects(OrderRejectedException.Reason::class)
     fun placeOrder(@Valid @RequestBody request: PlaceOrderRequest): ResponseEntity<OrderResponse> {
         val order = orderService.place(request.toCommand())
         return ResponseEntity
@@ -31,6 +38,7 @@ class OrderController(
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get an order")
     fun getOrder(@PathVariable id: UUID): OrderResponse = orderService.getOrder(id)
         ?.let(OrderResponse::from)
         ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found: $id")
