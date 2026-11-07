@@ -30,11 +30,13 @@ class GlobalExceptionHandlerTest(
 
     @Test
     fun `lists violated fields for an invalid request`() {
+        val productId = UUID.randomUUID()
         val result = postJson(
             "/api/v1/orders",
             """
-            {"customerId":"${UUID.randomUUID()}","lines":[{"productId":"${UUID.randomUUID()}","quantity":0}],
-             "expectedTotalAmount":1000,"currencyCode":"KR"}
+            {"customerId":"${UUID.randomUUID()}",
+             "lines":[{"productId":"$productId","quantity":0},{"productId":"$productId","quantity":1}],
+             "expectedTotal":{"amount":"1000","currency":"KRW"}}
             """.trimIndent(),
         )
 
@@ -42,7 +44,7 @@ class GlobalExceptionHandlerTest(
             .isLenientlyEqualTo(
                 """
                 {"detail":"Request validation failed",
-                 "errors":[{"field":"currencyCode","code":"Size"},{"field":"lines[0].quantity","code":"Positive"}]}
+                 "errors":[{"field":"hasDistinctProducts","code":"AssertTrue"},{"field":"lines[0].quantity","code":"Positive"}]}
                 """.trimIndent(),
             )
     }
@@ -52,11 +54,25 @@ class GlobalExceptionHandlerTest(
         val result = mvc.post().uri("/admin/v1/products")
             .contentType(MediaType.APPLICATION_JSON)
             .header("Accept-Language", "ja")
-            .content("""{"name":" ","priceAmount":"1000","priceCurrency":"KRW"}""")
+            .content("""{"name":" ","price":{"amount":"1000","currency":"KRW"}}""")
             .exchange()
 
         assertProblem(result, HttpStatus.BAD_REQUEST, "INVALID_REQUEST")
             .isLenientlyEqualTo("""{"errors":[{"field":"name","code":"NotBlank","message":"must not be blank"}]}""")
+    }
+
+    @Test
+    fun `points to the field that could not be read`() {
+        val result = postJson(
+            "/api/v1/orders",
+            """
+            {"customerId":"${UUID.randomUUID()}","lines":[{"productId":"${UUID.randomUUID()}","quantity":"many"}],
+             "expectedTotal":{"amount":"1000","currency":"KRW"}}
+            """.trimIndent(),
+        )
+
+        assertProblem(result, HttpStatus.BAD_REQUEST, "INVALID_REQUEST")
+            .isLenientlyEqualTo("""{"errors":[{"field":"lines[0].quantity","code":"InvalidValue"}]}""")
     }
 
     @Test

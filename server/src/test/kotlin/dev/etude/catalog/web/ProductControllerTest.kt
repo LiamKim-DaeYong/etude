@@ -22,7 +22,7 @@ class ProductControllerTest(
 
     @Test
     fun `registers a product and reads it back`() {
-        val created = register("""{"name":"Keyboard","priceAmount":"10000.4","priceCurrency":"KRW"}""")
+        val created = register("""{"name":"Keyboard","price":{"amount":"10000","currency":"KRW"}}""")
 
         assertThat(created).hasStatus(HttpStatus.CREATED)
         val location = requireNotNull(created.response.getHeader("Location"))
@@ -31,18 +31,18 @@ class ProductControllerTest(
             .hasStatusOk()
             .bodyJson()
             .isLenientlyEqualTo(
-                """{"name":"Keyboard","priceAmount":"10000","priceCurrency":"KRW","salesStatus":"ON_SALE"}""",
+                """{"name":"Keyboard","price":{"amount":"10000","currency":"KRW"},"salesStatus":"ON_SALE"}""",
             )
     }
 
     @Test
     fun `returns the amount as a string with the currency's minor units`() {
-        val created = register("""{"name":"Cable","priceAmount":"12.5","priceCurrency":"USD"}""")
+        val created = register("""{"name":"Cable","price":{"amount":"12.5","currency":"USD"}}""")
 
         assertThat(created)
             .hasStatus(HttpStatus.CREATED)
             .bodyJson()
-            .isLenientlyEqualTo("""{"priceAmount":"12.50","priceCurrency":"USD"}""")
+            .isLenientlyEqualTo("""{"price":{"amount":"12.50","currency":"USD"}}""")
     }
 
     @Test
@@ -61,7 +61,7 @@ class ProductControllerTest(
     @Test
     fun `returns 400 problem for a blank name`() {
         assertProblem(
-            register("""{"name":" ","priceAmount":1000,"priceCurrency":"KRW"}"""),
+            register("""{"name":" ","price":{"amount":"1000","currency":"KRW"}}"""),
             HttpStatus.BAD_REQUEST,
         )
     }
@@ -69,9 +69,24 @@ class ProductControllerTest(
     @Test
     fun `returns 400 problem for an unknown currency`() {
         assertProblem(
-            register("""{"name":"Keyboard","priceAmount":1000,"priceCurrency":"ABC"}"""),
+            register("""{"name":"Keyboard","price":{"amount":1000,"currency":"ABC"}}"""),
             HttpStatus.BAD_REQUEST,
-        ).isLenientlyEqualTo("""{"detail":"Unsupported currency: ABC"}""")
+        ).isLenientlyEqualTo(
+            """{"code":"INVALID_REQUEST","errors":[{"field":"price","code":"InvalidValue","message":"Unsupported currency: ABC"}]}""",
+        )
+    }
+
+    @Test
+    fun `returns 400 problem instead of rounding a price with too many decimals`() {
+        assertProblem(
+            register("""{"name":"Keyboard","price":{"amount":"10000.4","currency":"KRW"}}"""),
+            HttpStatus.BAD_REQUEST,
+        ).isLenientlyEqualTo(
+            """
+            {"code":"INVALID_REQUEST",
+             "errors":[{"field":"price","message":"Amount 10000.4 has more decimal places than KRW allows"}]}
+            """.trimIndent(),
+        )
     }
 
     @Test

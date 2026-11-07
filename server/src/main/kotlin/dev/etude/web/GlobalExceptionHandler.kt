@@ -8,11 +8,13 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatusCode
 import org.springframework.http.ProblemDetail
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
+import tools.jackson.core.JacksonException
 
 /**
  * Makes every API error a ProblemDetail with a `code` property.
@@ -37,6 +39,23 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
         val problem = ex.body.apply {
             detail = "Request validation failed"
             setProperty("errors", errors)
+        }
+        return handleExceptionInternal(ex, problem, headers, status, request)
+    }
+
+    override fun handleHttpMessageNotReadable(
+        ex: HttpMessageNotReadableException,
+        headers: HttpHeaders,
+        status: HttpStatusCode,
+        request: WebRequest,
+    ): ResponseEntity<Any>? {
+        val cause = generateSequence<Throwable>(ex) { it.cause }.filterIsInstance<JacksonException>().firstOrNull()
+        val path = cause?.path?.let(::toFieldPath)
+        if (cause == null || path.isNullOrEmpty()) {
+            return super.handleHttpMessageNotReadable(ex, headers, status, request)
+        }
+        val problem = ProblemDetail.forStatusAndDetail(status, "Request body could not be read").apply {
+            setProperty("errors", listOf(FieldViolation(path, "InvalidValue", cause.originalMessage)))
         }
         return handleExceptionInternal(ex, problem, headers, status, request)
     }
@@ -71,6 +90,14 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
         404 -> "NOT_FOUND"
         500 -> "INTERNAL_ERROR"
         else -> HttpStatus.resolve(status.value())?.name ?: "HTTP_${status.value()}"
+    }
+
+    private fun toFieldPath(path: List<JacksonException.Reference>): String = path.foldIndexed("") { i, acc, ref ->
+        when {
+            ref.propertyName != null -> if (i == 0) ref.propertyName else "$acc.${ref.propertyName}"
+            ref.index >= 0 -> "$acc[${ref.index}]"
+            else -> acc
+        }
     }
 
     data class FieldViolation(val field: String?, val code: String?, val message: String?)

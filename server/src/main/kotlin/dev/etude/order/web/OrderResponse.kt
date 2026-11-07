@@ -1,6 +1,7 @@
 package dev.etude.order.web
 
 import dev.etude.order.application.OrderDetails
+import dev.etude.shared.Money
 import java.time.Instant
 import java.util.UUID
 
@@ -9,8 +10,7 @@ data class OrderResponse(
     val customerId: UUID,
     val status: String,
     val orderedAt: Instant,
-    val totalAmount: String,
-    val currencyCode: String,
+    val total: Money,
     val lines: List<Line>,
 ) {
     data class Line(
@@ -19,8 +19,8 @@ data class OrderResponse(
         val productId: UUID,
         val productName: String,
         val quantity: Int,
-        val unitPriceAmount: String,
-        val amount: String,
+        val unitPrice: Money,
+        val lineTotal: Money,
         val status: String,
     ) {
         companion object {
@@ -30,8 +30,8 @@ data class OrderResponse(
                 productId = line.productId,
                 productName = line.productName,
                 quantity = line.quantity,
-                unitPriceAmount = line.unitPrice.amount.toPlainString(),
-                amount = line.amount.amount.toPlainString(),
+                unitPrice = line.unitPrice,
+                lineTotal = line.amount,
                 status = line.status.name,
             )
         }
@@ -43,8 +43,7 @@ data class OrderResponse(
             customerId = order.customerId,
             status = order.status.name,
             orderedAt = order.orderedAt,
-            totalAmount = order.total.amount.toPlainString(),
-            currencyCode = order.total.currency.currencyCode,
+            total = order.total,
             lines = order.lines.map(Line::from),
         )
     }

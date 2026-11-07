@@ -50,13 +50,14 @@ class OrderControllerTest(
                 {
                   "customerId": "$customerId",
                   "status": "PLACED",
-                  "totalAmount": "22500",
-                  "currencyCode": "KRW",
+                  "total": {"amount": "22500", "currency": "KRW"},
                   "lines": [
                     {"lineNo": 1, "productId": "$keyboard", "productName": "Keyboard", "quantity": 2,
-                     "unitPriceAmount": "10000", "amount": "20000", "status": "ORDERED"},
+                     "unitPrice": {"amount": "10000", "currency": "KRW"},
+                     "lineTotal": {"amount": "20000", "currency": "KRW"}, "status": "ORDERED"},
                     {"lineNo": 2, "productId": "$mouse", "productName": "Mouse", "quantity": 1,
-                     "unitPriceAmount": "2500", "amount": "2500", "status": "ORDERED"}
+                     "unitPrice": {"amount": "2500", "currency": "KRW"},
+                     "lineTotal": {"amount": "2500", "currency": "KRW"}, "status": "ORDERED"}
                   ]
                 }
                 """.trimIndent(),
@@ -110,7 +111,7 @@ class OrderControllerTest(
         val keyboard = product("Keyboard", "10000", "KRW")
 
         assertProblem(place(lines = line(keyboard, quantity = 2), expectedTotal = "18000"), HttpStatus.CONFLICT)
-            .isLenientlyEqualTo("""{"code":"TOTAL_AMOUNT_MISMATCH","currentTotalAmount":"20000"}""")
+            .isLenientlyEqualTo("""{"code":"TOTAL_AMOUNT_MISMATCH","currentTotal":{"amount":"20000","currency":"KRW"}}""")
     }
 
     @Test
@@ -118,7 +119,9 @@ class OrderControllerTest(
         val keyboard = product("Keyboard", "10000", "KRW")
 
         assertProblem(place(lines = line(keyboard), expectedTotal = "10000.4"), HttpStatus.BAD_REQUEST)
-            .isLenientlyEqualTo("""{"detail":"Expected total amount has more decimal places than KRW allows: 10000.4"}""")
+            .isLenientlyEqualTo(
+                """{"errors":[{"field":"expectedTotal","message":"Amount 10000.4 has more decimal places than KRW allows"}]}""",
+            )
     }
 
     @Test
@@ -170,7 +173,7 @@ class OrderControllerTest(
         .contentType(MediaType.APPLICATION_JSON)
         .content(
             """
-            {"customerId":"$customerId","lines":$lines,"expectedTotalAmount":"$expectedTotal","currencyCode":"$currency"}
+            {"customerId":"$customerId","lines":$lines,"expectedTotal":{"amount":"$expectedTotal","currency":"$currency"}}
             """.trimIndent(),
         )
         .exchange()
