@@ -12,8 +12,7 @@ import java.util.UUID
 data class PlaceOrderRequest(
     val customerId: UUID,
     @field:NotEmpty
-    @field:Valid
-    val lines: List<Line>,
+    val lines: List<@Valid Line>,
     val expectedTotal: Money,
 ) {
     @Schema(name = "PlaceOrderLine")

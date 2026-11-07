@@ -21,6 +21,9 @@ repositories {
     mavenCentral()
 }
 
+// Mockito's inline mock maker needs its agent at JVM start; loading it dynamically is deprecated in recent JDKs.
+val mockitoAgent: Configuration by configurations.creating
+
 dependencies {
     implementation(platform(libs.spring.modulith.bom))
 
@@ -48,11 +51,13 @@ dependencies {
     testImplementation(libs.testcontainers.postgresql)
     testImplementation(libs.kotlin.test.junit5)
     testRuntimeOnly(libs.junit.platform.launcher)
+    mockitoAgent(libs.mockito.core) { isTransitive = false }
 }
 
 kotlin {
     compilerOptions {
-        freeCompilerArgs.addAll("-Xjsr305=strict", "-Xannotation-default-target=param-property")
+        // -Xemit-jvm-type-annotations: keep type-use annotations such as List<@Valid Line> for Bean Validation
+        freeCompilerArgs.addAll("-Xjsr305=strict", "-Xannotation-default-target=param-property", "-Xemit-jvm-type-annotations")
     }
 }
 
@@ -68,4 +73,5 @@ allOpen {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    jvmArgs("-javaagent:${mockitoAgent.asPath}")
 }
