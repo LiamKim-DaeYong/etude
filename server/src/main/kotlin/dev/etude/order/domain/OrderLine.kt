@@ -36,6 +36,7 @@ class OrderLine(
     var quantity: Int = quantity
         protected set
 
+    @Suppress("JpaAttributeTypeInspection") // Mapped by MoneyType, which the IDE inspection does not understand
     @CompositeType(MoneyType::class)
     var unitPrice: Money = unitPrice
         protected set

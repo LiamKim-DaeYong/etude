@@ -57,6 +57,7 @@ class Order(
     }
 
     // Declared after the init block: initializers run in declaration order, so the lines are already validated.
+    @Suppress("JpaAttributeTypeInspection") // Mapped by MoneyType, which the IDE inspection does not understand
     @CompositeType(MoneyType::class)
     var total: Money = lines.map(OrderLine::lineTotal).reduce(Money::plus)
         protected set

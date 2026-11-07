@@ -19,6 +19,7 @@ class Product(
     var name: String = name
         protected set
 
+    @Suppress("JpaAttributeTypeInspection") // Mapped by MoneyType, which the IDE inspection does not understand
     @CompositeType(MoneyType::class)
     var price: Money = price
         protected set
