@@ -26,7 +26,7 @@ Refs #<issue-number>
 
 - `type`: `feat`, `fix`, `chore`, `refactor`, `docs`, `test`, `perf`
 - `scope`: 모듈 이름 (`order`, `inventory`, `payment` 등)
-- 예: `feat(order): add order creation api`
+- 예: `feat(order): 주문 생성 API 추가`
 
 ## PR 규칙
 
@@ -46,7 +46,7 @@ Refs #<issue-number>
 
 | 대상 | 언어 |
 |---|---|
-| 커밋 메시지 | 영문 (Conventional Commits) |
+| 커밋 메시지 | 한글 (`<type>(<scope>): ` 프리픽스는 영문 유지) |
 | PR 제목 | 한글 (`<type>: ` 프리픽스는 영문 유지) |
 | PR 본문 | 한글 |
 | Issue 제목 / 본문 | 한글 |
