@@ -36,7 +36,7 @@ Build as a service for many countries from the start, so a new market does not r
 ## Backend API (for frontend integration)
 
 - Customer API under `/api/v1`, back-office API under `/admin/v1`.
-- Errors are ProblemDetail (`application/problem+json`) with a `code` property; validation failures add `errors: [{field, message}]`. Branch on `code`, not on `detail`.
+- Errors are ProblemDetail (`application/problem+json`) with a `code` property; validation failures add `errors: [{field, code, message}]` where `code` is the violated constraint (e.g. `NotBlank`). Branch on `code`, not on `detail`.
 - Instants are ISO-8601 UTC strings ending in `Z`.
 - Amounts are decimal strings (e.g. `"10000"`, `"12.50"`) next to an ISO 4217 currency code. Do not parse them into floating-point numbers for arithmetic.
 - Run the backend locally: `cd server && ./gradlew bootRun` (Docker must be running; starts PostgreSQL from `compose.yaml`).
