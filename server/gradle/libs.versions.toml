@@ -5,6 +5,7 @@ spring-dependency-management = "1.1.7"
 spring-modulith = "2.1.2"
 jlleitschuh-ktlint = "14.2.0"
 ktlint = "1.8.0"
+springdoc = "3.2.0"
 
 [libraries]
 # BOM
@@ -27,6 +28,9 @@ spring-modulith-starter-test = { module = "org.springframework.modulith:spring-m
 # Kotlin / Jackson
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect" }
 jackson-module-kotlin = { module = "tools.jackson.module:jackson-module-kotlin" }
+
+# API documentation
+springdoc-openapi-starter-webmvc-ui = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "springdoc" }
 
 # Database
 postgresql = { module = "org.postgresql:postgresql" }

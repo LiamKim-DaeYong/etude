@@ -1,0 +1,308 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "description" : "## Conventions\n\n- **Instants:** ISO-8601 UTC strings ending in `Z`, microsecond precision. Clients convert to the user's time zone.\n- **Money:** `{\"amount\": \"12.50\", \"currency\": \"USD\"}`. `amount` is a decimal string in the currency's minor units;\n  do not do arithmetic on it as a floating-point number. Requests accept a string or a number and reject unknown\n  currencies and amounts with more decimal places than the currency allows.\n- **Errors:** `application/problem+json` with a `code` property. Branch on `code`; `detail` is English text for developers.\n\n| `code` | Status | When |\n|---|---|---|\n| `INVALID_REQUEST` | 400 | Validation failure, unreadable body, malformed path variable. `errors[]` lists `{field, code, message}` |\n| `NOT_FOUND` | 404 | Unknown resource or path |\n| `INTERNAL_ERROR` | 500 | Unexpected failure |\n| other | 4xx | HTTP status name (e.g. `METHOD_NOT_ALLOWED`) or a business code of the endpoint |\n\n`errors[].code` is the violated constraint (`NotBlank`, `Positive`, ...) or `InvalidValue` when the body could not be read.",
+    "title" : "Etude API",
+    "version" : "v1"
+  },
+  "servers" : [ {
+    "url" : "/"
+  } ],
+  "paths" : {
+    "/api/v1/orders" : {
+      "post" : {
+        "operationId" : "placeOrder",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PlaceOrderRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/OrderResponse"
+                }
+              }
+            },
+            "description" : "Created"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error (see `code`)"
+          }
+        },
+        "tags" : [ "order-controller" ]
+      }
+    },
+    "/api/v1/orders/{id}" : {
+      "get" : {
+        "operationId" : "getOrder",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/OrderResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error (see `code`)"
+          }
+        },
+        "tags" : [ "order-controller" ]
+      }
+    },
+    "/api/v1/products/{id}" : {
+      "get" : {
+        "operationId" : "getProduct",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProductResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error (see `code`)"
+          }
+        },
+        "tags" : [ "product-controller" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "Money" : {
+        "type" : "object",
+        "properties" : {
+          "amount" : {
+            "type" : "string",
+            "description" : "Decimal string in the currency's minor units",
+            "example" : "12.50"
+          },
+          "currency" : {
+            "type" : "string",
+            "description" : "ISO 4217 currency code",
+            "example" : "USD"
+          }
+        },
+        "required" : [ "amount", "currency" ]
+      },
+      "OrderLineResponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "lineNo" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "lineTotal" : {
+            "$ref" : "#/components/schemas/Money"
+          },
+          "productId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "productName" : {
+            "type" : "string"
+          },
+          "quantity" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "status" : {
+            "type" : "string"
+          },
+          "unitPrice" : {
+            "$ref" : "#/components/schemas/Money"
+          }
+        },
+        "required" : [ "id", "lineNo", "lineTotal", "productId", "productName", "quantity", "status", "unitPrice" ]
+      },
+      "OrderResponse" : {
+        "type" : "object",
+        "properties" : {
+          "customerId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "lines" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OrderLineResponse"
+            }
+          },
+          "orderedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "status" : {
+            "type" : "string"
+          },
+          "total" : {
+            "$ref" : "#/components/schemas/Money"
+          }
+        },
+        "required" : [ "customerId", "id", "lines", "orderedAt", "status", "total" ]
+      },
+      "PlaceOrderLine" : {
+        "type" : "object",
+        "properties" : {
+          "productId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "quantity" : {
+            "type" : "integer",
+            "format" : "int32",
+            "exclusiveMinimum" : 0
+          }
+        },
+        "required" : [ "productId", "quantity" ]
+      },
+      "PlaceOrderRequest" : {
+        "type" : "object",
+        "properties" : {
+          "customerId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "expectedTotal" : {
+            "$ref" : "#/components/schemas/Money"
+          },
+          "lines" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PlaceOrderLine"
+            },
+            "minItems" : 1
+          }
+        },
+        "required" : [ "customerId", "expectedTotal", "lines" ]
+      },
+      "Problem" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string",
+            "example" : "INVALID_REQUEST"
+          },
+          "detail" : {
+            "type" : "string"
+          },
+          "errors" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object",
+              "properties" : {
+                "code" : {
+                  "type" : "string",
+                  "example" : "Positive"
+                },
+                "field" : {
+                  "type" : "string",
+                  "example" : "lines[0].quantity"
+                },
+                "message" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "instance" : {
+            "type" : "string"
+          },
+          "status" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "code", "status", "title" ]
+      },
+      "ProductResponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "price" : {
+            "$ref" : "#/components/schemas/Money"
+          },
+          "salesStatus" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "id", "name", "price", "salesStatus" ]
+      }
+    }
+  }
+}

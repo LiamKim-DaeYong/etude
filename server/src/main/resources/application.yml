@@ -12,3 +12,6 @@ spring:
   modulith:
     runtime:
       flyway-enabled: true
+springdoc:
+  default-produces-media-type: application/json
+  writer-with-order-by-keys: true
