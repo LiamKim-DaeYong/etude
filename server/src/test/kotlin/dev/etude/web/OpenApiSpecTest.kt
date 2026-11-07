@@ -30,9 +30,11 @@ class OpenApiSpecTest(
     @ValueSource(strings = ["customer", "admin"])
     fun `committed OpenAPI document matches the code`(group: String) {
         val generated = mvc.get().uri("/v3/api-docs/{group}", group).exchange().response.contentAsString
-        val pretty = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(mapper.readTree(generated)) + "\n"
+        // Line endings are normalized to LF so the check behaves the same on Windows and Linux.
+        val pretty = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(mapper.readTree(generated))
+            .replace("\r\n", "\n") + "\n"
         val file = Path.of("openapi", "$group.json")
-        val committed = if (Files.exists(file)) Files.readString(file) else ""
+        val committed = if (Files.exists(file)) Files.readString(file).replace("\r\n", "\n") else ""
 
         if (committed != pretty) {
             Files.createDirectories(file.parent)
