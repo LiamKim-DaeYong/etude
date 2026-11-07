@@ -23,7 +23,7 @@ data class OrderDetails(
         val productName: String,
         val quantity: Int,
         val unitPrice: Money,
-        val amount: Money,
+        val lineTotal: Money,
         val status: OrderLineStatus,
     ) {
         companion object {
@@ -34,7 +34,7 @@ data class OrderDetails(
                 productName = line.productName,
                 quantity = line.quantity,
                 unitPrice = line.unitPrice,
-                amount = line.amount,
+                lineTotal = line.lineTotal,
                 status = line.status,
             )
         }

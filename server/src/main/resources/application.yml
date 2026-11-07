@@ -9,6 +9,9 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: validate
+      naming:
+        # Embedded/composite columns are named by attribute path: price.amount -> price_amount
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyComponentPathImpl
   modulith:
     runtime:
       flyway-enabled: true
