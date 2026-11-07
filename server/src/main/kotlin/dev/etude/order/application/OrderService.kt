@@ -7,6 +7,7 @@ import dev.etude.order.domain.OrderLine
 import dev.etude.order.domain.OrderRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Clock
 import java.time.Instant
 import java.util.UUID
 
@@ -15,6 +16,7 @@ import java.util.UUID
 class OrderService(
     private val orderRepository: OrderRepository,
     private val productCatalog: ProductCatalog,
+    private val clock: Clock,
 ) {
 
     @Transactional
@@ -31,7 +33,7 @@ class OrderService(
             throw OrderRejectedException(Reason.CURRENCY_MISMATCH, "All products in an order must use the same currency")
         }
 
-        val order = Order(command.customerId, lines, Instant.now())
+        val order = Order(command.customerId, lines, Instant.now(clock))
         if (order.total != command.expectedTotal) {
             throw OrderRejectedException(
                 Reason.TOTAL_AMOUNT_MISMATCH,

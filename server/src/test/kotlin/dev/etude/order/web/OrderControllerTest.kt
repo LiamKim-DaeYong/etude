@@ -64,6 +64,17 @@ class OrderControllerTest(
     }
 
     @Test
+    fun `returns the same order time when placing and reading an order`() {
+        val keyboard = product("Keyboard", "10000", "KRW")
+        val created = place(lines = line(keyboard), expectedTotal = "10000")
+        val read = mvc.get().uri(requireNotNull(created.response.getHeader("Location"))).exchange()
+
+        assertThat(orderedAt(read)).isEqualTo(orderedAt(created))
+    }
+
+    private fun orderedAt(result: MvcTestResult): String = Regex("\"orderedAt\":\"([^\"]+)\"").find(result.response.contentAsString)!!.groupValues[1]
+
+    @Test
     fun `returns 400 problem for an unknown product`() {
         val unknown = UUID.randomUUID()
 
