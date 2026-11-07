@@ -1,14 +1,11 @@
 package dev.etude.order.web
 
-import dev.etude.TestcontainersConfiguration
+import dev.etude.IntegrationTest
 import dev.etude.catalog.application.ProductService
 import dev.etude.shared.Money
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
-import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.jdbc.core.JdbcTemplate
@@ -18,9 +15,7 @@ import java.math.BigDecimal
 import java.util.Currency
 import java.util.UUID
 
-@Import(TestcontainersConfiguration::class)
-@SpringBootTest
-@AutoConfigureMockMvc
+@IntegrationTest
 class OrderControllerTest(
     @Autowired private val mvc: MockMvcTester,
     @Autowired private val productService: ProductService,

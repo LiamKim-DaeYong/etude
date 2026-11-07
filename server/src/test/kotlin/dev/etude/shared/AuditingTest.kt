@@ -1,18 +1,15 @@
 package dev.etude.shared
 
-import dev.etude.TestcontainersConfiguration
+import dev.etude.IntegrationTest
 import dev.etude.inventory.domain.Stock
 import dev.etude.inventory.domain.StockRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.context.annotation.Import
 import org.springframework.transaction.support.TransactionTemplate
 import java.util.UUID
 
-@Import(TestcontainersConfiguration::class)
-@SpringBootTest
+@IntegrationTest
 class AuditingTest(
     @Autowired private val stockRepository: StockRepository,
     @Autowired private val transaction: TransactionTemplate,

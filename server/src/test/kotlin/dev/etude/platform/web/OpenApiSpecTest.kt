@@ -1,13 +1,10 @@
 package dev.etude.platform.web
 
-import dev.etude.TestcontainersConfiguration
+import dev.etude.IntegrationTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
-import org.springframework.context.annotation.Import
 import org.springframework.test.web.servlet.assertj.MockMvcTester
 import tools.jackson.databind.json.JsonMapper
 import java.nio.file.Files
@@ -17,9 +14,7 @@ import java.nio.file.Path
  * Keeps the committed OpenAPI documents in `openapi/` equal to what the code generates.
  * On a difference the file is rewritten and the test fails: review the diff and commit it.
  */
-@Import(TestcontainersConfiguration::class)
-@SpringBootTest
-@AutoConfigureMockMvc
+@IntegrationTest
 class OpenApiSpecTest(
     @Autowired private val mvc: MockMvcTester,
 ) {

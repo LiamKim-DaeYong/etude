@@ -20,6 +20,7 @@ Docker must be running: tests use Testcontainers, `bootRun` uses Docker Compose.
 ## Rules
 
 - Repositories extend `Repository<T, ID>` and declare only the methods they need (no `JpaRepository`: it exposes deletes and bulk reads, and Kotlin's `findByIdOrNull` bypasses a redeclared `findById` with an entity graph).
+- Integration tests use only `@IntegrationTest` (test sources, root package). Adding `@Import`, `@MockitoBean` or other context configuration to one test class creates another Spring context and another PostgreSQL container.
 - Declare dependency versions in `server/gradle/libs.versions.toml`, not in build scripts.
 - `ModularityTests` verifies module boundaries. Fix a violation instead of bypassing the test.
 - A module's base package (`dev.etude.<module>`) is its public API for other modules: interfaces, DTOs, exceptions and events that another module may use (e.g. `ProductCatalog`, `ProductInfo`). Subpackages (`application`, `domain`, `web`) are internal. Implement a public interface in the module's application service.
