@@ -1,4 +1,4 @@
-package dev.etude.web
+package dev.etude.platform.web
 
 import org.slf4j.LoggerFactory
 import org.springframework.core.Ordered

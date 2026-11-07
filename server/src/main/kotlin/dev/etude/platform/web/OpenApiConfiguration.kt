@@ -1,4 +1,4 @@
-package dev.etude.web
+package dev.etude.platform.web
 
 import dev.etude.shared.Money
 import io.swagger.v3.oas.models.OpenAPI

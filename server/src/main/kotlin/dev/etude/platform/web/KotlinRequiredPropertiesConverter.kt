@@ -1,4 +1,4 @@
-package dev.etude.web
+package dev.etude.platform.web
 
 import io.swagger.v3.core.converter.AnnotatedType
 import io.swagger.v3.core.converter.ModelConverter
