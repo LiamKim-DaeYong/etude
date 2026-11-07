@@ -146,7 +146,7 @@ class OrderControllerTest(
     fun `returns 404 problem for an unknown order`() {
         val id = UUID.randomUUID()
 
-        assertProblem(mvc.get().uri("/api/orders/{id}", id).exchange(), HttpStatus.NOT_FOUND)
+        assertProblem(mvc.get().uri("/api/v1/orders/{id}", id).exchange(), HttpStatus.NOT_FOUND)
             .isLenientlyEqualTo("""{"detail":"Order not found: $id"}""")
     }
 
@@ -155,7 +155,7 @@ class OrderControllerTest(
     private fun line(productId: UUID, quantity: Int = 1) = """[{"productId":"$productId","quantity":$quantity}]"""
 
     private fun place(lines: String, expectedTotal: String, currency: String = "KRW"): MvcTestResult = mvc.post()
-        .uri("/api/orders")
+        .uri("/api/v1/orders")
         .contentType(MediaType.APPLICATION_JSON)
         .content(
             """

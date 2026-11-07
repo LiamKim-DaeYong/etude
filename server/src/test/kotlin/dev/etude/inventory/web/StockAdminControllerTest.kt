@@ -16,7 +16,7 @@ import java.util.UUID
 @Import(TestcontainersConfiguration::class)
 @SpringBootTest
 @AutoConfigureMockMvc
-class StockControllerTest(
+class StockAdminControllerTest(
     @Autowired private val mvc: MockMvcTester,
 ) {
 
@@ -28,7 +28,7 @@ class StockControllerTest(
 
         assertThat(created).hasStatus(HttpStatus.CREATED)
         val location = requireNotNull(created.response.getHeader("Location"))
-        assertThat(location).isEqualTo("/api/stocks/$productId")
+        assertThat(location).isEqualTo("/admin/v1/stocks/$productId")
 
         assertThat(mvc.get().uri(location).exchange())
             .hasStatusOk()
@@ -76,12 +76,12 @@ class StockControllerTest(
     fun `returns 404 problem for unregistered stock`() {
         val productId = UUID.randomUUID()
 
-        assertProblem(mvc.get().uri("/api/stocks/{productId}", productId).exchange(), HttpStatus.NOT_FOUND)
+        assertProblem(mvc.get().uri("/admin/v1/stocks/{productId}", productId).exchange(), HttpStatus.NOT_FOUND)
             .isLenientlyEqualTo("""{"detail":"Stock not found: $productId"}""")
     }
 
     private fun registerProduct(): UUID {
-        val result = mvc.post().uri("/api/products")
+        val result = mvc.post().uri("/admin/v1/products")
             .contentType(MediaType.APPLICATION_JSON)
             .content("""{"name":"Sneakers","priceAmount":10000,"priceCurrency":"KRW"}""")
             .exchange()
@@ -89,7 +89,7 @@ class StockControllerTest(
         return UUID.fromString(location.substringAfterLast('/'))
     }
 
-    private fun register(body: String): MvcTestResult = mvc.post().uri("/api/stocks")
+    private fun register(body: String): MvcTestResult = mvc.post().uri("/admin/v1/stocks")
         .contentType(MediaType.APPLICATION_JSON)
         .content(body)
         .exchange()

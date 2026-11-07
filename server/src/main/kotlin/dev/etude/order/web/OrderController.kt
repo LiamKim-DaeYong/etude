@@ -15,7 +15,7 @@ import java.net.URI
 import java.util.UUID
 
 @RestController
-@RequestMapping("/api/orders")
+@RequestMapping("/api/v1/orders")
 class OrderController(
     private val orderService: OrderService,
 ) {
@@ -24,7 +24,7 @@ class OrderController(
     fun place(@Valid @RequestBody request: PlaceOrderRequest): ResponseEntity<OrderResponse> {
         val order = orderService.place(request.toCommand())
         return ResponseEntity
-            .created(URI.create("/api/orders/${order.id}"))
+            .created(URI.create("/api/v1/orders/${order.id}"))
             .body(OrderResponse.from(order))
     }
 
