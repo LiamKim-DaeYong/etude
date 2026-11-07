@@ -1,10 +1,10 @@
-# Etude
+# Etude (backend)
 
-Order, inventory and payment system for exploring design problems under high concurrency.
+Shared project context, roles and workflow:
 
-- `server/`: Kotlin, Spring Boot 4.1, Java 25, PostgreSQL. Modular monolith on Spring Modulith, package `dev.etude`
-- `web/`: frontend, stack undecided
-- `docs/`: ADRs in `docs/decisions/`, concept notes in `docs/learning/`
+@AGENTS.md
+
+This file adds the backend rules for Claude, who works only in `server/`.
 
 ## Commands
 
@@ -17,10 +17,6 @@ Run from `server/` (on Windows use `.\gradlew.bat`):
 
 Docker must be running: tests use Testcontainers, `bootRun` uses Docker Compose. Schema changes go in Flyway migrations under `server/src/main/resources/db/migration/<module>` (Spring Modulith runs them per module, each with its own history table and version numbers); JPA only validates the schema.
 
-## Working agreement
-
-Claude implements the backend (`server/`); Codex implements the frontend (`web/`). Do not modify `web/`. For design decisions, present options with a recommendation and get the owner's approval before implementing. All changes go through PRs that the owner approves before merge. The owner may write parts of the code; review those instead of rewriting them. Say what will change before changing code.
-
 ## Rules
 
 - Declare dependency versions in `server/gradle/libs.versions.toml`, not in build scripts.
@@ -29,12 +25,10 @@ Claude implements the backend (`server/`); Codex implements the frontend (`web/`
 - Application services return DTOs built inside the transaction (e.g. `OrderDetails`), never entities: `open-in-view` is off, so the web layer runs after the transaction ends. Web response DTOs map from these and own the JSON representation.
 - API errors are ProblemDetail with a `code` property. `dev.etude.web.GlobalExceptionHandler` adds common codes (`INVALID_REQUEST`, `NOT_FOUND`, `INTERNAL_ERROR`, otherwise the status name), validation `errors`, and hides details of unexpected exceptions. A module's handler sets business codes for its own exceptions and must be annotated `@Order(Ordered.HIGHEST_PRECEDENCE)` so the global catch-all does not take them.
 - Turn invalid client input into 400 at the web boundary (e.g. a request's `toMoney()`); do not map `IllegalArgumentException` to 400 globally.
-- Keep decision status separate from implementation and verification status. If something is unverified, say so.
-- Back performance and concurrency claims with measurements, and state the environment and conditions.
-- To change a decision, write a new ADR linked to the old one. See `docs/README.md` for documentation rules.
+- Mark PRs that change API paths, requests, responses or error formats with `api-change` and fill in the template's API section.
 
 ## Workflow
 
-Branch, commit, PR and language rules:
+Branch, commit, PR and language rules (also referenced from `AGENTS.md`):
 
 @CONTRIBUTING.md

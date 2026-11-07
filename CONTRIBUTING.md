@@ -67,4 +67,4 @@ Refs #<issue-number>
 | Issue 제목 / 본문 | 한글 |
 | 코드 주석 / 식별자 | 영문 |
 | 문서 (`README`, `CONTRIBUTING`, ADR) | 한글 |
-| `CLAUDE.md` | 영문 |
+| `AGENTS.md`, `CLAUDE.md` (에이전트 지침) | 영문 |
