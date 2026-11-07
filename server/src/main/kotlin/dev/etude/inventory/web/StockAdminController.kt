@@ -15,8 +15,8 @@ import java.net.URI
 import java.util.UUID
 
 @RestController
-@RequestMapping("/api/stocks")
-class StockController(
+@RequestMapping("/admin/v1/stocks")
+class StockAdminController(
     private val stockService: StockService,
 ) {
 
@@ -24,7 +24,7 @@ class StockController(
     fun register(@Valid @RequestBody request: RegisterStockRequest): ResponseEntity<StockResponse> {
         val stock = stockService.register(request.productId, request.quantity)
         return ResponseEntity
-            .created(URI.create("/api/stocks/${stock.productId}"))
+            .created(URI.create("/admin/v1/stocks/${stock.productId}"))
             .body(StockResponse.from(stock))
     }
 

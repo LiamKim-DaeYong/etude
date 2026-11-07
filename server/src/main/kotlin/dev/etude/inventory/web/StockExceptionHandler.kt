@@ -7,7 +7,7 @@ import org.springframework.http.ProblemDetail
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
-@RestControllerAdvice(assignableTypes = [StockController::class])
+@RestControllerAdvice(assignableTypes = [StockAdminController::class])
 class StockExceptionHandler {
 
     @ExceptionHandler

@@ -39,13 +39,13 @@ class ProductControllerTest(
     fun `returns 404 problem for an unknown product`() {
         val id = UUID.randomUUID()
 
-        assertProblem(mvc.get().uri("/api/products/{id}", id).exchange(), HttpStatus.NOT_FOUND)
+        assertProblem(mvc.get().uri("/api/v1/products/{id}", id).exchange(), HttpStatus.NOT_FOUND)
             .isLenientlyEqualTo("""{"detail":"Product not found: $id"}""")
     }
 
     @Test
     fun `returns 400 problem for a malformed id`() {
-        assertProblem(mvc.get().uri("/api/products/not-a-uuid").exchange(), HttpStatus.BAD_REQUEST)
+        assertProblem(mvc.get().uri("/api/v1/products/not-a-uuid").exchange(), HttpStatus.BAD_REQUEST)
     }
 
     @Test
@@ -69,7 +69,7 @@ class ProductControllerTest(
         assertProblem(register("""{"name":"""), HttpStatus.BAD_REQUEST)
     }
 
-    private fun register(body: String): MvcTestResult = mvc.post().uri("/api/products")
+    private fun register(body: String): MvcTestResult = mvc.post().uri("/admin/v1/products")
         .contentType(MediaType.APPLICATION_JSON)
         .content(body)
         .exchange()
