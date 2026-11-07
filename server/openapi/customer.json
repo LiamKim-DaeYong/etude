@@ -1,7 +1,7 @@
 {
   "openapi" : "3.1.0",
   "info" : {
-    "description" : "## Conventions\n\n- **Instants:** ISO-8601 UTC strings ending in `Z`, microsecond precision. Clients convert to the user's time zone.\n- **Money:** `{\"amount\": \"12.50\", \"currency\": \"USD\"}`. `amount` is a decimal string in the currency's minor units;\n  do not do arithmetic on it as a floating-point number. Requests accept a string or a number and reject unknown\n  currencies and amounts with more decimal places than the currency allows.\n- **Errors:** `application/problem+json` with a `code` property. Branch on `code`; `detail` is English text for developers.\n\n| `code` | Status | When |\n|---|---|---|\n| `INVALID_REQUEST` | 400 | Validation failure, unreadable body, malformed path variable. `errors[]` lists `{field, code, message}` |\n| `NOT_FOUND` | 404 | Unknown resource or path |\n| `INTERNAL_ERROR` | 500 | Unexpected failure |\n| other | 4xx | HTTP status name (e.g. `METHOD_NOT_ALLOWED`) or a business code of the endpoint |\n\n`errors[].code` is the violated constraint (`NotBlank`, `Positive`, ...) or `InvalidValue` when the body could not be read.",
+    "description" : "## Conventions\n\n- **Instants:** ISO-8601 UTC strings ending in `Z`, microsecond precision. Clients convert to the user's time zone.\n- **Money:** `{\"amount\": \"12.50\", \"currency\": \"USD\"}` (schema `Money`). `amount` is a decimal string in the currency's\n  minor units; do not do arithmetic on it as a floating-point number. Requests accept a string or a number and reject\n  unknown currencies and amounts with more decimal places than the currency allows.\n- **Errors:** `application/problem+json` (schema `Problem`) with a `code`. Branch on `code`; `detail` is English text\n  for developers.\n\n| `code` | Status | When |\n|---|---|---|\n| `INVALID_REQUEST` | 400 | Validation failure, unreadable body, malformed path variable. `errors[]` lists `{field, code, message}` |\n| `NOT_FOUND` | 404 | Unknown resource or path |\n| `INTERNAL_ERROR` | 500 | Unexpected failure |\n| Business codes | 4xx | Listed on each operation that can return them |\n| Other | 4xx | HTTP status name, e.g. `METHOD_NOT_ALLOWED` |\n\n`errors[].code` is the violated constraint (`NotBlank`, `Positive`, ...) or `InvalidValue` when the body could not be read.",
     "title" : "Etude API",
     "version" : "v1"
   },
@@ -31,7 +31,56 @@
                 }
               }
             },
-            "description" : "Created"
+            "description" : "Created",
+            "headers" : {
+              "Location" : {
+                "description" : "URI of the created resource",
+                "schema" : {
+                  "type" : "string",
+                  "format" : "uri-reference"
+                }
+              }
+            }
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "allOf" : [ {
+                    "$ref" : "#/components/schemas/Problem"
+                  }, {
+                    "type" : "object",
+                    "properties" : {
+                      "code" : {
+                        "type" : "string",
+                        "enum" : [ "PRODUCT_NOT_FOUND", "INVALID_REQUEST" ]
+                      }
+                    }
+                  } ]
+                }
+              }
+            },
+            "description" : "Error codes: PRODUCT_NOT_FOUND, INVALID_REQUEST"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "allOf" : [ {
+                    "$ref" : "#/components/schemas/Problem"
+                  }, {
+                    "type" : "object",
+                    "properties" : {
+                      "code" : {
+                        "type" : "string",
+                        "enum" : [ "PRODUCT_NOT_ORDERABLE", "CURRENCY_MISMATCH", "TOTAL_AMOUNT_MISMATCH" ]
+                      }
+                    }
+                  } ]
+                }
+              }
+            },
+            "description" : "Error codes: PRODUCT_NOT_ORDERABLE, CURRENCY_MISMATCH, TOTAL_AMOUNT_MISMATCH"
           },
           "default" : {
             "content" : {
@@ -41,10 +90,11 @@
                 }
               }
             },
-            "description" : "Error (see `code`)"
+            "description" : "Error. Branch on `code`."
           }
         },
-        "tags" : [ "order-controller" ]
+        "summary" : "Place an order",
+        "tags" : [ "Orders" ]
       }
     },
     "/api/v1/orders/{id}" : {
@@ -78,10 +128,11 @@
                 }
               }
             },
-            "description" : "Error (see `code`)"
+            "description" : "Error. Branch on `code`."
           }
         },
-        "tags" : [ "order-controller" ]
+        "summary" : "Get an order",
+        "tags" : [ "Orders" ]
       }
     },
     "/api/v1/products/{id}" : {
@@ -115,15 +166,30 @@
                 }
               }
             },
-            "description" : "Error (see `code`)"
+            "description" : "Error. Branch on `code`."
           }
         },
-        "tags" : [ "product-controller" ]
+        "summary" : "Get a product",
+        "tags" : [ "Products" ]
       }
     }
   },
   "components" : {
     "schemas" : {
+      "FieldViolation" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : [ "string", "null" ]
+          },
+          "field" : {
+            "type" : [ "string", "null" ]
+          },
+          "message" : {
+            "type" : [ "string", "null" ]
+          }
+        }
+      },
       "Money" : {
         "type" : "object",
         "properties" : {
@@ -246,32 +312,21 @@
         "properties" : {
           "code" : {
             "type" : "string",
+            "description" : "Error code to branch on",
             "example" : "INVALID_REQUEST"
           },
           "detail" : {
-            "type" : "string"
+            "type" : [ "string", "null" ]
           },
           "errors" : {
-            "type" : "array",
+            "type" : [ "array", "null" ],
+            "description" : "Field errors of an INVALID_REQUEST",
             "items" : {
-              "type" : "object",
-              "properties" : {
-                "code" : {
-                  "type" : "string",
-                  "example" : "Positive"
-                },
-                "field" : {
-                  "type" : "string",
-                  "example" : "lines[0].quantity"
-                },
-                "message" : {
-                  "type" : "string"
-                }
-              }
+              "$ref" : "#/components/schemas/FieldViolation"
             }
           },
           "instance" : {
-            "type" : "string"
+            "type" : [ "string", "null" ]
           },
           "status" : {
             "type" : "integer",
@@ -281,7 +336,7 @@
             "type" : "string"
           },
           "type" : {
-            "type" : "string"
+            "type" : [ "string", "null" ]
           }
         },
         "required" : [ "code", "status", "title" ]

@@ -1,5 +1,6 @@
 package dev.etude.platform.web
 
+import io.swagger.v3.oas.annotations.media.Schema
 import org.slf4j.LoggerFactory
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
@@ -86,7 +87,7 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
     }
 
     private fun codeFor(status: HttpStatusCode): String = when (status.value()) {
-        400 -> "INVALID_REQUEST"
+        400 -> INVALID_REQUEST
         404 -> "NOT_FOUND"
         500 -> "INTERNAL_ERROR"
         else -> HttpStatus.resolve(status.value())?.name ?: "HTTP_${status.value()}"
@@ -100,9 +101,13 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
         }
     }
 
+    @Schema(name = "FieldViolation")
     data class FieldViolation(val field: String?, val code: String?, val message: String?)
 
-    private companion object {
-        const val CODE = "code"
+    companion object {
+        /** Code of every 400 the framework produces (validation, unreadable body); any operation can return it. */
+        const val INVALID_REQUEST = "INVALID_REQUEST"
+
+        private const val CODE = "code"
     }
 }

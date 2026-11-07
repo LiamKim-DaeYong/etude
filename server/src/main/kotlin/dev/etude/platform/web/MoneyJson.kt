@@ -1,6 +1,7 @@
 package dev.etude.platform.web
 
 import dev.etude.shared.Money
+import io.swagger.v3.oas.annotations.media.Schema
 import org.springframework.boot.jackson.JacksonComponent
 import tools.jackson.core.JsonGenerator
 import tools.jackson.core.JsonParser
@@ -21,12 +22,18 @@ import java.util.Currency
 @JacksonComponent
 class MoneyJson {
 
+    /** The JSON object written for a [Money]; also the source of its OpenAPI schema. */
+    @Schema(name = "Money")
+    data class Body(
+        @field:Schema(description = "Decimal string in the currency's minor units", example = "12.50")
+        val amount: String,
+        @field:Schema(description = "ISO 4217 currency code", example = "USD")
+        val currency: String,
+    )
+
     class Serializer : ValueSerializer<Money>() {
         override fun serialize(value: Money, gen: JsonGenerator, ctxt: SerializationContext) {
-            gen.writeStartObject()
-            gen.writeStringProperty("amount", value.amount.toPlainString())
-            gen.writeStringProperty("currency", value.currency.currencyCode)
-            gen.writeEndObject()
+            ctxt.writeValue(gen, Body(value.amount.toPlainString(), value.currency.currencyCode))
         }
     }
 

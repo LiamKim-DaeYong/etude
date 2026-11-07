@@ -1,6 +1,10 @@
 package dev.etude.inventory.web
 
+import dev.etude.inventory.application.StockRejectedException
 import dev.etude.inventory.application.StockService
+import dev.etude.platform.Rejects
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -16,6 +20,7 @@ import java.net.URI
 import java.util.UUID
 
 @RestController
+@Tag(name = "Stocks")
 @RequestMapping("/admin/v1/stocks")
 class StockAdminController(
     private val stockService: StockService,
@@ -23,6 +28,8 @@ class StockAdminController(
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Register stock for a product")
+    @Rejects(StockRejectedException.Reason::class)
     fun registerStock(@Valid @RequestBody request: RegisterStockRequest): ResponseEntity<StockResponse> {
         val stock = stockService.register(request.productId, request.quantity)
         return ResponseEntity
@@ -31,6 +38,7 @@ class StockAdminController(
     }
 
     @GetMapping("/{productId}")
+    @Operation(summary = "Get the stock of a product")
     fun getStock(@PathVariable productId: UUID): StockResponse = stockService.getStock(productId)
         ?.let(StockResponse::from)
         ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Stock not found: $productId")

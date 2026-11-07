@@ -50,6 +50,7 @@ dependencies {
     testImplementation(libs.spring.boot.testcontainers)
     testImplementation(libs.testcontainers.postgresql)
     testImplementation(libs.kotlin.test.junit5)
+    testImplementation(libs.json.schema.validator)
     testRuntimeOnly(libs.junit.platform.launcher)
     mockitoAgent(libs.mockito.core) { isTransitive = false }
 }

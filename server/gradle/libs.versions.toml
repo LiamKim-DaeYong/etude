@@ -6,6 +6,7 @@ spring-modulith = "2.1.2"
 jlleitschuh-ktlint = "14.2.0"
 ktlint = "1.8.0"
 springdoc = "3.2.0"
+json-schema-validator = "2.0.8"
 
 [libraries]
 # BOM
@@ -46,6 +47,7 @@ testcontainers-postgresql = { module = "org.testcontainers:testcontainers-postgr
 kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 mockito-core = { module = "org.mockito:mockito-core" }
+json-schema-validator = { module = "com.networknt:json-schema-validator", version.ref = "json-schema-validator" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
