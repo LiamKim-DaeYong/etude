@@ -1,0 +1,6 @@
+# Local development (bootRun activates this profile).
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true

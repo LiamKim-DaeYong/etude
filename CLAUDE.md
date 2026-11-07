@@ -12,7 +12,7 @@ Run from `server/` (on Windows use `.\gradlew.bat`):
 
 - Build and test: `./gradlew build`
 - Single test class: `./gradlew test --tests dev.etude.ModularityTests`
-- Run locally: `./gradlew bootRun` (starts PostgreSQL from `compose.yaml`)
+- Run locally: `./gradlew bootRun` (activates the `local` profile and starts PostgreSQL from `compose.yaml`; Swagger UI at `http://localhost:8080/swagger-ui.html`)
 - Format Kotlin: `./gradlew ktlintFormat` (`build` runs `ktlintCheck`; style is `intellij_idea`, set in `.editorconfig`)
 
 Docker must be running: tests use Testcontainers, `bootRun` uses Docker Compose. Schema changes go in Flyway migrations under `server/src/main/resources/db/migration/<module>` (Spring Modulith runs them per module, each with its own history table and version numbers); JPA only validates the schema.
@@ -21,6 +21,8 @@ Docker must be running: tests use Testcontainers, `bootRun` uses Docker Compose.
 
 - Repositories extend `Repository<T, ID>` and declare only the methods they need (no `JpaRepository`: it exposes deletes and bulk reads, and Kotlin's `findByIdOrNull` bypasses a redeclared `findById` with an entity graph).
 - Integration tests use only `@IntegrationTest` (test sources, root package). Adding `@Import`, `@MockitoBean` or other context configuration to one test class creates another Spring context and another PostgreSQL container.
+- `application.yml` holds production-safe defaults. Development-only features (API docs, Swagger UI) are enabled in `application-local.yml` and, for tests, `src/test/resources/application-test.yml`.
+- The PostgreSQL image version lives only in `server/compose.yaml`; Testcontainers reads it from there.
 - Declare dependency versions in `server/gradle/libs.versions.toml`, not in build scripts.
 - `ModularityTests` verifies module boundaries. Fix a violation instead of bypassing the test.
 - A module's base package (`dev.etude.<module>`) is its public API for other modules: interfaces, DTOs, exceptions and events that another module may use (e.g. `ProductCatalog`, `ProductInfo`). Subpackages (`application`, `domain`, `web`) are internal. Implement a public interface in the module's application service.

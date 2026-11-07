@@ -15,6 +15,11 @@ spring:
   modulith:
     runtime:
       flyway-enabled: true
+# Defaults are production-safe; the local and test profiles turn development features on.
 springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
   default-produces-media-type: application/json
   writer-with-order-by-keys: true

@@ -1,0 +1,4 @@
+springdoc:
+  api-docs:
+    # OpenApiSpecTest compares the generated documents with the committed ones.
+    enabled: true
