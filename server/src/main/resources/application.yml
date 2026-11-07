@@ -1,6 +1,10 @@
 spring:
   application:
     name: etude
+  web:
+    # Server messages (e.g. validation) stay English regardless of Accept-Language; clients localize by code.
+    locale: en
+    locale-resolver: fixed
   jpa:
     open-in-view: false
     hibernate:

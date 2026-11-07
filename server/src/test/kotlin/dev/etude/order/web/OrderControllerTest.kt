@@ -50,13 +50,13 @@ class OrderControllerTest(
                 {
                   "customerId": "$customerId",
                   "status": "PLACED",
-                  "totalAmount": 22500,
+                  "totalAmount": "22500",
                   "currencyCode": "KRW",
                   "lines": [
                     {"lineNo": 1, "productId": "$keyboard", "productName": "Keyboard", "quantity": 2,
-                     "unitPriceAmount": 10000, "amount": 20000, "status": "ORDERED"},
+                     "unitPriceAmount": "10000", "amount": "20000", "status": "ORDERED"},
                     {"lineNo": 2, "productId": "$mouse", "productName": "Mouse", "quantity": 1,
-                     "unitPriceAmount": 2500, "amount": 2500, "status": "ORDERED"}
+                     "unitPriceAmount": "2500", "amount": "2500", "status": "ORDERED"}
                   ]
                 }
                 """.trimIndent(),
@@ -110,7 +110,7 @@ class OrderControllerTest(
         val keyboard = product("Keyboard", "10000", "KRW")
 
         assertProblem(place(lines = line(keyboard, quantity = 2), expectedTotal = "18000"), HttpStatus.CONFLICT)
-            .isLenientlyEqualTo("""{"code":"TOTAL_AMOUNT_MISMATCH","currentTotalAmount":20000}""")
+            .isLenientlyEqualTo("""{"code":"TOTAL_AMOUNT_MISMATCH","currentTotalAmount":"20000"}""")
     }
 
     @Test
@@ -170,7 +170,7 @@ class OrderControllerTest(
         .contentType(MediaType.APPLICATION_JSON)
         .content(
             """
-            {"customerId":"$customerId","lines":$lines,"expectedTotalAmount":$expectedTotal,"currencyCode":"$currency"}
+            {"customerId":"$customerId","lines":$lines,"expectedTotalAmount":"$expectedTotal","currencyCode":"$currency"}
             """.trimIndent(),
         )
         .exchange()

@@ -42,9 +42,21 @@ class GlobalExceptionHandlerTest(
             .isLenientlyEqualTo(
                 """
                 {"detail":"Request validation failed",
-                 "errors":[{"field":"currencyCode"},{"field":"lines[0].quantity"}]}
+                 "errors":[{"field":"currencyCode","code":"Size"},{"field":"lines[0].quantity","code":"Positive"}]}
                 """.trimIndent(),
             )
+    }
+
+    @Test
+    fun `keeps validation messages in English regardless of the requested language`() {
+        val result = mvc.post().uri("/admin/v1/products")
+            .contentType(MediaType.APPLICATION_JSON)
+            .header("Accept-Language", "ja")
+            .content("""{"name":" ","priceAmount":"1000","priceCurrency":"KRW"}""")
+            .exchange()
+
+        assertProblem(result, HttpStatus.BAD_REQUEST, "INVALID_REQUEST")
+            .isLenientlyEqualTo("""{"errors":[{"field":"name","code":"NotBlank","message":"must not be blank"}]}""")
     }
 
     @Test
