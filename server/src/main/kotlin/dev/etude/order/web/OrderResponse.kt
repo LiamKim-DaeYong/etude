@@ -1,6 +1,8 @@
 package dev.etude.order.web
 
 import dev.etude.order.application.OrderDetails
+import dev.etude.order.domain.OrderLineStatus
+import dev.etude.order.domain.OrderStatus
 import dev.etude.shared.Money
 import io.swagger.v3.oas.annotations.media.Schema
 import java.time.Instant
@@ -9,7 +11,7 @@ import java.util.UUID
 data class OrderResponse(
     val id: UUID,
     val customerId: UUID,
-    val status: String,
+    val status: OrderStatus,
     val orderedAt: Instant,
     val total: Money,
     val lines: List<Line>,
@@ -23,7 +25,7 @@ data class OrderResponse(
         val quantity: Int,
         val unitPrice: Money,
         val lineTotal: Money,
-        val status: String,
+        val status: OrderLineStatus,
     ) {
         companion object {
             fun from(line: OrderDetails.Line) = Line(
@@ -34,7 +36,7 @@ data class OrderResponse(
                 quantity = line.quantity,
                 unitPrice = line.unitPrice,
                 lineTotal = line.amount,
-                status = line.status.name,
+                status = line.status,
             )
         }
     }
@@ -43,7 +45,7 @@ data class OrderResponse(
         fun from(order: OrderDetails) = OrderResponse(
             id = order.id,
             customerId = order.customerId,
-            status = order.status.name,
+            status = order.status,
             orderedAt = order.orderedAt,
             total = order.total,
             lines = order.lines.map(Line::from),
