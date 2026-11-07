@@ -1,0 +1,5 @@
+{
+  "extends": "../config/typescript.json",
+  "compilerOptions": { "paths": { "@etude/ui/*": ["./src/*"] } },
+  "include": ["src"]
+}

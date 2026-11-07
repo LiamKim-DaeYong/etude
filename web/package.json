@@ -1,0 +1,48 @@
+{
+  "name": "etude-web",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=22.14.0 <23 || >=24"
+  },
+  "scripts": {
+    "dev": "npm run dev --workspace @etude/admin",
+    "build": "npm run build --workspace @etude/admin",
+    "preview": "npm run preview --workspace @etude/admin",
+    "typecheck": "tsc --project apps/admin/tsconfig.json && tsc --project packages/ui/tsconfig.json",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "playwright test",
+    "security:check": "npm audit --audit-level=moderate",
+    "ui:add": "shadcn add --cwd apps/admin",
+    "check": "npm run typecheck && npm run lint && npm run format:check && npm run build && npm test"
+  },
+  "overrides": {
+    "minimatch": "11.0.5"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.65.0",
+    "@tailwindcss/vite": "4.3.5",
+    "@types/node": "26.6.6",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.2.1",
+    "eslint": "10.14.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "eslint-plugin-react-refresh": "0.5.7",
+    "globals": "17.14.0",
+    "prettier": "3.9.10",
+    "shadcn": "4.23.0",
+    "tailwindcss": "4.3.5",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.1",
+    "vite": "8.3.6"
+  }
+}

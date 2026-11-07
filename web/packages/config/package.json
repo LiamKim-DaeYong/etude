@@ -1,0 +1,10 @@
+{
+  "name": "@etude/config",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    "./typescript": "./typescript.json",
+    "./security": "./security.js"
+  }
+}
