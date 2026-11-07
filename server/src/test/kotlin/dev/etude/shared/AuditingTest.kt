@@ -18,7 +18,7 @@ class AuditingTest(
     @Test
     fun `records creation time and updates only the modification time`() {
         val productId = UUID.randomUUID()
-        val created = transaction.execute { stockRepository.save(Stock(productId, 10)) }!!
+        val created = transaction.execute { stockRepository.save(Stock(productId, 10)) }
 
         assertThat(created.createdAt).isNotNull()
         assertThat(created.updatedAt).isEqualTo(created.createdAt)
