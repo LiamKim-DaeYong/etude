@@ -22,7 +22,7 @@ class ProductControllerTest(
 
     @Test
     fun `registers a product and reads it back`() {
-        val created = register("""{"name":"Keyboard","priceAmount":10000.4,"priceCurrency":"KRW"}""")
+        val created = register("""{"name":"Keyboard","priceAmount":"10000.4","priceCurrency":"KRW"}""")
 
         assertThat(created).hasStatus(HttpStatus.CREATED)
         val location = requireNotNull(created.response.getHeader("Location"))
@@ -31,8 +31,18 @@ class ProductControllerTest(
             .hasStatusOk()
             .bodyJson()
             .isLenientlyEqualTo(
-                """{"name":"Keyboard","priceAmount":10000,"priceCurrency":"KRW","salesStatus":"ON_SALE"}""",
+                """{"name":"Keyboard","priceAmount":"10000","priceCurrency":"KRW","salesStatus":"ON_SALE"}""",
             )
+    }
+
+    @Test
+    fun `returns the amount as a string with the currency's minor units`() {
+        val created = register("""{"name":"Cable","priceAmount":"12.5","priceCurrency":"USD"}""")
+
+        assertThat(created)
+            .hasStatus(HttpStatus.CREATED)
+            .bodyJson()
+            .isLenientlyEqualTo("""{"priceAmount":"12.50","priceCurrency":"USD"}""")
     }
 
     @Test

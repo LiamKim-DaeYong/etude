@@ -83,7 +83,7 @@ class StockAdminControllerTest(
     private fun registerProduct(): UUID {
         val result = mvc.post().uri("/admin/v1/products")
             .contentType(MediaType.APPLICATION_JSON)
-            .content("""{"name":"Sneakers","priceAmount":10000,"priceCurrency":"KRW"}""")
+            .content("""{"name":"Sneakers","priceAmount":"10000","priceCurrency":"KRW"}""")
             .exchange()
         val location = requireNotNull(result.response.getHeader("Location"))
         return UUID.fromString(location.substringAfterLast('/'))

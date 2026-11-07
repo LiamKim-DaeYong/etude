@@ -1,7 +1,6 @@
 package dev.etude.order.web
 
 import dev.etude.order.application.OrderDetails
-import java.math.BigDecimal
 import java.time.Instant
 import java.util.UUID
 
@@ -10,7 +9,7 @@ data class OrderResponse(
     val customerId: UUID,
     val status: String,
     val orderedAt: Instant,
-    val totalAmount: BigDecimal,
+    val totalAmount: String,
     val currencyCode: String,
     val lines: List<Line>,
 ) {
@@ -20,8 +19,8 @@ data class OrderResponse(
         val productId: UUID,
         val productName: String,
         val quantity: Int,
-        val unitPriceAmount: BigDecimal,
-        val amount: BigDecimal,
+        val unitPriceAmount: String,
+        val amount: String,
         val status: String,
     ) {
         companion object {
@@ -31,8 +30,8 @@ data class OrderResponse(
                 productId = line.productId,
                 productName = line.productName,
                 quantity = line.quantity,
-                unitPriceAmount = line.unitPrice.amount,
-                amount = line.amount.amount,
+                unitPriceAmount = line.unitPrice.amount.toPlainString(),
+                amount = line.amount.amount.toPlainString(),
                 status = line.status.name,
             )
         }
@@ -44,7 +43,7 @@ data class OrderResponse(
             customerId = order.customerId,
             status = order.status.name,
             orderedAt = order.orderedAt,
-            totalAmount = order.total.amount,
+            totalAmount = order.total.amount.toPlainString(),
             currencyCode = order.total.currency.currencyCode,
             lines = order.lines.map(Line::from),
         )

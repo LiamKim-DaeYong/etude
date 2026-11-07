@@ -32,8 +32,8 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
         status: HttpStatusCode,
         request: WebRequest,
     ): ResponseEntity<Any>? {
-        val errors = ex.bindingResult.fieldErrors.map { FieldViolation(it.field, it.defaultMessage) } +
-            ex.bindingResult.globalErrors.map { FieldViolation(null, it.defaultMessage) }
+        val errors = ex.bindingResult.fieldErrors.map { FieldViolation(it.field, it.code, it.defaultMessage) } +
+            ex.bindingResult.globalErrors.map { FieldViolation(null, it.code, it.defaultMessage) }
         val problem = ex.body.apply {
             detail = "Request validation failed"
             setProperty("errors", errors)
@@ -73,7 +73,7 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
         else -> HttpStatus.resolve(status.value())?.name ?: "HTTP_${status.value()}"
     }
 
-    data class FieldViolation(val field: String?, val message: String?)
+    data class FieldViolation(val field: String?, val code: String?, val message: String?)
 
     private companion object {
         const val CODE = "code"
