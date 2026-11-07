@@ -27,7 +27,8 @@ The repository owner writes the design and core code. Claude explains concepts, 
 - `ModularityTests` verifies module boundaries. Fix a violation instead of bypassing the test.
 - `dev.etude.shared` holds only value types that every module uses with the same meaning (e.g. `Money`) and the common persistence base `BaseEntity` (UUIDv7 id per ADR-0001, id-based `equals`/`hashCode`). Business rules and module-specific concepts stay in their own module. Entities extend `BaseEntity`.
 - Application services return DTOs built inside the transaction (e.g. `OrderDetails`), never entities: `open-in-view` is off, so the web layer runs after the transaction ends. Web response DTOs map from these and own the JSON representation.
-- API errors use ProblemDetail (`spring.mvc.problemdetails.enabled`). Turn invalid client input into 400 at the web boundary (e.g. a request's `toMoney()`); do not map `IllegalArgumentException` to 400 globally.
+- API errors are ProblemDetail with a `code` property. `dev.etude.web.GlobalExceptionHandler` adds common codes (`INVALID_REQUEST`, `NOT_FOUND`, `INTERNAL_ERROR`, otherwise the status name), validation `errors`, and hides details of unexpected exceptions. A module's handler sets business codes for its own exceptions and must be annotated `@Order(Ordered.HIGHEST_PRECEDENCE)` so the global catch-all does not take them.
+- Turn invalid client input into 400 at the web boundary (e.g. a request's `toMoney()`); do not map `IllegalArgumentException` to 400 globally.
 - Keep decision status separate from implementation and verification status. If something is unverified, say so.
 - Back performance and concurrency claims with measurements, and state the environment and conditions.
 - To change a decision, write a new ADR linked to the old one. See `docs/README.md` for documentation rules.
