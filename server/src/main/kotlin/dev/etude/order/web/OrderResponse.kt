@@ -35,7 +35,7 @@ data class OrderResponse(
                 productName = line.productName,
                 quantity = line.quantity,
                 unitPrice = line.unitPrice,
-                lineTotal = line.amount,
+                lineTotal = line.lineTotal,
                 status = line.status,
             )
         }

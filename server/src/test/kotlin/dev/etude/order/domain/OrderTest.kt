@@ -31,8 +31,8 @@ class OrderTest {
     }
 
     @Test
-    fun `computes the line amount from the unit price and quantity`() {
-        assertEquals(Money.of(BigDecimal("29.97"), usd), line("Cable", 3, "9.99", usd).amount)
+    fun `computes the line total from the unit price and quantity`() {
+        assertEquals(Money.of(BigDecimal("29.97"), usd), line("Cable", 3, "9.99", usd).lineTotal)
     }
 
     @Test

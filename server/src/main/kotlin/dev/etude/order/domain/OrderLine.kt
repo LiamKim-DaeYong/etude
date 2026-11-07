@@ -2,13 +2,13 @@ package dev.etude.order.domain
 
 import dev.etude.shared.BaseEntity
 import dev.etude.shared.Money
+import dev.etude.shared.MoneyType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.Table
-import java.math.BigDecimal
-import java.util.Currency
+import org.hibernate.annotations.CompositeType
 import java.util.UUID
 
 @Entity
@@ -36,11 +36,9 @@ class OrderLine(
     var quantity: Int = quantity
         protected set
 
-    @Column(name = "unit_price_amount", nullable = false, precision = 19, scale = 4)
-    private var unitPriceAmount: BigDecimal = unitPrice.amount
-
-    @Column(name = "currency_code", nullable = false, length = 3)
-    private var currencyCode: String = unitPrice.currency.currencyCode
+    @CompositeType(MoneyType::class)
+    var unitPrice: Money = unitPrice
+        protected set
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
@@ -51,10 +49,7 @@ class OrderLine(
         require(quantity > 0) { "Quantity must be positive: $quantity" }
     }
 
-    val unitPrice: Money
-        get() = Money.of(unitPriceAmount, Currency.getInstance(currencyCode))
-
-    val amount: Money
+    val lineTotal: Money
         get() = unitPrice * quantity
 
     internal fun assignLineNo(lineNo: Int) {

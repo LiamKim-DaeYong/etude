@@ -2,6 +2,7 @@ package dev.etude.order.domain
 
 import dev.etude.shared.BaseEntity
 import dev.etude.shared.Money
+import dev.etude.shared.MoneyType
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -13,9 +14,8 @@ import jakarta.persistence.NamedEntityGraph
 import jakarta.persistence.OneToMany
 import jakarta.persistence.OrderBy
 import jakarta.persistence.Table
-import java.math.BigDecimal
+import org.hibernate.annotations.CompositeType
 import java.time.Instant
-import java.util.Currency
 import java.util.UUID
 
 @Entity
@@ -48,23 +48,16 @@ class Order(
     var orderedAt: Instant = orderedAt
         protected set
 
-    @Column(name = "total_amount", nullable = false, precision = 19, scale = 4)
-    private var totalAmount: BigDecimal
-
-    @Column(name = "currency_code", nullable = false, length = 3)
-    private var currencyCode: String
-
     init {
         require(lines.isNotEmpty()) { "Order must have at least one line" }
         require(lines.map { it.unitPrice.currency }.distinct().size == 1) {
             "All order lines must use the same currency"
         }
         lines.forEachIndexed { index, line -> line.assignLineNo(index + 1) }
-        val total = lines.map(OrderLine::amount).reduce(Money::plus)
-        totalAmount = total.amount
-        currencyCode = total.currency.currencyCode
     }
 
-    val total: Money
-        get() = Money.of(totalAmount, Currency.getInstance(currencyCode))
+    // Declared after the init block: initializers run in declaration order, so the lines are already validated.
+    @CompositeType(MoneyType::class)
+    var total: Money = lines.map(OrderLine::lineTotal).reduce(Money::plus)
+        protected set
 }
