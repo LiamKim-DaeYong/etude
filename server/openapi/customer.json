@@ -166,7 +166,8 @@
             "format" : "int32"
           },
           "status" : {
-            "type" : "string"
+            "type" : "string",
+            "enum" : [ "ORDERED" ]
           },
           "unitPrice" : {
             "$ref" : "#/components/schemas/Money"
@@ -196,7 +197,8 @@
             "format" : "date-time"
           },
           "status" : {
-            "type" : "string"
+            "type" : "string",
+            "enum" : [ "PLACED" ]
           },
           "total" : {
             "$ref" : "#/components/schemas/Money"
@@ -298,7 +300,8 @@
             "$ref" : "#/components/schemas/Money"
           },
           "salesStatus" : {
-            "type" : "string"
+            "type" : "string",
+            "enum" : [ "ON_SALE", "SUSPENDED" ]
           }
         },
         "required" : [ "id", "name", "price", "salesStatus" ]

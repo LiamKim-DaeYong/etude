@@ -32,7 +32,7 @@ Docker must be running: tests use Testcontainers, `bootRun` uses Docker Compose.
 - Turn other invalid client input into 400 at the web boundary; do not map `IllegalArgumentException` to 400 globally.
 - Get the current time from the injected `Clock` (`Instant.now(clock)`), never `Instant.now()`. The clock ticks in microseconds to match PostgreSQL `timestamptz`.
 - Do not use the system default time zone or locale (`LocalDateTime.now()`, `ZoneId.systemDefault()`, `Locale.getDefault()`, `String.format` without a locale). Pass the zone or locale explicitly.
-- The OpenAPI documents are generated from the code (springdoc) and committed as `server/openapi/{customer,admin}.json`. `OpenApiSpecTest` rewrites them and fails when they are out of date; commit the regenerated files. Give handler methods unique, descriptive names (they become `operationId`s) and name nested DTO classes with `@Schema(name = ...)`.
+- The OpenAPI documents are generated from the code (springdoc) and committed as `server/openapi/{customer,admin}.json`. `OpenApiSpecTest` rewrites them and fails when they are out of date; commit the regenerated files. Use enum types (not `String`) for enum-valued response fields so the documents list the values. Give handler methods unique, descriptive names (they become `operationId`s) and name nested DTO classes with `@Schema(name = ...)`.
 - Mark PRs that change API paths, requests, responses or error formats with `api-change`, fill in the template's API section, and include the regenerated OpenAPI files.
 
 ## Workflow
