@@ -19,7 +19,7 @@ Docker must be running: tests use Testcontainers, `bootRun` uses Docker Compose.
 
 ## Working agreement
 
-The repository owner writes the design and core code. Claude explains concepts, asks design questions, challenges decisions, and reviews, tests and debugs. Do not implement features unless explicitly asked. Setup, build and refactoring chores are fine on request; say what will change before changing code.
+Claude implements the backend (`server/`); Codex implements the frontend (`web/`). Do not modify `web/`. For design decisions, present options with a recommendation and get the owner's approval before implementing. All changes go through PRs that the owner approves before merge. The owner may write parts of the code; review those instead of rewriting them. Say what will change before changing code.
 
 ## Rules
 
