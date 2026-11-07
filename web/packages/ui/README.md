@@ -13,6 +13,8 @@ npx shadcn add toast --cwd packages/ui --yes
 
 `command`가 사용하는 `input-group`도 CLI가 함께 추가했다. 컴포넌트는 `src/components/`에 있고 런타임 의존성은 이 패키지의 `package.json`에서 관리한다. `src/styles.css`는 공식 `shadcn/tailwind.css`와 Tailwind·애니메이션 스타일을 함께 불러온다.
 
+`src/styles.css`의 소스 탐색 범위는 공통 UI 내부로 제한한다. 소비 앱은 자신의 CSS에서 이 파일을 가져온 뒤 앱 소스의 `@source`를 등록한다. 관리자 예시는 `apps/admin/src/styles.css`에 있다. 공통 CSS에 소비 앱 경로를 넣지 않는다.
+
 ## 원본에서 변경한 부분
 
 - 저장소 포맷 규칙 적용
