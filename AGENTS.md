@@ -33,11 +33,11 @@ Build as a service for many countries from the start, so a new market does not r
 - Back performance and concurrency claims with measurements, and state the environment and conditions.
 - To change a decision, write a new ADR linked to the old one. Pick the ADR number when opening the PR (next number on `main`). See `docs/README.md` for documentation rules.
 
-## Backend API (for frontend integration)
+## Backend API
 
-- Customer API under `/api/v1`, back-office API under `/admin/v1`.
-- Errors are ProblemDetail (`application/problem+json`) with a `code` property; validation failures add `errors: [{field, code, message}]` where `code` is the violated constraint (e.g. `NotBlank`). Branch on `code`, not on `detail`.
-- Instants are ISO-8601 UTC strings ending in `Z`.
-- Amounts are decimal strings (e.g. `"10000"`, `"12.50"`) next to an ISO 4217 currency code. Do not parse them into floating-point numbers for arithmetic.
-- Run the backend locally: `cd server && ./gradlew bootRun` (Docker must be running; starts PostgreSQL from `compose.yaml`).
-- PRs labeled `api-change` change paths, requests, responses or errors.
+The OpenAPI documents generated from the backend code are the API contract:
+
+- `server/openapi/customer.json`: customer API (`/api/v1`)
+- `server/openapi/admin.json`: back-office API (`/admin/v1`)
+
+Their `info.description` holds the conventions (UTC instants, `Money` objects, `Problem` errors with `code`). Generate client types from these files. PRs labeled `api-change` update them. With the backend running (`cd server && ./gradlew bootRun`, Docker required), Swagger UI is at `http://localhost:8080/swagger-ui.html`.
