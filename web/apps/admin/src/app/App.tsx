@@ -1,20 +1,16 @@
-import { lazy, Suspense, useEffect, useRef } from 'react';
+import { Suspense, useEffect, useRef } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import { LoaderCircle } from 'lucide-react';
 import { AdminLayout } from './layout/AdminLayout';
-import { navigation } from './navigation';
+import { routes } from './routes';
 import { NotFound } from '@/pages/NotFound';
-
-const Workspace = lazy(() => import('@/pages/Workspace'));
-const UiGuide = lazy(() => import('@/pages/UiGuide'));
-const Settings = lazy(() => import('@/pages/Settings'));
 
 export function App() {
   const { pathname } = useLocation();
   const previousPath = useRef(pathname);
 
   useEffect(() => {
-    const current = navigation.find((item) => item.path === pathname);
+    const current = routes.find((item) => item.path === pathname);
     document.title = `${current?.label ?? '페이지를 찾을 수 없습니다'} · Etude`;
     if (previousPath.current !== pathname) {
       document.getElementById('main-content')?.focus();
@@ -37,9 +33,9 @@ export function App() {
         }
       >
         <Routes>
-          <Route path="/" element={<Workspace />} />
-          <Route path="/ui" element={<UiGuide />} />
-          <Route path="/settings" element={<Settings />} />
+          {routes.map(({ path, Component }) => (
+            <Route key={path} path={path} element={<Component />} />
+          ))}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>

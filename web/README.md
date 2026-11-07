@@ -18,7 +18,11 @@ npm run dev
 
 ```text
 web/
-├─ apps/admin/                 # 관리자 레이아웃, 화면, 라우터
+├─ apps/admin/src/
+│  ├─ app/routes.ts            # 경로·메뉴·검색·제목에 사용하는 화면 정의
+│  ├─ app/layout/              # 관리자 전용 레이아웃·메뉴·화면 검색
+│  └─ pages/
+│     └─ ui-guide/examples/    # UI 가이드 안에서만 사용하는 예시
 ├─ packages/ui/
 │  ├─ components.json          # 공식 레지스트리·스타일·설치 위치
 │  └─ src/
@@ -47,7 +51,9 @@ npm run ui:add -- button
 
 버튼·대화상자·선택 요소를 비슷하게 다시 구현하지 않는다. 설치한 컴포넌트를 import해서 사용하고 앱의 업무 흐름만 조합한다. 가급적 생성된 소스 대신 사용 지점의 props·className과 공통 토큰을 조정한다.
 
-화면 추가 시 `apps/admin/src/pages/`에 화면을 만들고 `app/App.tsx`에 경로를 등록한다. 탐색 가능한 화면은 `app/navigation.ts`에 등록하면 메뉴·Breadcrumb·문서 제목·화면 검색에 반영된다. 제목은 `PageHeader`, 빈 상태는 `EmptyState`를 사용한다.
+화면 추가 시 `apps/admin/src/pages/`에 화면을 만들고 `app/routes.ts`에 경로·이름·아이콘·지연 로딩할 컴포넌트를 등록한다. 같은 정의가 라우터·메뉴·Breadcrumb·문서 제목·화면 검색에 반영된다. 404는 `App.tsx`의 별도 경로로 유지한다. 제목은 `PageHeader`, 빈 상태는 `EmptyState`를 사용한다.
+
+페이지 안에서만 사용하는 예시는 해당 페이지 폴더에 둔다. 여러 앱이 실제로 공유하는 UI만 `packages/ui`로 옮기고, 관리자 메뉴·라우팅·가이드 예시는 관리자 앱에 유지한다. 아직 사용하지 않는 기능이나 고객·CS 앱의 빈 폴더는 만들지 않는다.
 
 ## 테마와 한글 폰트
 
