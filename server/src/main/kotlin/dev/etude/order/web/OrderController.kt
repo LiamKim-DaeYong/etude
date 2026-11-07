@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import java.net.URI
@@ -21,7 +22,8 @@ class OrderController(
 ) {
 
     @PostMapping
-    fun place(@Valid @RequestBody request: PlaceOrderRequest): ResponseEntity<OrderResponse> {
+    @ResponseStatus(HttpStatus.CREATED)
+    fun placeOrder(@Valid @RequestBody request: PlaceOrderRequest): ResponseEntity<OrderResponse> {
         val order = orderService.place(request.toCommand())
         return ResponseEntity
             .created(URI.create("/api/v1/orders/${order.id}"))
@@ -29,7 +31,7 @@ class OrderController(
     }
 
     @GetMapping("/{id}")
-    fun get(@PathVariable id: UUID): OrderResponse = orderService.getOrder(id)
+    fun getOrder(@PathVariable id: UUID): OrderResponse = orderService.getOrder(id)
         ?.let(OrderResponse::from)
         ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found: $id")
 }

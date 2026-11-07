@@ -2,6 +2,7 @@ package dev.etude.order.web
 
 import dev.etude.order.application.PlaceOrderCommand
 import dev.etude.shared.Money
+import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.Valid
 import jakarta.validation.constraints.AssertTrue
 import jakarta.validation.constraints.NotEmpty
@@ -15,12 +16,14 @@ data class PlaceOrderRequest(
     val lines: List<Line>,
     val expectedTotal: Money,
 ) {
+    @Schema(name = "PlaceOrderLine")
     data class Line(
         val productId: UUID,
         @field:Positive
         val quantity: Int,
     )
 
+    @get:Schema(hidden = true)
     @get:AssertTrue(message = "each product must appear in only one line")
     val hasDistinctProducts: Boolean
         get() = lines.distinctBy { it.productId }.size == lines.size

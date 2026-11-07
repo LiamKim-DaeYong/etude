@@ -2,6 +2,7 @@ package dev.etude.order.web
 
 import dev.etude.order.application.OrderDetails
 import dev.etude.shared.Money
+import io.swagger.v3.oas.annotations.media.Schema
 import java.time.Instant
 import java.util.UUID
 
@@ -13,6 +14,7 @@ data class OrderResponse(
     val total: Money,
     val lines: List<Line>,
 ) {
+    @Schema(name = "OrderLineResponse")
     data class Line(
         val id: UUID,
         val lineNo: Int,

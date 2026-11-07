@@ -16,7 +16,7 @@ class ProductController(
 ) {
 
     @GetMapping("/{id}")
-    fun get(@PathVariable id: UUID): ProductResponse = productService.getProduct(id)
+    fun getProduct(@PathVariable id: UUID): ProductResponse = productService.getProduct(id)
         ?.let(ProductResponse::from)
         ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found: $id")
 }
