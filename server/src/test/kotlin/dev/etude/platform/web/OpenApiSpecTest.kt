@@ -1,4 +1,4 @@
-package dev.etude.web
+package dev.etude.platform.web
 
 import dev.etude.TestcontainersConfiguration
 import org.assertj.core.api.Assertions.assertThat

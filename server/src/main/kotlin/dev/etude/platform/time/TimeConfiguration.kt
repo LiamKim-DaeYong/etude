@@ -1,4 +1,4 @@
-package dev.etude
+package dev.etude.platform.time
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
