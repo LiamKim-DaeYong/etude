@@ -17,7 +17,7 @@ npx shadcn add toast --cwd packages/ui --yes
 
 - 저장소 포맷 규칙 적용
 - Dialog·Sheet·Toast의 닫기 접근성 이름을 한글로 변경
-- 엄격한 TypeScript 검사에서 사용하지 않는 것으로 확인된 ScrollArea의 React import 제거
+- 앱과 다른 컴포넌트에서 참조하지 않는 ScrollArea 소스 제거. 필요해지면 공식 CLI로 다시 추가한다.
 
 색상·한글 폰트와 제품 공통 요소는 원본 컴포넌트 밖에서 관리한다. `EtudeProvider`, `PageHeader`, `EmptyState`, 테마 저장과 앱 레이아웃은 Etude 코드다.
 
