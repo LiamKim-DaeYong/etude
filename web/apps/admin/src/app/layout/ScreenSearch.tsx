@@ -70,7 +70,7 @@ export function ScreenSearch() {
                   value={label}
                   onSelect={() => {
                     setOpen(false);
-                    navigate(path);
+                    void navigate(path);
                   }}
                 >
                   <Icon className="size-4" />

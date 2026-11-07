@@ -207,12 +207,12 @@ test('primary action text stays readable in light and dark themes', async ({
   for (const theme of ['light', 'dark']) {
     if (theme === 'dark')
       await page.getByRole('button', { name: '어두운 테마로 전환' }).click();
-    for (const path of ['/ui', '/']) {
+    for (const path of ['/ui', '/does-not-exist']) {
       await page.goto(path);
       const action =
         path === '/ui'
           ? page.getByRole('button', { name: '대화상자 열기' })
-          : page.getByRole('link', { name: 'UI 가이드 둘러보기' });
+          : page.getByRole('link', { name: '워크스페이스로 돌아가기' });
       const colors = await action.evaluate((element) => {
         const style = getComputedStyle(element);
         const canvas = document.createElement('canvas');

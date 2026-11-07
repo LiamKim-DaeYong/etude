@@ -30,7 +30,9 @@ web/
 │     ├─ styles.css            # 디자인 토큰, Tailwind, 한글 폰트
 │     └─ EtudeProvider.tsx     # 테마, 툴팁, 알림
 ├─ packages/config/            # TypeScript 기준, 배포 보안 헤더
-└─ tests/                      # 배포용 빌드 대상 브라우저 검사
+└─ tests/
+   ├─ browser/                # 배포용 빌드 대상 브라우저 검사
+   └─ tooling/                # lint 규칙의 정상·실패 사례 검사
 ```
 
 - 앱이 공통 패키지를 사용한다. 공통 UI는 앱·라우터·업무 규칙에 의존하지 않는다. ESLint가 이 경계를 검사한다.
@@ -72,6 +74,10 @@ npm run security:check
 ```
 
 `check`는 타입·ESLint·포맷 검사, 빌드와 브라우저 검사를 실행한다. `npm run format`으로 포맷을 맞춘다.
+
+ESLint는 브라우저 소스와 Node 설정·테스트의 전역을 구분한다. 브라우저에서 Node 모듈·전역과 디버그 로그를 사용하거나, 공통 UI가 앱·라우터에 의존하면 실패한다. 관리자·공통 UI 소스에는 타입 정보를 사용한 권장 검사를 적용해 처리하지 않은 Promise 등을 탐지한다. React Hooks·Fast Refresh 위반도 오류이며, 공식 컴포넌트의 혼합 export 예외는 해당 파일에만 적용한다. 경고가 남아도 `lint`는 실패한다. 포맷은 Prettier에서 별도로 검사한다.
+
+`npm run test:lint`는 위 규칙의 정상·실패 사례 7개를 Node에서 검사하고, `npm run test:browser`는 Chromium 검사를 실행한다. `npm test`와 `npm run check`는 두 종류를 모두 포함한다. 새 앱을 추가할 때는 해당 TypeScript 프로젝트를 ESLint의 `typedSources`에도 등록한다. lint는 런타임 보안·서버 권한 검사나 배포 검증을 대신하지 않는다.
 
 브라우저 검사는 Chromium의 데스크톱·모바일 화면 크기에서 22개를 실행한다. 경로 직접 접근과 404 복구, 메뉴·키보드 포커스, 테마 저장·시스템 설정, 대화상자·알림, 공식 선택 요소·표 검색, 화면 검색 단축키, 한글 폰트 로딩, 주요 버튼·링크의 명암 대비와 CSP를 확인한다. 모바일 Safari 검증을 의미하지 않는다.
 
