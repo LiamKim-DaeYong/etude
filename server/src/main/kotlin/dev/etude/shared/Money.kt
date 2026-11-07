@@ -36,5 +36,14 @@ class Money private constructor(
             require(currency.defaultFractionDigits >= 0) { "Unsupported currency: $currency" }
             return Money(amount.setScale(currency.defaultFractionDigits, ROUNDING), currency)
         }
+
+        /** Like [of], but rejects an amount with more decimal places than the currency allows instead of rounding it. */
+        fun ofExact(amount: BigDecimal, currency: Currency): Money {
+            val money = of(amount, currency)
+            require(money.amount.compareTo(amount) == 0) {
+                "Amount $amount has more decimal places than ${currency.currencyCode} allows"
+            }
+            return money
+        }
     }
 }

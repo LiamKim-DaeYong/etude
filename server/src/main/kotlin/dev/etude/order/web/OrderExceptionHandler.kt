@@ -25,7 +25,7 @@ class OrderExceptionHandler {
         }
         return ProblemDetail.forStatusAndDetail(status, e.message).apply {
             setProperty("code", e.reason.name)
-            e.currentTotal?.let { setProperty("currentTotalAmount", it.amount.toPlainString()) }
+            e.currentTotal?.let { setProperty("currentTotal", it) }
         }
     }
 }

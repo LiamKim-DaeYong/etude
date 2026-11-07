@@ -17,7 +17,7 @@ class ProductAdminController(
 
     @PostMapping
     fun register(@Valid @RequestBody request: RegisterProductRequest): ResponseEntity<ProductResponse> {
-        val product = productService.register(request.name, request.toMoney())
+        val product = productService.register(request.name, request.price)
         return ResponseEntity
             .created(URI.create("/api/v1/products/${product.id}"))
             .body(ProductResponse.from(product))
