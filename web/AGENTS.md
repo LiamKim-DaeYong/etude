@@ -8,10 +8,13 @@ Follow the root `AGENTS.md` and `CONTRIBUTING.md`. Codex owns `web/`; shared rep
 - Apps depend on shared packages. Shared UI must not import an app, router or business rules. Future storefront and CS apps choose their own framework and deploy independently.
 - Use official CLI components; do not recreate their appearance or behavior. Run `npm run ui:add -- <component>` from `web/` and review diffs before overwriting generated files. Keep local component adaptations documented in `packages/ui/README.md`.
 - Keep product text in Korean. Do not present example data as live metrics or enable navigation to unfinished features.
+- Public UI copy describes available functions and user actions. Do not add personal learning narratives, portfolio pitches or motivational slogans.
 
 ## Commands and verification
 
 Run from `web/`: `npm ci`, `npm run dev`, `npm run check`, `npm run security:check`. Browser tests require `npx playwright install chromium` and own port 4173. Node.js 24 is the CI target; state the actual local runtime when reporting checks.
+
+Routes, navigation, screen search and document titles share `apps/admin/src/app/routes.ts`. Keep page-only components beside their page. Browser tests live in `tests/browser`; ESLint configuration checks live in `tests/tooling`. Lint fails on warnings and uses type information for admin and UI source. Add new app projects to `typedSources` when they exist. Preserve the browser/Node and UI/app boundaries; verify lint configuration changes with both valid and invalid examples.
 
 Verify desktop/mobile layouts, light/dark themes, keyboard interactions, Korean font loading and production CSP. Development HMR is not proof that the production policy works. Do not claim remote CI or deployment verification from local results.
 

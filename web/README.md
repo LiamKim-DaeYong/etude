@@ -18,7 +18,11 @@ npm run dev
 
 ```text
 web/
-├─ apps/admin/                 # 관리자 레이아웃, 화면, 라우터
+├─ apps/admin/src/
+│  ├─ app/routes.ts            # 경로·메뉴·검색·제목에 사용하는 화면 정의
+│  ├─ app/layout/              # 관리자 전용 레이아웃·메뉴·화면 검색
+│  └─ pages/
+│     └─ ui-guide/examples/    # UI 가이드 안에서만 사용하는 예시
 ├─ packages/ui/
 │  ├─ components.json          # 공식 레지스트리·스타일·설치 위치
 │  └─ src/
@@ -26,7 +30,9 @@ web/
 │     ├─ styles.css            # 디자인 토큰, Tailwind, 한글 폰트
 │     └─ EtudeProvider.tsx     # 테마, 툴팁, 알림
 ├─ packages/config/            # TypeScript 기준, 배포 보안 헤더
-└─ tests/                      # 배포용 빌드 대상 브라우저 검사
+└─ tests/
+   ├─ browser/                # 배포용 빌드 대상 브라우저 검사
+   └─ tooling/                # lint 규칙의 정상·실패 사례 검사
 ```
 
 - 앱이 공통 패키지를 사용한다. 공통 UI는 앱·라우터·업무 규칙에 의존하지 않는다. ESLint가 이 경계를 검사한다.
@@ -47,7 +53,9 @@ npm run ui:add -- button
 
 버튼·대화상자·선택 요소를 비슷하게 다시 구현하지 않는다. 설치한 컴포넌트를 import해서 사용하고 앱의 업무 흐름만 조합한다. 가급적 생성된 소스 대신 사용 지점의 props·className과 공통 토큰을 조정한다.
 
-화면 추가 시 `apps/admin/src/pages/`에 화면을 만들고 `app/App.tsx`에 경로를 등록한다. 탐색 가능한 화면은 `app/navigation.ts`에 등록하면 메뉴·Breadcrumb·문서 제목·화면 검색에 반영된다. 제목은 `PageHeader`, 빈 상태는 `EmptyState`를 사용한다.
+화면 추가 시 `apps/admin/src/pages/`에 화면을 만들고 `app/routes.ts`에 경로·이름·아이콘·지연 로딩할 컴포넌트를 등록한다. 같은 정의가 라우터·메뉴·Breadcrumb·문서 제목·화면 검색에 반영된다. 404는 `App.tsx`의 별도 경로로 유지한다. 제목은 `PageHeader`, 빈 상태는 `EmptyState`를 사용한다.
+
+페이지 안에서만 사용하는 예시는 해당 페이지 폴더에 둔다. 여러 앱이 실제로 공유하는 UI만 `packages/ui`로 옮기고, 관리자 메뉴·라우팅·가이드 예시는 관리자 앱에 유지한다. 아직 사용하지 않는 기능이나 고객·CS 앱의 빈 폴더는 만들지 않는다.
 
 ## 테마와 한글 폰트
 
@@ -66,6 +74,10 @@ npm run security:check
 ```
 
 `check`는 타입·ESLint·포맷 검사, 빌드와 브라우저 검사를 실행한다. `npm run format`으로 포맷을 맞춘다.
+
+ESLint는 브라우저 소스와 Node 설정·테스트의 전역을 구분한다. 브라우저에서 Node 모듈·전역과 디버그 로그를 사용하거나, 공통 UI가 앱·라우터에 의존하면 실패한다. 관리자·공통 UI 소스에는 타입 정보를 사용한 권장 검사를 적용해 처리하지 않은 Promise 등을 탐지한다. React Hooks·Fast Refresh 위반도 오류이며, 공식 컴포넌트의 혼합 export 예외는 해당 파일에만 적용한다. 경고가 남아도 `lint`는 실패한다. 포맷은 Prettier에서 별도로 검사한다.
+
+`npm run test:lint`는 위 규칙의 정상·실패 사례 7개를 Node에서 검사하고, `npm run test:browser`는 Chromium 검사를 실행한다. `npm test`와 `npm run check`는 두 종류를 모두 포함한다. 새 앱을 추가할 때는 해당 TypeScript 프로젝트를 ESLint의 `typedSources`에도 등록한다. lint는 런타임 보안·서버 권한 검사나 배포 검증을 대신하지 않는다.
 
 브라우저 검사는 Chromium의 데스크톱·모바일 화면 크기에서 22개를 실행한다. 경로 직접 접근과 404 복구, 메뉴·키보드 포커스, 테마 저장·시스템 설정, 대화상자·알림, 공식 선택 요소·표 검색, 화면 검색 단축키, 한글 폰트 로딩, 주요 버튼·링크의 명암 대비와 CSP를 확인한다. 모바일 Safari 검증을 의미하지 않는다.
 
