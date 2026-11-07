@@ -1,32 +1,19 @@
 package dev.etude.platform.web
 
-import dev.etude.TestcontainersConfiguration
+import dev.etude.IntegrationTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
-import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.assertj.MockMvcTester
 import org.springframework.test.web.servlet.assertj.MvcTestResult
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
-@Import(TestcontainersConfiguration::class, GlobalExceptionHandlerTest.FailingController::class)
-@SpringBootTest
-@AutoConfigureMockMvc
+@IntegrationTest
 class GlobalExceptionHandlerTest(
     @Autowired private val mvc: MockMvcTester,
 ) {
-
-    @RestController
-    class FailingController {
-        @GetMapping("/test/unexpected-failure")
-        fun fail(): String = throw IllegalStateException("internal detail that must not leak")
-    }
 
     @Test
     fun `lists violated fields for an invalid request`() {
@@ -102,7 +89,7 @@ class GlobalExceptionHandlerTest(
 
     @Test
     fun `hides internal details of an unexpected failure`() {
-        val result = mvc.get().uri("/test/unexpected-failure").exchange()
+        val result = mvc.get().uri(FailingTestController.PATH).exchange()
 
         assertProblem(result, HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR")
             .isLenientlyEqualTo("""{"detail":"An unexpected error occurred"}""")

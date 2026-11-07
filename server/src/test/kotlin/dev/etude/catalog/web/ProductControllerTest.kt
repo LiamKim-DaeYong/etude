@@ -1,21 +1,16 @@
 package dev.etude.catalog.web
 
-import dev.etude.TestcontainersConfiguration
+import dev.etude.IntegrationTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
-import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.assertj.MockMvcTester
 import org.springframework.test.web.servlet.assertj.MvcTestResult
 import java.util.UUID
 
-@Import(TestcontainersConfiguration::class)
-@SpringBootTest
-@AutoConfigureMockMvc
+@IntegrationTest
 class ProductControllerTest(
     @Autowired private val mvc: MockMvcTester,
 ) {
