@@ -14,8 +14,8 @@ Etude의 업무 용어와 이름 규칙의 기준 문서다. 코드, API, DB, �
 | 동사 | 쓰는 곳 | 뜻 | 쓰지 않는 말 |
 | --- | --- | --- | --- |
 | `register` | 서비스 | 관리자가 상품·재고 같은 기준 데이터를 처음 만든다 | `create`, `add` |
-| `find` | 서비스, 모듈 공개 API | 조회한다. 없으면 `null`을 돌려준다 | 없을 수 있는 조회에 `get` |
-| `get` | 컨트롤러 핸들러 | HTTP GET 조회. `operationId`가 된다 (`getOrder`) | — |
+| `find` | 서비스, 모듈 공개 API | 조회한다. 없으면 `null`을 돌려준다 (`findOrder`) | 없을 수 있는 조회에 `get` |
+| `get` | 컨트롤러 핸들러 | 조회한다. 반드시 돌려주고, 없으면 예외를 던진다(컨트롤러는 404). 핸들러 이름은 `operationId`가 된다 (`getOrder`, Google AIP-131의 Get) | `null`을 돌려주는 조회에 `get` |
 | `place` | 주문 | 고객이 주문한다 | `create`, `submit` |
 | `reserve` | 재고 | 주문에 쓸 수량을 판매 가능 수량에서 떼어 둔다 | `deduct`, `decrease`, `allocate`, `commit` |
 
