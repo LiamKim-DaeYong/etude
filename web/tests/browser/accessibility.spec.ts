@@ -124,6 +124,187 @@ for (const theme of ['light', 'dark'] as const) {
       }
     });
 
+    test('form feedback connects labels, help and errors and focuses the first invalid input', async ({
+      page,
+    }, testInfo) => {
+      const writes: string[] = [];
+      page.on('request', (request) => {
+        if (request.method() !== 'GET') writes.push(request.url());
+      });
+      await page.goto('/ui');
+      await page.getByRole('tab', { name: '입력 폼', exact: true }).click();
+      const name = page.getByRole('textbox', { name: '이름', exact: true });
+      const email = page.getByRole('textbox', { name: '이메일', exact: true });
+      const submit = page.getByRole('button', {
+        name: '입력값 확인',
+        exact: true,
+      });
+      await page
+        .locator('label')
+        .filter({ hasText: /^이름$/ })
+        .click();
+      await expect(name).toBeFocused();
+      await expect(name).toHaveAccessibleDescription(
+        '필수 입력입니다. 80자 이내로 입력해 주세요.',
+      );
+      await expect(name).not.toHaveAttribute('aria-invalid');
+      await name.fill('   ');
+      await email.fill('invalid-email');
+      await submit.press('Enter');
+      await expect(name).toBeFocused();
+      await expect(name).toHaveAttribute('aria-invalid', 'true');
+      await expect(email).toHaveAttribute('aria-invalid', 'true');
+      await expect(name).toHaveAccessibleDescription(
+        '필수 입력입니다. 80자 이내로 입력해 주세요. 이름을 1~80자로 입력해 주세요.',
+      );
+      await expect(email).toHaveAccessibleDescription(
+        '필수 입력입니다. name@example.com 형식으로 입력해 주세요. 올바른 이메일 주소를 입력해 주세요.',
+      );
+      await expectAccessible(page, `${theme} invalid form`);
+      await page.screenshot({
+        path: testInfo.outputPath('form-errors.png'),
+        fullPage: true,
+      });
+
+      await name.fill('홍길동');
+      await expect(name).not.toHaveAttribute('aria-invalid');
+      await expect(name).toHaveAccessibleDescription(
+        '필수 입력입니다. 80자 이내로 입력해 주세요.',
+      );
+      await page.keyboard.press('Tab');
+      await expect(email).toBeFocused();
+      await submit.press('Enter');
+      await expect(email).toBeFocused();
+      await email.fill('example@example.com');
+      await expect(email).not.toHaveAttribute('aria-invalid');
+      await email.press('Enter');
+      await expect(
+        page.getByText('입력값을 확인했습니다', { exact: true }),
+      ).toBeVisible();
+      await page.keyboard.press('F6');
+      await page.getByRole('button', { name: '알림 닫기' }).focus();
+      await expectAccessible(page, `${theme} corrected form`);
+      await page.getByRole('button', { name: '알림 닫기' }).press('Enter');
+      expect(writes).toEqual([]);
+      await expect(page).toHaveURL(/\/ui$/);
+    });
+
+    test('feedback examples preserve keyboard focus through recovery', async ({
+      page,
+    }, testInfo) => {
+      await page.goto('/ui');
+      await page
+        .getByRole('tab', { name: '상태와 피드백', exact: true })
+        .click();
+      await expect(
+        page.getByRole('heading', { level: 3, name: '화면 불러오는 중' }),
+      ).toBeVisible();
+      await expect(
+        page.getByRole('heading', {
+          level: 3,
+          name: '아직 등록된 항목이 없습니다',
+        }),
+      ).toBeVisible();
+      await expectAccessible(page, `${theme} feedback error`);
+      const recovery = page.getByRole('button', {
+        name: '복구 예시 확인',
+        exact: true,
+      });
+      await recovery.press('Enter');
+      const reset = page.getByRole('button', {
+        name: '오류 예시 다시 보기',
+        exact: true,
+      });
+      await expect(reset).toBeFocused();
+      await expect(
+        page.getByRole('heading', {
+          level: 3,
+          name: '화면 표시를 복구했습니다',
+        }),
+      ).toBeVisible();
+      await expectAccessible(page, `${theme} feedback recovered`);
+      await page.screenshot({
+        path: testInfo.outputPath('feedback-recovered.png'),
+        fullPage: true,
+      });
+      await reset.press('Enter');
+      await expect(recovery).toBeFocused();
+      await expect(
+        page.getByRole('heading', {
+          level: 3,
+          name: '내용을 불러오지 못했습니다',
+        }),
+      ).toBeVisible();
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= window.innerWidth,
+        ),
+      ).toBe(true);
+    });
+
+    test('page loading and failure states keep the shell and accessible recovery', async ({
+      page,
+    }, testInfo) => {
+      const chunk = '**/assets/Settings-*.js';
+      let release!: () => void;
+      const gate = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      await page.route(chunk, async (route) => {
+        await gate;
+        await route.continue();
+      });
+      try {
+        await page.goto('/settings', { waitUntil: 'domcontentloaded' });
+        await expect(
+          page.getByRole('heading', { level: 1, name: '화면 불러오는 중' }),
+        ).toBeVisible();
+        await expect(page.getByRole('status')).toContainText(
+          '잠시만 기다려 주세요.',
+        );
+        await expect(
+          page.getByRole('button', { name: /^화면 검색/ }),
+        ).toBeVisible();
+        await expectAccessible(page, `${theme} page loading`);
+        await page.emulateMedia({ reducedMotion: 'reduce' });
+        for (const skeleton of await page
+          .locator('[data-slot="skeleton"]')
+          .all()) {
+          await expect(skeleton).toHaveCSS('animation-name', 'none');
+        }
+        await page.screenshot({
+          path: testInfo.outputPath('page-loading.png'),
+          fullPage: true,
+        });
+      } finally {
+        release();
+      }
+      await expect(
+        page.getByRole('heading', { level: 1, name: '화면 설정' }),
+      ).toBeVisible();
+      await page.unroute(chunk);
+      await page.route(chunk, (route) => route.abort('failed'));
+      await page.reload();
+      await expect(
+        page.getByRole('heading', {
+          level: 1,
+          name: '화면을 불러오지 못했습니다',
+        }),
+      ).toBeVisible();
+      await expectAccessible(page, `${theme} page error`);
+      await page.screenshot({
+        path: testInfo.outputPath('page-error.png'),
+        fullPage: true,
+      });
+      await page
+        .getByRole('link', { name: '워크스페이스로 이동' })
+        .press('Enter');
+      await expect(
+        page.getByRole('heading', { level: 1, name: 'Etude 작업 공간' }),
+      ).toBeVisible();
+      await expect(page.locator('#main-content')).toBeFocused();
+    });
+
     test('dialogs, notifications, select, dropdown and responsive navigation', async ({
       page,
     }, testInfo) => {

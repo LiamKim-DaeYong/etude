@@ -157,6 +157,23 @@ test('production UI renders under CSP without blocked styles or runtime errors',
     page.getByRole('menuitem', { name: '이름순 정렬' }),
   ).toBeVisible();
   await page.keyboard.press('Escape');
+  await page.getByRole('tab', { name: '입력 폼', exact: true }).click();
+  await page
+    .getByRole('button', { name: '입력값 확인', exact: true })
+    .press('Enter');
+  await expect(
+    page.getByRole('textbox', { name: '이름', exact: true }),
+  ).toHaveAttribute('aria-invalid', 'true');
+  await page.getByRole('tab', { name: '상태와 피드백', exact: true }).click();
+  await page
+    .getByRole('button', { name: '복구 예시 확인', exact: true })
+    .press('Enter');
+  await expect(
+    page.getByRole('heading', { name: '화면 표시를 복구했습니다' }),
+  ).toBeVisible();
+  await page
+    .getByRole('button', { name: '오류 예시 다시 보기', exact: true })
+    .press('Enter');
   expect(failures).toEqual([]);
 });
 
