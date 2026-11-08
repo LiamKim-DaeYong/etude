@@ -36,13 +36,13 @@ class OrderService(
         val order = Order(command.customerId, lines, Instant.now(clock))
         if (order.total != command.expectedTotal) {
             throw OrderRejectedException(
-                Reason.TOTAL_AMOUNT_MISMATCH,
-                "Total amount changed: expected ${command.expectedTotal}, current ${order.total}",
+                Reason.TOTAL_MISMATCH,
+                "Total changed: expected ${command.expectedTotal}, current ${order.total}",
                 currentTotal = order.total,
             )
         }
         return OrderDetails.from(orderRepository.save(order))
     }
 
-    fun getOrder(id: UUID): OrderDetails? = orderRepository.findById(id)?.let(OrderDetails::from)
+    fun findOrder(id: UUID): OrderDetails? = orderRepository.findById(id)?.let(OrderDetails::from)
 }

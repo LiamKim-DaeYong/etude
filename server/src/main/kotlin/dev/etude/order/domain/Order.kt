@@ -24,7 +24,7 @@ import java.util.UUID
 class Order(
     customerId: UUID,
     lines: List<OrderLine>,
-    orderedAt: Instant,
+    placedAt: Instant,
 ) : BaseEntity() {
 
     @Column(nullable = false)
@@ -33,7 +33,7 @@ class Order(
 
     @OneToMany(cascade = [CascadeType.PERSIST])
     @JoinColumn(name = "order_id", nullable = false, updatable = false)
-    @OrderBy("lineNo")
+    @OrderBy("lineNumber")
     private val _lines: MutableList<OrderLine> = lines.toMutableList()
 
     val lines: List<OrderLine>
@@ -45,7 +45,7 @@ class Order(
         protected set
 
     @Column(nullable = false)
-    var orderedAt: Instant = orderedAt
+    var placedAt: Instant = placedAt
         protected set
 
     init {
@@ -53,7 +53,7 @@ class Order(
         require(lines.map { it.unitPrice.currency }.distinct().size == 1) {
             "All order lines must use the same currency"
         }
-        lines.forEachIndexed { index, line -> line.assignLineNo(index + 1) }
+        lines.forEachIndexed { index, line -> line.assignLineNumber(index + 1) }
     }
 
     // Declared after the init block: initializers run in declaration order, so the lines are already validated.

@@ -47,12 +47,12 @@ class OrderControllerTest(
                   "status": "PLACED",
                   "total": {"amount": "22500", "currency": "KRW"},
                   "lines": [
-                    {"lineNo": 1, "productId": "$keyboard", "productName": "Keyboard", "quantity": 2,
+                    {"lineNumber": 1, "productId": "$keyboard", "productName": "Keyboard", "quantity": 2,
                      "unitPrice": {"amount": "10000", "currency": "KRW"},
-                     "lineTotal": {"amount": "20000", "currency": "KRW"}, "status": "ORDERED"},
-                    {"lineNo": 2, "productId": "$mouse", "productName": "Mouse", "quantity": 1,
+                     "lineTotal": {"amount": "20000", "currency": "KRW"}, "status": "PLACED"},
+                    {"lineNumber": 2, "productId": "$mouse", "productName": "Mouse", "quantity": 1,
                      "unitPrice": {"amount": "2500", "currency": "KRW"},
-                     "lineTotal": {"amount": "2500", "currency": "KRW"}, "status": "ORDERED"}
+                     "lineTotal": {"amount": "2500", "currency": "KRW"}, "status": "PLACED"}
                   ]
                 }
                 """.trimIndent(),
@@ -65,10 +65,10 @@ class OrderControllerTest(
         val created = place(lines = line(keyboard), expectedTotal = "10000")
         val read = mvc.get().uri(requireNotNull(created.response.getHeader("Location"))).exchange()
 
-        assertThat(orderedAt(read)).isEqualTo(orderedAt(created))
+        assertThat(placedAt(read)).isEqualTo(placedAt(created))
     }
 
-    private fun orderedAt(result: MvcTestResult): String = Regex("\"orderedAt\":\"([^\"]+)\"").find(result.response.contentAsString)!!.groupValues[1]
+    private fun placedAt(result: MvcTestResult): String = Regex("\"placedAt\":\"([^\"]+)\"").find(result.response.contentAsString)!!.groupValues[1]
 
     @Test
     fun `returns 400 problem for an unknown product`() {
@@ -81,7 +81,7 @@ class OrderControllerTest(
     @Test
     fun `returns 409 problem for a product that is not on sale`() {
         val keyboard = product("Keyboard", "10000", "KRW")
-        jdbcTemplate.update("update product set sales_status = 'SUSPENDED' where id = ?", keyboard)
+        jdbcTemplate.update("update product set status = 'SUSPENDED' where id = ?", keyboard)
 
         assertProblem(place(lines = line(keyboard), expectedTotal = "10000"), HttpStatus.CONFLICT)
             .isLenientlyEqualTo("""{"code":"PRODUCT_NOT_ORDERABLE"}""")
@@ -106,7 +106,7 @@ class OrderControllerTest(
         val keyboard = product("Keyboard", "10000", "KRW")
 
         assertProblem(place(lines = line(keyboard, quantity = 2), expectedTotal = "18000"), HttpStatus.CONFLICT)
-            .isLenientlyEqualTo("""{"code":"TOTAL_AMOUNT_MISMATCH","currentTotal":{"amount":"20000","currency":"KRW"}}""")
+            .isLenientlyEqualTo("""{"code":"TOTAL_MISMATCH","currentTotal":{"amount":"20000","currency":"KRW"}}""")
     }
 
     @Test

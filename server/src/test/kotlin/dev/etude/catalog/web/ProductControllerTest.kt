@@ -26,7 +26,7 @@ class ProductControllerTest(
             .hasStatusOk()
             .bodyJson()
             .isLenientlyEqualTo(
-                """{"name":"Keyboard","price":{"amount":"10000","currency":"KRW"},"salesStatus":"ON_SALE"}""",
+                """{"name":"Keyboard","price":{"amount":"10000","currency":"KRW"},"status":"ACTIVE"}""",
             )
     }
 

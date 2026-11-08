@@ -26,8 +26,8 @@ class Product(
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    var salesStatus: SalesStatus = SalesStatus.ON_SALE
+    var status: ProductStatus = ProductStatus.ACTIVE
         protected set
 
-    fun isOrderable(): Boolean = salesStatus == SalesStatus.ON_SALE
+    fun isOrderable(): Boolean = status == ProductStatus.ACTIVE
 }
