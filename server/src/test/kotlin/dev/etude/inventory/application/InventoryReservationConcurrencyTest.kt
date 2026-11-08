@@ -2,9 +2,9 @@ package dev.etude.inventory.application
 
 import dev.etude.IntegrationTest
 import dev.etude.catalog.application.ProductService
-import dev.etude.inventory.domain.InventoryItemRepository
 import dev.etude.order.InsufficientInventoryException
 import dev.etude.order.ReservationLine
+import dev.etude.platform.LOCK_TIMEOUT_MILLIS
 import dev.etude.shared.Money
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -35,7 +35,7 @@ class InventoryReservationConcurrencyTest(
     fun `reserves no more than the available quantity under concurrent orders`() {
         val initialQuantity = 10
         val requests = 100
-        val productId = product(inventory = initialQuantity)
+        val productId = product(availableQuantity = initialQuantity)
 
         val succeeded = AtomicInteger()
         val rejected = AtomicInteger()
@@ -66,7 +66,7 @@ class InventoryReservationConcurrencyTest(
 
     @Test
     fun `gives up reserving when another transaction holds the inventory item too long`() {
-        val productId = product(inventory = 10)
+        val productId = product(availableQuantity = 10)
         val locked = CountDownLatch(1)
         val release = CountDownLatch(1)
         val holder = thread {
@@ -84,7 +84,7 @@ class InventoryReservationConcurrencyTest(
             assertThatThrownBy { inventoryService.reserve(UUID.randomUUID(), listOf(ReservationLine(productId, quantity = 1))) }
                 .isInstanceOf(CannotAcquireLockException::class.java)
             assertThat(Duration.ofNanos(System.nanoTime() - started))
-                .isGreaterThanOrEqualTo(Duration.ofMillis(InventoryItemRepository.LOCK_TIMEOUT_MILLIS.toLong()))
+                .isGreaterThanOrEqualTo(Duration.ofMillis(LOCK_TIMEOUT_MILLIS.toLong()))
                 .isLessThan(Duration.ofSeconds(10))
         } finally {
             release.countDown()
@@ -96,6 +96,6 @@ class InventoryReservationConcurrencyTest(
 
     private fun reservationCount(productId: UUID) = jdbcTemplate.queryForObject("select count(*) from reservation where product_id = ?", Int::class.java, productId)
 
-    private fun product(inventory: Int) = productService.register("Keyboard", Money.of(BigDecimal("10000"), Currency.getInstance("KRW"))).id
-        .also { inventoryService.register(it, inventory) }
+    private fun product(availableQuantity: Int) = productService.register("Keyboard", Money.of(BigDecimal("10000"), Currency.getInstance("KRW"))).id
+        .also { inventoryService.register(it, availableQuantity) }
 }

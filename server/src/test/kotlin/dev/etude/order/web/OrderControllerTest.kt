@@ -63,8 +63,8 @@ class OrderControllerTest(
 
     @Test
     fun `reserves inventory for each line when placing an order`() {
-        val keyboard = product("Keyboard", "10000", "KRW", inventory = 5)
-        val mouse = product("Mouse", "2500", "KRW", inventory = 5)
+        val keyboard = product("Keyboard", "10000", "KRW", availableQuantity = 5)
+        val mouse = product("Mouse", "2500", "KRW", availableQuantity = 5)
 
         val created = place(
             lines = """[{"productId":"$keyboard","quantity":2},{"productId":"$mouse","quantity":1}]""",
@@ -96,7 +96,7 @@ class OrderControllerTest(
     }
 
     @Test
-    fun `returns 409 problem for a product that is not on sale`() {
+    fun `returns 409 problem for a product that is not orderable`() {
         val keyboard = product("Keyboard", "10000", "KRW")
         jdbcTemplate.update("update product set status = 'SUSPENDED' where id = ?", keyboard)
 
@@ -128,7 +128,7 @@ class OrderControllerTest(
 
     @Test
     fun `returns 409 problem with the product when inventory is insufficient`() {
-        val keyboard = product("Keyboard", "10000", "KRW", inventory = 1)
+        val keyboard = product("Keyboard", "10000", "KRW", availableQuantity = 1)
 
         assertProblem(place(lines = line(keyboard, quantity = 2), expectedTotal = "20000"), HttpStatus.CONFLICT)
             .isLenientlyEqualTo("""{"code":"INSUFFICIENT_INVENTORY","productId":"$keyboard"}""")
@@ -136,7 +136,7 @@ class OrderControllerTest(
 
     @Test
     fun `returns 409 problem for a product without registered inventory`() {
-        val keyboard = product("Keyboard", "10000", "KRW", inventory = null)
+        val keyboard = product("Keyboard", "10000", "KRW", availableQuantity = null)
 
         assertProblem(place(lines = line(keyboard), expectedTotal = "10000"), HttpStatus.CONFLICT)
             .isLenientlyEqualTo("""{"code":"INSUFFICIENT_INVENTORY","productId":"$keyboard"}""")
@@ -144,8 +144,8 @@ class OrderControllerTest(
 
     @Test
     fun `keeps inventory and saves no order when one line has insufficient inventory`() {
-        val keyboard = product("Keyboard", "10000", "KRW", inventory = 5)
-        val mouse = product("Mouse", "2500", "KRW", inventory = 0)
+        val keyboard = product("Keyboard", "10000", "KRW", availableQuantity = 5)
+        val mouse = product("Mouse", "2500", "KRW", availableQuantity = 0)
 
         assertProblem(
             place(
@@ -245,9 +245,9 @@ class OrderControllerTest(
             .isLenientlyEqualTo("""{"detail":"Order not found: $id"}""")
     }
 
-    private fun product(name: String, price: String, currency: String, inventory: Int? = 100): UUID {
+    private fun product(name: String, price: String, currency: String, availableQuantity: Int? = 100): UUID {
         val productId = productService.register(name, Money.of(BigDecimal(price), Currency.getInstance(currency))).id
-        inventory?.let { inventoryService.register(productId, it) }
+        availableQuantity?.let { inventoryService.register(productId, it) }
         return productId
     }
 

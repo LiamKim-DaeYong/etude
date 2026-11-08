@@ -1,5 +1,6 @@
 package dev.etude.inventory.domain
 
+import dev.etude.platform.LOCK_TIMEOUT_MILLIS
 import jakarta.persistence.LockModeType
 import jakarta.persistence.QueryHint
 import org.springframework.data.jpa.repository.Lock
@@ -14,15 +15,10 @@ interface ReservationRepository : Repository<Reservation, UUID> {
 
     /**
      * Locks the order's reservations still to release, so a redelivered event waits and then finds none.
-     * Gives up after [InventoryItemRepository.LOCK_TIMEOUT_MILLIS]; see ADR-0003.
+     * Gives up after [LOCK_TIMEOUT_MILLIS]; see ADR-0003.
      */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @QueryHints(
-        QueryHint(
-            name = "jakarta.persistence.lock.timeout",
-            value = InventoryItemRepository.LOCK_TIMEOUT_MILLIS,
-        ),
-    )
+    @QueryHints(QueryHint(name = "jakarta.persistence.lock.timeout", value = LOCK_TIMEOUT_MILLIS))
     @Query("select r from Reservation r where r.orderId = :orderId and r.status = :status order by r.productId")
     fun findByOrderIdAndStatusForUpdate(orderId: UUID, status: ReservationStatus): List<Reservation>
 }
