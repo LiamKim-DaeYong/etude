@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import org.slf4j.LoggerFactory
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
+import org.springframework.dao.PessimisticLockingFailureException
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatusCode
@@ -78,6 +79,18 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
         return response
     }
 
+    /** Waited too long for a row lock (or lost a deadlock); the same request may succeed when retried. */
+    @ExceptionHandler
+    fun handleLockFailure(ex: PessimisticLockingFailureException): ResponseEntity<ProblemDetail> {
+        log.warn("Lock not acquired", ex)
+        val problem = ProblemDetail.forStatusAndDetail(HttpStatus.SERVICE_UNAVAILABLE, "The resource is busy; retry later").apply {
+            setProperty(CODE, SERVICE_UNAVAILABLE)
+        }
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+            .header(HttpHeaders.RETRY_AFTER, RETRY_AFTER_SECONDS)
+            .body(problem)
+    }
+
     @ExceptionHandler
     fun handleUnexpected(ex: Exception): ProblemDetail {
         log.error("Unexpected error", ex)
@@ -109,5 +122,7 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
         const val INVALID_REQUEST = "INVALID_REQUEST"
 
         private const val CODE = "code"
+        private const val SERVICE_UNAVAILABLE = "SERVICE_UNAVAILABLE"
+        private const val RETRY_AFTER_SECONDS = "1"
     }
 }
