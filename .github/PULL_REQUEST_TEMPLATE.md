@@ -31,6 +31,7 @@ Closes #
 - [ ] 변경한 영역의 검사를 통과한다 (`server`: `./gradlew build`, `web`: `npm run check`)
 - [ ] 불필요한 디버그 코드/주석이 없다
 - [ ] 스키마 변경 시 마이그레이션을 포함했다
+- [ ] 업무 용어를 추가하거나 바꿨다면 `docs/glossary.md`를 함께 고쳤다
 - [ ] 중요한 설계 결정이면 `docs/decisions/`에 ADR을 추가했다
 
 ## 남은 위험 / 제한사항

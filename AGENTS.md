@@ -10,7 +10,7 @@ Order, inventory and payment system for exploring design problems under high con
 
 - The repository owner sets direction, approves designs and approves every merge.
 - Claude implements the backend (`server/`). Codex implements the frontend (`web/`). Root `CLAUDE.md` holds Claude's backend rules and belongs to the backend area.
-- Change only your own area. Shared files (root `README.md`, `CONTRIBUTING.md`, `AGENTS.md`, `.github/`, `docs/README.md`) change in a separate `area:shared` PR.
+- Change only your own area. Shared files (root `README.md`, `CONTRIBUTING.md`, `AGENTS.md`, `.github/`, `docs/README.md`, `docs/glossary.md`) change in a separate `area:shared` PR. Exception: a PR that adds or renames a domain term updates `docs/glossary.md` in the same PR.
 - For design decisions, present options with a recommendation and get the owner's approval before implementing.
 - Record progress, dependencies and API changes in issues and PRs, not only in chat, so the other agent can read them with `gh`.
 
@@ -29,6 +29,7 @@ Build as a service for many countries from the start, so a new market does not r
 
 ## Rules
 
+- Use the domain terms and naming rules in `docs/glossary.md` for code, API, database, docs, issues and PRs. Do not use the words its "쓰지 않는 말" column lists.
 - Keep decision status separate from implementation and verification status. If something is unverified, say so.
 - Back performance and concurrency claims with measurements, and state the environment and conditions.
 - To change a decision, write a new ADR linked to the old one. Pick the ADR number when opening the PR (next number on `main`). See `docs/README.md` for documentation rules.

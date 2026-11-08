@@ -9,7 +9,7 @@ Etude는 저장소 주인 1명이 운영하고, 백엔드(`server/`)는 Claude, 
 ```
 
 - `type`: `feature` / `fix` / `infra` / `experiment` / `refactor` / `docs` / `test` / `chore`
-- 예: `feature/3-order-api`, `fix/7-stock-negative`, `experiment/5-lock-comparison`
+- 예: `feature/3-order-api`, `fix/7-inventory-negative`, `experiment/5-lock-comparison`
 - `main`에 직접 커밋하지 않는다. 모든 변경은 PR을 통해 들어온다.
 - 브랜치는 작업(이슈)마다 최신 `main`에서 새로 만든다. 작업 공간(worktree)의 고정 브랜치에서 직접 작업하지 않는다.
 
@@ -54,7 +54,7 @@ Refs #<issue-number>
 - **이슈는 한 영역만 맡는다.** 모든 이슈와 PR에 `area:` 라벨을 하나 붙인다. BE·FE에 걸친 기능은 상위 이슈를 만들고, 그 아래 영역별 하위 이슈(sub-issue)로 나눈다.
 - **의존 관계를 적는다.** 다른 영역의 작업을 기다리는 이슈는 본문에 `#<번호> 완료 후 진행`을 쓰거나 blocked-by로 연결한다.
 - **API 변경을 알린다.** API 경로, 요청, 응답, 오류 형식을 바꾸는 BE PR은 `api-change` 라벨을 붙이고 PR 템플릿의 "API 변경"에 바뀐 내용과 하위 호환 여부를 적는다. FE는 이 라벨로 연동할 변경을 찾는다.
-- **PR 하나는 한 영역만 고친다.** `server/`와 `web/`을 한 PR에서 함께 고치지 않는다. 공유 파일(루트 `README.md`·`CONTRIBUTING.md`·`AGENTS.md`, `.github/`, `docs/README.md`)은 `area:shared` PR로 따로 고친다. 루트 `CLAUDE.md`는 Claude 전용 백엔드 규칙이므로 백엔드 영역에 속한다.
+- **PR 하나는 한 영역만 고친다.** `server/`와 `web/`을 한 PR에서 함께 고치지 않는다. 공유 파일(루트 `README.md`·`CONTRIBUTING.md`·`AGENTS.md`, `.github/`, `docs/README.md`·`docs/glossary.md`)은 `area:shared` PR로 따로 고친다. 단, 업무 용어를 추가하거나 바꾸는 PR은 같은 PR에서 `docs/glossary.md`를 고친다. 루트 `CLAUDE.md`는 Claude 전용 백엔드 규칙이므로 백엔드 영역에 속한다.
 - **ADR 번호는 PR을 올릴 때 정한다.** `main`에 있는 마지막 번호 다음 번호를 쓴다. 번호를 미리 예약하지 않는다. 충돌하면 나중에 머지하는 쪽이 번호를 바꾼다.
 
 ## 작성 언어
