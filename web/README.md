@@ -75,6 +75,10 @@ npm run security:check
 
 `check`는 타입·ESLint·포맷 검사, 빌드와 브라우저 검사를 실행한다. `npm run format`으로 포맷을 맞춘다.
 
+타입 검사·빌드의 `tsc`는 `@typescript/native: npm:typescript@7.0.2` 별칭으로 설치한 TS7 실행 파일이다. ESLint의 `typescript` import는 `npm:@typescript/typescript6@6.0.2` 호환 패키지에 연결한다. 이 패키지는 TS6 API를 다시 내보내고 실행 파일은 `tsc6` 이름으로 제공해 TS7의 `tsc`와 충돌하지 않는다. [Microsoft 공식 병행 구성](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/)을 사용하며, 타입 정보를 사용하는 lint 규칙을 유지한다.
+
+버전 갱신 시 npm `dist-tags`와 각 도구의 `peerDependencies`를 함께 확인한다. `npm outdated`만으로 최신 메이저의 호환성을 판단하거나, 의존성 충돌을 `--force`·`--legacy-peer-deps`로 우회하지 않는다. ESLint가 TS7 API를 지원하면 호환 패키지 제거를 검토하고 재설치·타입 검사·lint·보안 감사·전체 CI를 확인한다.
+
 ESLint는 브라우저 소스와 Node 설정·테스트의 전역을 구분한다. 브라우저에서 Node 모듈·전역과 디버그 로그를 사용하거나, 공통 UI가 앱·라우터에 의존하면 실패한다. 관리자·공통 UI 소스에는 타입 정보를 사용한 권장 검사를 적용해 처리하지 않은 Promise 등을 탐지한다. React Hooks·Fast Refresh 위반도 오류이며, 공식 컴포넌트의 혼합 export 예외는 해당 파일에만 적용한다. 경고가 남아도 `lint`는 실패한다. 포맷은 Prettier에서 별도로 검사한다.
 
 `npm run test:lint`는 위 규칙의 정상·실패 사례 7개를 Node에서 검사하고, `npm run test:browser`는 Chromium 검사를 실행한다. `npm test`와 `npm run check`는 두 종류를 모두 포함한다. 새 앱을 추가할 때는 해당 TypeScript 프로젝트를 ESLint의 `typedSources`에도 등록한다. lint는 런타임 보안·서버 권한 검사나 배포 검증을 대신하지 않는다.
