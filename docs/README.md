@@ -17,6 +17,7 @@ Etude는 주문·재고·결제 시스템을 중심으로 높은 동시성과 �
 | --- | --- | --- | --- | --- |
 | ADR-0001 | [엔티티 식별자](decisions/0001-entity-identifiers.md) | UUIDv7 채택 | 채택 | 로컬 검증 완료, 모든 엔티티에 적용(`BaseEntity`) |
 | ADR-0002 | [웹 앱 분리와 공통 UI](decisions/0002-web-foundation.md) | 독립 앱과 shadcn/ui 공통 기반 | 채택 | 관리자 기반과 로컬 검사 완료, 원격 결과는 Web CI에서 확인 |
+| ADR-0003 | [재고 예약의 동시성 제어](decisions/0003-inventory-concurrency-control.md) | 비관적 락, 락 대기 2초 후 503 | 채택 | 초과 판매 재현·해결 통합 테스트 완료, 방식별 성능은 미측정 |
 
 ## 개념 노트
 
