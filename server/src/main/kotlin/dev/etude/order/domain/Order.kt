@@ -48,6 +48,13 @@ class Order(
     var placedAt: Instant = placedAt
         protected set
 
+    @Column
+    var canceledAt: Instant? = null
+        protected set
+
+    val cancelable: Boolean
+        get() = status == OrderStatus.PLACED
+
     init {
         require(lines.isNotEmpty()) { "Order must have at least one line" }
         require(lines.map { it.unitPrice.currency }.distinct().size == 1) {
@@ -61,4 +68,11 @@ class Order(
     @CompositeType(MoneyType::class)
     var total: Money = lines.map(OrderLine::lineTotal).reduce(Money::plus)
         protected set
+
+    fun cancel(canceledAt: Instant) {
+        check(cancelable) { "Order cannot be canceled in status $status" }
+        status = OrderStatus.CANCELED
+        this.canceledAt = canceledAt
+        _lines.forEach(OrderLine::cancel)
+    }
 }

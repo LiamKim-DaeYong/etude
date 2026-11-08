@@ -56,4 +56,8 @@ class OrderLine(
     internal fun assignLineNumber(lineNumber: Int) {
         this.lineNumber = lineNumber
     }
+
+    internal fun cancel() {
+        status = OrderLineStatus.CANCELED
+    }
 }

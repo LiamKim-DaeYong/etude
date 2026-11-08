@@ -13,6 +13,7 @@ data class OrderResponse(
     val customerId: UUID,
     val status: OrderStatus,
     val placedAt: Instant,
+    val canceledAt: Instant?,
     val total: Money,
     val lines: List<Line>,
 ) {
@@ -47,6 +48,7 @@ data class OrderResponse(
             customerId = order.customerId,
             status = order.status,
             placedAt = order.placedAt,
+            canceledAt = order.canceledAt,
             total = order.total,
             lines = order.lines.map(Line::from),
         )

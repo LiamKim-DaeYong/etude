@@ -135,6 +135,65 @@
         "tags" : [ "Orders" ]
       }
     },
+    "/api/v1/orders/{id}/cancel" : {
+      "post" : {
+        "description" : "Only a placed order can be canceled.",
+        "operationId" : "cancelOrder",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/OrderResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "allOf" : [ {
+                    "$ref" : "#/components/schemas/Problem"
+                  }, {
+                    "type" : "object",
+                    "properties" : {
+                      "code" : {
+                        "type" : "string",
+                        "enum" : [ "ORDER_NOT_CANCELABLE" ]
+                      }
+                    }
+                  } ]
+                }
+              }
+            },
+            "description" : "Error codes: ORDER_NOT_CANCELABLE"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error. Branch on `code`."
+          }
+        },
+        "summary" : "Cancel an order",
+        "tags" : [ "Orders" ]
+      }
+    },
     "/api/v1/products/{id}" : {
       "get" : {
         "operationId" : "getProduct",
@@ -233,7 +292,7 @@
           },
           "status" : {
             "type" : "string",
-            "enum" : [ "PLACED" ]
+            "enum" : [ "PLACED", "CANCELED" ]
           },
           "unitPrice" : {
             "$ref" : "#/components/schemas/Money"
@@ -244,6 +303,10 @@
       "OrderResponse" : {
         "type" : "object",
         "properties" : {
+          "canceledAt" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
           "customerId" : {
             "type" : "string",
             "format" : "uuid"
@@ -264,7 +327,7 @@
           },
           "status" : {
             "type" : "string",
-            "enum" : [ "PLACED" ]
+            "enum" : [ "PLACED", "CANCELED" ]
           },
           "total" : {
             "$ref" : "#/components/schemas/Money"

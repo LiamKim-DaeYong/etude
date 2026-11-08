@@ -60,4 +60,18 @@ class OrderService(
     }
 
     fun findOrder(id: UUID): OrderDetails? = orderRepository.findById(id)?.let(OrderDetails::from)
+
+    /** Returns null when the order does not exist. */
+    @Transactional
+    fun cancel(id: UUID): OrderDetails? {
+        val order = orderRepository.findByIdForUpdate(id) ?: return null
+        if (!order.cancelable) {
+            throw OrderCancellationRejectedException(
+                OrderCancellationRejectedException.Reason.ORDER_NOT_CANCELABLE,
+                "Order cannot be canceled in status ${order.status}: $id",
+            )
+        }
+        order.cancel(Instant.now(clock))
+        return OrderDetails.from(order)
+    }
 }
