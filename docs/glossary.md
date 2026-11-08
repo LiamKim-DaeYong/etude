@@ -18,6 +18,8 @@ Etude의 업무 용어와 이름 규칙의 기준 문서다. 코드, API, DB, �
 | `get` | 컨트롤러 핸들러 | 조회한다. 반드시 돌려주고, 없으면 예외를 던진다(컨트롤러는 404). 핸들러 이름은 `operationId`가 된다 (`getOrder`, Google AIP-131의 Get) | `null`을 돌려주는 조회에 `get` |
 | `place` | 주문 | 고객이 주문한다 | `create`, `submit` |
 | `reserve` | 재고 | 주문에 쓸 수량을 판매 가능 수량에서 떼어 둔다 | `deduct`, `decrease`, `allocate`, `commit` |
+| `cancel` | 주문 | 고객이 주문을 취소한다 | `abort`, `void`, `revoke` |
+| `release` | 재고 | 예약한 수량을 판매 가능 수량으로 되돌린다 | `restore`, `rollback`, `unreserve`, `increase` |
 
 ### 접미사
 
@@ -38,6 +40,8 @@ Etude의 업무 용어와 이름 규칙의 기준 문서다. 코드, API, DB, �
 | 식별자 | 자기 자신은 `id`, 다른 엔티티는 `<엔티티>Id` | `customerId`, `productId` |
 | 상태 | 필드는 `status`, 타입은 `<엔티티>Status`. 값은 형용사나 과거분사 | `OrderStatus.PLACED` |
 | 시각 | `<과거분사>At`, `Instant`(UTC) | `placedAt`, `createdAt` |
+| 가능 여부 | `<동사>able`, 엔티티의 `Boolean` 속성. 서비스는 이 값으로 먼저 거절하고, 엔티티는 같은 조건을 다시 지킨다 | `orderable`, `cancelable` |
+| 이벤트 | `<엔티티><과거분사>`, 발행한 모듈의 기본 패키지에 둔다. 다른 모듈이 조회할 수 있는 식별자만 담는다 | `OrderCanceled` |
 | 금액 | `Money` 하나로 둔다. 이름에 `amount`, `price`를 덧붙이지 않는다 | `total` (`totalAmount` 아님) |
 | 수량 | `Int`, 무엇의 수량인지 모호하면 앞에 붙인다 | `quantity`, `availableQuantity` |
 | 줄임말 | 쓰지 않는다. `id`만 예외 | `lineNumber` (`lineNo` 아님) |
@@ -84,7 +88,12 @@ Etude의 업무 용어와 이름 규칙의 기준 문서다. 코드, API, DB, �
 | 판매 가능 수량 | `availableQuantity` | `availableQuantity` | 지금 주문할 수 있는 수량 | `quantity` (단독), `stockQuantity` |
 | 요청 수량 | `requestedQuantity` | — | 예약하려는 수량. 재고 부족을 알릴 때 판매 가능 수량과 함께 쓴다 | `requested` (단독) |
 | 재고 등록 | `register` | `POST /admin/v1/inventory-items` | 상품의 재고 기록을 처음 만든다 | `create` |
-| 재고 예약 | `reserve` | — | 주문에 쓸 수량을 판매 가능 수량에서 떼어 둔다. 지금은 주문할 때 예약하고 해제하지 않는다 | `deduct`, `decrease`, 예약 판매(pre-order)의 "예약" |
+| 재고 예약 | `reserve` | — | 주문에 쓸 수량을 판매 가능 수량에서 떼어 둔다. 주문할 때 예약하고, 주문을 취소하면 해제한다 | `deduct`, `decrease`, 예약 판매(pre-order)의 "예약" |
+| 예약 기록 | `Reservation` | — | 주문 하나가 상품 하나를 얼마나 예약했는지의 기록. 주문·상품마다 하나다 | `Allocation`, `Hold` |
+| 예약 상태 | `ReservationStatus`, `status` | — | 예약 기록이 아직 수량을 잡고 있는지 | — |
+| 예약됨 | `ReservationStatus.RESERVED` | — | 수량을 떼어 둔 상태 | `ACTIVE`, `HELD` |
+| 해제됨 | `ReservationStatus.RELEASED` | — | 수량을 판매 가능 수량으로 되돌린 상태. 다시 해제하지 않는다 | `CANCELED` (주문 상태와 혼동) |
+| 예약 해제 | `release` | — | 예약됨 상태의 예약 기록만큼 판매 가능 수량을 되돌린다. 같은 주문으로 다시 해제해도 바뀌지 않는다 | `restore`, `rollback`, `unreserve` |
 | 재고 부족 | `InsufficientInventoryException` | `INSUFFICIENT_INVENTORY` | 요청 수량이 판매 가능 수량보다 많다 | `OUT_OF_STOCK`, `INSUFFICIENT_STOCK` |
 
 | 거절 코드 | 정의 |
@@ -92,7 +101,9 @@ Etude의 업무 용어와 이름 규칙의 기준 문서다. 코드, API, DB, �
 | `PRODUCT_NOT_FOUND` | 재고를 등록할 상품이 없다 |
 | `INVENTORY_ITEM_ALREADY_REGISTERED` | 상품의 재고가 이미 등록되어 있다 |
 
-재고 상태(실제 보유, 예약, 판매 가능)를 나누거나 예약을 확정·해제하는 용어는 결제 단계(#20)에서 정한다. 참고로 업계에서는 주문 시점의 동작을 reserve(Magento, commercetools)나 commit(Shopify)이라 하고, deduct는 출고할 때 실제 재고를 빼는 동작(Magento source deduction)을 가리킨다.
+예약 포트 `InventoryReservation`, `ReservationLine`과 재고 부족 예외 `InsufficientInventoryException`은 쓰는 쪽인 주문 모듈(`dev.etude.order`)이 정의하고 재고 모듈이 구현한다([ADR-0004](decisions/0004-module-dependency-direction.md)).
+
+재고 상태(실제 보유, 예약, 판매 가능)를 나누거나 예약을 확정하는 용어는 결제 단계(#20)에서 정한다. 참고로 업계에서는 주문 시점의 동작을 reserve(Magento, commercetools)나 commit(Shopify)이라 하고, deduct는 출고할 때 실제 재고를 빼는 동작(Magento source deduction)을 가리킨다.
 
 ## 주문 (`order`)
 
@@ -108,6 +119,11 @@ Etude의 업무 용어와 이름 규칙의 기준 문서다. 코드, API, DB, �
 | 주문 상태 | `OrderStatus` | `status` | 주문의 진행 단계 | — |
 | 주문됨 | `OrderStatus.PLACED`, `OrderLineStatus.PLACED` | `PLACED` | 주문이 접수된 상태 | `ORDERED`, `CREATED` |
 | 주문 시각 | `placedAt` | `placedAt` | 고객이 주문한 시각 (업무 시각). 감사용 `createdAt`과 구분한다 | `orderedAt`, `orderDate` |
+| 주문 취소 | `cancel` | `POST /api/v1/orders/{id}/cancel` | 주문을 취소한다. 주문 항목도 함께 취소되고, 예약한 재고는 해제된다 | `abort`, `void`, `DELETE /orders/{id}` |
+| 취소됨 | `OrderStatus.CANCELED`, `OrderLineStatus.CANCELED` | `CANCELED` | 주문이 취소된 상태 | `CANCELLED` (영국식 철자), `ABORTED` |
+| 취소 가능 | `cancelable` | — | 주문됨 상태라 취소할 수 있음 | `cancellable` |
+| 취소 시각 | `canceledAt` | `canceledAt` | 주문을 취소한 시각. 취소하지 않은 주문은 `null` | `cancelledAt`, `cancelDate` |
+| 주문 취소됨 | `OrderCanceled` | — | 주문을 취소한 트랜잭션에서 발행하는 이벤트. 주문 ID만 담는다 | `OrderCancelEvent`, `OrderCancelled` |
 | 상품명 | `productName` | `productName` | 주문 시점에 복사한 상품명. 이후 상품명이 바뀌어도 그대로다 | — |
 | 단가 | `unitPrice` | `unitPrice` | 주문 시점에 확정한 상품 하나의 가격 | `price` (주문 항목에서) |
 | 항목 금액 | `lineTotal` | `lineTotal` | 단가 × 수량 | `subtotal`, `lineAmount` |
@@ -122,3 +138,7 @@ Etude의 업무 용어와 이름 규칙의 기준 문서다. 코드, API, DB, �
 | `CURRENCY_MISMATCH` | 주문 항목들의 통화가 다르다 |
 | `TOTAL_MISMATCH` | 예상 총액과 현재 총액이 다르다 (`TOTAL_AMOUNT_MISMATCH` 아님) |
 | `INSUFFICIENT_INVENTORY` | 주문 수량만큼 재고가 없다. 재고가 등록되지 않은 상품도 같다. 부족한 상품은 응답의 `productId`에 담는다 (`OUT_OF_STOCK` 아님) |
+
+| 취소 거절 코드 | 정의 |
+| --- | --- |
+| `ORDER_NOT_CANCELABLE` | 주문됨 상태가 아니라 취소할 수 없다 (409). 이미 취소한 주문도 같다 |
