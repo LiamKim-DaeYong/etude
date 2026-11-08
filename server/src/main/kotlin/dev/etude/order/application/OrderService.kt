@@ -49,8 +49,13 @@ class OrderService(
             )
         }
 
+        val saved = orderRepository.save(order)
+
         try {
-            inventoryReservation.reserve(command.lines.map { ReservationLine(it.productId, it.quantity) })
+            inventoryReservation.reserve(
+                orderId = requireNotNull(saved.id),
+                lines = command.lines.map { ReservationLine(it.productId, it.quantity) },
+            )
         } catch (e: InsufficientInventoryException) {
             throw OrderRejectedException(
                 Reason.INSUFFICIENT_INVENTORY,
@@ -59,7 +64,7 @@ class OrderService(
             )
         }
 
-        return OrderDetails.from(orderRepository.save(order))
+        return OrderDetails.from(saved)
     }
 
     fun findOrder(id: UUID): OrderDetails? = orderRepository.findById(id)?.let(OrderDetails::from)
