@@ -4,6 +4,8 @@ import java.util.UUID
 
 class InsufficientInventoryException(
     val productId: UUID,
-    val requested: Int,
-    val available: Int,
-) : RuntimeException("Insufficient inventory for product $productId: requested $requested, available $available")
+    val requestedQuantity: Int,
+    val availableQuantity: Int,
+) : RuntimeException(
+    "Insufficient inventory for product $productId: requested $requestedQuantity, available $availableQuantity",
+)

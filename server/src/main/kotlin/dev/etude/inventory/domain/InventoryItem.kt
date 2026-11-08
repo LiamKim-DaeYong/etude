@@ -26,7 +26,7 @@ class InventoryItem(
     fun reserve(quantity: Int) {
         require(quantity > 0) { "Reserved quantity must be positive: $quantity" }
         if (quantity > availableQuantity) {
-            throw InsufficientInventoryException(productId, requested = quantity, available = availableQuantity)
+            throw InsufficientInventoryException(productId, requestedQuantity = quantity, availableQuantity = availableQuantity)
         }
         availableQuantity -= quantity
     }

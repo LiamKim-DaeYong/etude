@@ -37,7 +37,7 @@ class OrderService(
         if (order.total != command.expectedTotal) {
             throw OrderRejectedException(
                 Reason.TOTAL_MISMATCH,
-                "Total amount changed: expected ${command.expectedTotal}, current ${order.total}",
+                "Total changed: expected ${command.expectedTotal}, current ${order.total}",
                 currentTotal = order.total,
             )
         }
