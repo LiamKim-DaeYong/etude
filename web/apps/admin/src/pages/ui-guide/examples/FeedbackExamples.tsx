@@ -1,16 +1,21 @@
+import { useState } from 'react';
 import { Inbox, Info } from 'lucide-react';
 import {
   Alert,
   AlertDescription,
   AlertTitle,
+  Button,
   EmptyState,
+  ErrorState,
+  LoadingState,
   Progress,
   Separator,
-  Skeleton,
 } from '@etude/ui';
 import { SampleCard } from './SampleCard';
 
 export function FeedbackExamples() {
+  const [recovered, setRecovered] = useState(false);
+
   return (
     <div className="grid items-start gap-5 xl:grid-cols-2">
       <SampleCard
@@ -26,22 +31,44 @@ export function FeedbackExamples() {
       </SampleCard>
       <SampleCard
         title="불러오는 중"
-        description="화면이 준비되는 동안 콘텐츠의 위치를 보여줍니다."
+        description="로딩 안내와 콘텐츠 자리 표시자를 함께 보여줍니다."
       >
-        <div className="flex gap-4">
-          <Skeleton className="size-11 rounded-lg" />
-          <div className="flex-1 space-y-3">
-            <Skeleton className="h-4 w-2/3" />
-            <Skeleton className="h-3 w-full" />
-            <Skeleton className="h-3 w-4/5" />
-          </div>
-        </div>
+        <LoadingState titleAs="h3" />
         <Separator className="my-6" />
         <div className="mb-3 flex justify-between text-xs">
           <span>진행률 예시</span>
           <span className="text-muted-foreground">68%</span>
         </div>
         <Progress value={68} aria-label="진행률 예시" />
+      </SampleCard>
+      <SampleCard
+        title="오류와 복구"
+        description="아래 버튼으로 오류 표시와 복구 후 표시를 확인할 수 있습니다."
+        className="xl:col-span-2"
+      >
+        {recovered ? (
+          <div role="status">
+            <EmptyState
+              titleAs="h3"
+              title="화면 표시를 복구했습니다"
+              description="복구 동작을 확인하는 예시입니다. 실제 요청은 보내지 않습니다."
+            />
+          </div>
+        ) : (
+          <ErrorState
+            titleAs="h3"
+            title="내용을 불러오지 못했습니다"
+            description="복구 동작을 확인하는 예시입니다. 실제 통신 오류가 아닙니다."
+          />
+        )}
+        <div className="flex justify-center">
+          <Button
+            variant="outline"
+            onClick={() => setRecovered((current) => !current)}
+          >
+            {recovered ? '오류 예시 다시 보기' : '복구 예시 확인'}
+          </Button>
+        </div>
       </SampleCard>
       <SampleCard
         title="안내와 오류"

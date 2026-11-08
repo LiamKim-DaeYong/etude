@@ -21,7 +21,7 @@ npx shadcn add toast --cwd packages/ui --yes
 - Dialog·Sheet·Toast의 닫기 접근성 이름을 한글로 변경
 - 앱과 다른 컴포넌트에서 참조하지 않는 ScrollArea 소스 제거. 필요해지면 공식 CLI로 다시 추가한다.
 
-색상·한글 폰트와 제품 공통 요소는 원본 컴포넌트 밖에서 관리한다. `EtudeProvider`, `PageHeader`, `EmptyState`, 테마 저장과 앱 레이아웃은 Etude 코드다.
+색상·한글 폰트와 제품 공통 요소는 원본 컴포넌트 밖에서 관리한다. `EtudeProvider`, `PageHeader`, `EmptyState`, `LoadingState`, `ErrorState`, `FormField`, 테마 저장과 앱 레이아웃은 Etude 코드다. `LoadingState`는 공식 `Skeleton`, `ErrorState`는 `EmptyState`, `FormField`는 공식 `Label`을 조합하며 원본 컴포넌트 소스는 수정하지 않는다. 입력값·검증·오류 문구·복구 동작은 호출자가 소유한다. 사용 방법은 [Web 안내](../../README.md#화면-상태와-입력-피드백)에 있다.
 
 ## 갱신
 

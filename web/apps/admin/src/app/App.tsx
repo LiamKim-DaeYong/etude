@@ -1,6 +1,6 @@
 import { Suspense, useEffect, useRef } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
-import { LoaderCircle } from 'lucide-react';
+import { LoadingState } from '@etude/ui';
 import { AdminLayout } from './layout/AdminLayout';
 import { routes } from './routes';
 import { NotFound } from '@/pages/NotFound';
@@ -24,17 +24,7 @@ export function App() {
   return (
     <AdminLayout>
       <ErrorBoundary key={pathname} fallback={<PageErrorFallback />}>
-        <Suspense
-          fallback={
-            <div
-              className="grid min-h-72 place-items-center"
-              role="status"
-              aria-label="화면 불러오는 중"
-            >
-              <LoaderCircle className="size-5 animate-spin text-muted-foreground" />
-            </div>
-          }
-        >
+        <Suspense fallback={<LoadingState titleAs="h1" />}>
           <Routes>
             {routes.map(({ path, Component }) => (
               <Route key={path} path={path} element={<Component />} />
