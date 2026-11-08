@@ -121,3 +121,4 @@ Etude의 업무 용어와 이름 규칙의 기준 문서다. 코드, API, DB, �
 | `PRODUCT_NOT_ORDERABLE` | 상품이 판매 중이 아니다 |
 | `CURRENCY_MISMATCH` | 주문 항목들의 통화가 다르다 |
 | `TOTAL_MISMATCH` | 예상 총액과 현재 총액이 다르다 (`TOTAL_AMOUNT_MISMATCH` 아님) |
+| `INSUFFICIENT_INVENTORY` | 주문 수량만큼 재고가 없다. 재고가 등록되지 않은 상품도 같다. 부족한 상품은 응답의 `productId`에 담는다 (`OUT_OF_STOCK` 아님) |

@@ -1,6 +1,7 @@
 package dev.etude.order.application
 
 import dev.etude.catalog.ProductCatalog
+import dev.etude.inventory.InsufficientInventoryException
 import dev.etude.inventory.InventoryReservation
 import dev.etude.inventory.ReservationLine
 import dev.etude.order.application.OrderRejectedException.Reason
@@ -45,7 +46,16 @@ class OrderService(
             )
         }
 
-        inventoryReservation.reserve(command.lines.map { ReservationLine(it.productId, it.quantity) })
+        try {
+            inventoryReservation.reserve(command.lines.map { ReservationLine(it.productId, it.quantity) })
+        } catch (e: InsufficientInventoryException) {
+            throw OrderRejectedException(
+                Reason.INSUFFICIENT_INVENTORY,
+                "Insufficient inventory for product: ${e.productId}",
+                productId = e.productId,
+            )
+        }
+
         return OrderDetails.from(orderRepository.save(order))
     }
 
