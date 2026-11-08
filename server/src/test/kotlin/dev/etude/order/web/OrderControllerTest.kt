@@ -210,6 +210,41 @@ class OrderControllerTest(
             .isLenientlyEqualTo("""{"detail":"Order not found: $id"}""")
     }
 
+    @Test
+    fun `cancels a placed order`() {
+        val keyboard = product("Keyboard", "10000", "KRW")
+        val location = requireNotNull(place(lines = line(keyboard), expectedTotal = "10000").response.getHeader("Location"))
+
+        val canceled = mvc.post().uri("$location/cancel").exchange()
+
+        assertThat(canceled)
+            .hasStatusOk()
+            .bodyJson()
+            .isLenientlyEqualTo("""{"status":"CANCELED","lines":[{"status":"CANCELED"}]}""")
+        assertThat(canceled.response.contentAsString).contains("\"canceledAt\":\"")
+        assertThat(mvc.get().uri(location).exchange())
+            .bodyJson()
+            .isLenientlyEqualTo("""{"status":"CANCELED","lines":[{"status":"CANCELED"}]}""")
+    }
+
+    @Test
+    fun `returns 409 problem when canceling a canceled order`() {
+        val keyboard = product("Keyboard", "10000", "KRW")
+        val location = requireNotNull(place(lines = line(keyboard), expectedTotal = "10000").response.getHeader("Location"))
+        assertThat(mvc.post().uri("$location/cancel").exchange()).hasStatusOk()
+
+        assertProblem(mvc.post().uri("$location/cancel").exchange(), HttpStatus.CONFLICT)
+            .isLenientlyEqualTo("""{"code":"ORDER_NOT_CANCELABLE"}""")
+    }
+
+    @Test
+    fun `returns 404 problem when canceling an unknown order`() {
+        val id = UUID.randomUUID()
+
+        assertProblem(mvc.post().uri("/api/v1/orders/{id}/cancel", id).exchange(), HttpStatus.NOT_FOUND)
+            .isLenientlyEqualTo("""{"detail":"Order not found: $id"}""")
+    }
+
     private fun product(name: String, price: String, currency: String, inventory: Int? = 100): UUID {
         val productId = productService.register(name, Money.of(BigDecimal(price), Currency.getInstance(currency))).id
         inventory?.let { inventoryService.register(productId, it) }

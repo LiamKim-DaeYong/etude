@@ -1,9 +1,9 @@
-package dev.etude.inventory
+package dev.etude.order
 
 import java.util.UUID
 
 interface InventoryReservation {
-    fun reserve(lines: List<ReservationLine>)
+    fun reserve(orderId: UUID, lines: List<ReservationLine>)
 }
 
 data class ReservationLine(

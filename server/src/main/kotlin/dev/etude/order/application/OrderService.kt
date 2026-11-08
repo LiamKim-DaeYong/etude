@@ -1,13 +1,15 @@
 package dev.etude.order.application
 
 import dev.etude.catalog.ProductCatalog
-import dev.etude.inventory.InsufficientInventoryException
-import dev.etude.inventory.InventoryReservation
-import dev.etude.inventory.ReservationLine
+import dev.etude.order.InsufficientInventoryException
+import dev.etude.order.InventoryReservation
+import dev.etude.order.OrderCanceled
+import dev.etude.order.ReservationLine
 import dev.etude.order.application.OrderRejectedException.Reason
 import dev.etude.order.domain.Order
 import dev.etude.order.domain.OrderLine
 import dev.etude.order.domain.OrderRepository
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Clock
@@ -20,6 +22,7 @@ class OrderService(
     private val orderRepository: OrderRepository,
     private val productCatalog: ProductCatalog,
     private val inventoryReservation: InventoryReservation,
+    private val events: ApplicationEventPublisher,
     private val clock: Clock,
 ) {
 
@@ -46,8 +49,13 @@ class OrderService(
             )
         }
 
+        val saved = orderRepository.save(order)
+
         try {
-            inventoryReservation.reserve(command.lines.map { ReservationLine(it.productId, it.quantity) })
+            inventoryReservation.reserve(
+                orderId = requireNotNull(saved.id),
+                lines = command.lines.map { ReservationLine(it.productId, it.quantity) },
+            )
         } catch (e: InsufficientInventoryException) {
             throw OrderRejectedException(
                 Reason.INSUFFICIENT_INVENTORY,
@@ -56,8 +64,25 @@ class OrderService(
             )
         }
 
-        return OrderDetails.from(orderRepository.save(order))
+        return OrderDetails.from(saved)
     }
 
     fun findOrder(id: UUID): OrderDetails? = orderRepository.findById(id)?.let(OrderDetails::from)
+
+    /** Returns null when the order does not exist. */
+    @Transactional
+    fun cancel(id: UUID): OrderDetails? {
+        val order = orderRepository.findByIdForUpdate(id) ?: return null
+        if (!order.cancelable) {
+            throw OrderCancellationRejectedException(
+                OrderCancellationRejectedException.Reason.ORDER_NOT_CANCELABLE,
+                "Order cannot be canceled in status ${order.status}: $id",
+            )
+        }
+        order.cancel(Instant.now(clock))
+
+        events.publishEvent(OrderCanceled(id))
+
+        return OrderDetails.from(order)
+    }
 }

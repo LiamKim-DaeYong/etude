@@ -1,5 +1,6 @@
 package dev.etude.order.web
 
+import dev.etude.order.application.OrderCancellationRejectedException
 import dev.etude.order.application.OrderRejectedException
 import dev.etude.order.application.OrderService
 import dev.etude.platform.Rejects
@@ -40,6 +41,13 @@ class OrderController(
     @GetMapping("/{id}")
     @Operation(summary = "Get an order")
     fun getOrder(@PathVariable id: UUID): OrderResponse = orderService.findOrder(id)
+        ?.let(OrderResponse::from)
+        ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found: $id")
+
+    @PostMapping("/{id}/cancel")
+    @Operation(summary = "Cancel an order", description = "Only a placed order can be canceled.")
+    @Rejects(OrderCancellationRejectedException.Reason::class)
+    fun cancelOrder(@PathVariable id: UUID): OrderResponse = orderService.cancel(id)
         ?.let(OrderResponse::from)
         ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found: $id")
 }
