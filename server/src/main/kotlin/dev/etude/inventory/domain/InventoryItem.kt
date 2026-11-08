@@ -1,5 +1,6 @@
 package dev.etude.inventory.domain
 
+import dev.etude.inventory.InsufficientInventoryException
 import dev.etude.shared.BaseEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity

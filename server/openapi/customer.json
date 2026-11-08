@@ -73,14 +73,14 @@
                     "properties" : {
                       "code" : {
                         "type" : "string",
-                        "enum" : [ "PRODUCT_NOT_ORDERABLE", "CURRENCY_MISMATCH", "TOTAL_MISMATCH" ]
+                        "enum" : [ "PRODUCT_NOT_ORDERABLE", "CURRENCY_MISMATCH", "TOTAL_MISMATCH", "INSUFFICIENT_INVENTORY" ]
                       }
                     }
                   } ]
                 }
               }
             },
-            "description" : "Error codes: PRODUCT_NOT_ORDERABLE, CURRENCY_MISMATCH, TOTAL_MISMATCH"
+            "description" : "Error codes: PRODUCT_NOT_ORDERABLE, CURRENCY_MISMATCH, TOTAL_MISMATCH, INSUFFICIENT_INVENTORY"
           },
           "default" : {
             "content" : {

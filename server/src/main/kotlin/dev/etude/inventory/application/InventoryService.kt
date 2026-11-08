@@ -1,6 +1,9 @@
 package dev.etude.inventory.application
 
 import dev.etude.catalog.ProductCatalog
+import dev.etude.inventory.InsufficientInventoryException
+import dev.etude.inventory.InventoryReservation
+import dev.etude.inventory.ReservationLine
 import dev.etude.inventory.application.InventoryRejectedException.Reason
 import dev.etude.inventory.domain.InventoryItem
 import dev.etude.inventory.domain.InventoryItemRepository
@@ -13,7 +16,7 @@ import java.util.UUID
 class InventoryService(
     private val inventoryItemRepository: InventoryItemRepository,
     private val productCatalog: ProductCatalog,
-) {
+) : InventoryReservation {
 
     @Transactional
     fun register(productId: UUID, availableQuantity: Int): InventoryItemDetails {
@@ -29,4 +32,13 @@ class InventoryService(
 
     fun findInventoryItem(productId: UUID): InventoryItemDetails? = inventoryItemRepository.findByProductId(productId)
         ?.let(InventoryItemDetails::from)
+
+    @Transactional
+    override fun reserve(lines: List<ReservationLine>) {
+        lines.sortedBy { it.productId }.forEach { line ->
+            val inventoryItem = inventoryItemRepository.findByProductId(line.productId)
+                ?: throw InsufficientInventoryException(line.productId, line.quantity, availableQuantity = 0)
+            inventoryItem.reserve(line.quantity)
+        }
+    }
 }

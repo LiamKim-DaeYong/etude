@@ -22,6 +22,7 @@ class OrderExceptionHandler : RejectionStatuses<Reason> {
         Reason.PRODUCT_NOT_ORDERABLE,
         Reason.CURRENCY_MISMATCH,
         Reason.TOTAL_MISMATCH,
+        Reason.INSUFFICIENT_INVENTORY,
         -> HttpStatus.CONFLICT
     }
 
@@ -29,5 +30,6 @@ class OrderExceptionHandler : RejectionStatuses<Reason> {
     fun handle(e: OrderRejectedException): ProblemDetail = ProblemDetail.forStatusAndDetail(statusOf(e.reason), e.message).apply {
         setProperty("code", e.reason.name)
         e.currentTotal?.let { setProperty("currentTotal", it) }
+        e.productId?.let { setProperty("productId", it) }
     }
 }
