@@ -12,6 +12,6 @@ class OrderRejectedException(
         PRODUCT_NOT_FOUND,
         PRODUCT_NOT_ORDERABLE,
         CURRENCY_MISMATCH,
-        TOTAL_AMOUNT_MISMATCH,
+        TOTAL_MISMATCH,
     }
 }

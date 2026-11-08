@@ -39,7 +39,7 @@ class OrderController(
 
     @GetMapping("/{id}")
     @Operation(summary = "Get an order")
-    fun getOrder(@PathVariable id: UUID): OrderResponse = orderService.getOrder(id)
+    fun getOrder(@PathVariable id: UUID): OrderResponse = orderService.findOrder(id)
         ?.let(OrderResponse::from)
         ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found: $id")
 }

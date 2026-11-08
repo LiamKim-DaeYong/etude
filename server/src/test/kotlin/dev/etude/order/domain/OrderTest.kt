@@ -18,16 +18,16 @@ class OrderTest {
     fun `numbers lines in the given order and sums the total`() {
         val order = order(line("Keyboard", 2, "10000", krw), line("Mouse", 1, "2500", krw))
 
-        assertEquals(listOf(1, 2), order.lines.map(OrderLine::lineNo))
+        assertEquals(listOf(1, 2), order.lines.map(OrderLine::lineNumber))
         assertEquals(Money.of(BigDecimal("22500"), krw), order.total)
     }
 
     @Test
-    fun `starts as placed with ordered lines`() {
+    fun `starts as placed with placed lines`() {
         val order = order(line("Keyboard", 1, "10000", krw))
 
         assertEquals(OrderStatus.PLACED, order.status)
-        assertEquals(listOf(OrderLineStatus.ORDERED), order.lines.map(OrderLine::status))
+        assertEquals(listOf(OrderLineStatus.PLACED), order.lines.map(OrderLine::status))
     }
 
     @Test

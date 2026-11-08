@@ -73,14 +73,14 @@
                     "properties" : {
                       "code" : {
                         "type" : "string",
-                        "enum" : [ "PRODUCT_NOT_ORDERABLE", "CURRENCY_MISMATCH", "TOTAL_AMOUNT_MISMATCH" ]
+                        "enum" : [ "PRODUCT_NOT_ORDERABLE", "CURRENCY_MISMATCH", "TOTAL_MISMATCH" ]
                       }
                     }
                   } ]
                 }
               }
             },
-            "description" : "Error codes: PRODUCT_NOT_ORDERABLE, CURRENCY_MISMATCH, TOTAL_AMOUNT_MISMATCH"
+            "description" : "Error codes: PRODUCT_NOT_ORDERABLE, CURRENCY_MISMATCH, TOTAL_MISMATCH"
           },
           "default" : {
             "content" : {
@@ -213,7 +213,7 @@
             "type" : "string",
             "format" : "uuid"
           },
-          "lineNo" : {
+          "lineNumber" : {
             "type" : "integer",
             "format" : "int32"
           },
@@ -233,13 +233,13 @@
           },
           "status" : {
             "type" : "string",
-            "enum" : [ "ORDERED" ]
+            "enum" : [ "PLACED" ]
           },
           "unitPrice" : {
             "$ref" : "#/components/schemas/Money"
           }
         },
-        "required" : [ "id", "lineNo", "lineTotal", "productId", "productName", "quantity", "status", "unitPrice" ]
+        "required" : [ "id", "lineNumber", "lineTotal", "productId", "productName", "quantity", "status", "unitPrice" ]
       },
       "OrderResponse" : {
         "type" : "object",
@@ -258,7 +258,7 @@
               "$ref" : "#/components/schemas/OrderLineResponse"
             }
           },
-          "orderedAt" : {
+          "placedAt" : {
             "type" : "string",
             "format" : "date-time"
           },
@@ -270,7 +270,7 @@
             "$ref" : "#/components/schemas/Money"
           }
         },
-        "required" : [ "customerId", "id", "lines", "orderedAt", "status", "total" ]
+        "required" : [ "customerId", "id", "lines", "placedAt", "status", "total" ]
       },
       "PlaceOrderLine" : {
         "type" : "object",
@@ -354,12 +354,12 @@
           "price" : {
             "$ref" : "#/components/schemas/Money"
           },
-          "salesStatus" : {
+          "status" : {
             "type" : "string",
-            "enum" : [ "ON_SALE", "SUSPENDED" ]
+            "enum" : [ "ACTIVE", "SUSPENDED" ]
           }
         },
-        "required" : [ "id", "name", "price", "salesStatus" ]
+        "required" : [ "id", "name", "price", "status" ]
       }
     }
   }

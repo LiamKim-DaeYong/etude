@@ -3,8 +3,8 @@ package dev.etude.inventory.web
 import jakarta.validation.constraints.PositiveOrZero
 import java.util.UUID
 
-data class RegisterStockRequest(
+data class RegisterInventoryItemRequest(
     val productId: UUID,
     @field:PositiveOrZero
-    val quantity: Int,
+    val availableQuantity: Int,
 )

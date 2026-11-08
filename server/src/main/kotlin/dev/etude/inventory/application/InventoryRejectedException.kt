@@ -1,12 +1,12 @@
 package dev.etude.inventory.application
 
-class StockRejectedException(
+class InventoryRejectedException(
     val reason: Reason,
     message: String,
 ) : RuntimeException(message) {
 
     enum class Reason {
         PRODUCT_NOT_FOUND,
-        STOCK_ALREADY_REGISTERED,
+        INVENTORY_ITEM_ALREADY_REGISTERED,
     }
 }

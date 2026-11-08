@@ -21,7 +21,7 @@ class OrderExceptionHandler : RejectionStatuses<Reason> {
 
         Reason.PRODUCT_NOT_ORDERABLE,
         Reason.CURRENCY_MISMATCH,
-        Reason.TOTAL_AMOUNT_MISMATCH,
+        Reason.TOTAL_MISMATCH,
         -> HttpStatus.CONFLICT
     }
 

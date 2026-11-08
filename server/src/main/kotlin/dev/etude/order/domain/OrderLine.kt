@@ -21,7 +21,7 @@ class OrderLine(
 ) : BaseEntity() {
 
     @Column(nullable = false)
-    var lineNo: Int = 0
+    var lineNumber: Int = 0
         protected set
 
     @Column(nullable = false)
@@ -43,7 +43,7 @@ class OrderLine(
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    var status: OrderLineStatus = OrderLineStatus.ORDERED
+    var status: OrderLineStatus = OrderLineStatus.PLACED
         protected set
 
     init {
@@ -53,7 +53,7 @@ class OrderLine(
     val lineTotal: Money
         get() = unitPrice * quantity
 
-    internal fun assignLineNo(lineNo: Int) {
-        this.lineNo = lineNo
+    internal fun assignLineNumber(lineNumber: Int) {
+        this.lineNumber = lineNumber
     }
 }

@@ -18,7 +18,7 @@ class ProductService(
     @Transactional
     fun register(name: String, price: Money): ProductDetails = ProductDetails.from(productRepository.save(Product(name, price)))
 
-    fun getProduct(id: UUID): ProductDetails? = productRepository.findById(id)?.let(ProductDetails::from)
+    fun findProduct(id: UUID): ProductDetails? = productRepository.findById(id)?.let(ProductDetails::from)
 
     override fun find(id: UUID): ProductInfo? = productRepository.findById(id)?.let {
         ProductInfo(

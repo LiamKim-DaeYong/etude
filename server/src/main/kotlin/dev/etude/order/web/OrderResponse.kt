@@ -12,14 +12,14 @@ data class OrderResponse(
     val id: UUID,
     val customerId: UUID,
     val status: OrderStatus,
-    val orderedAt: Instant,
+    val placedAt: Instant,
     val total: Money,
     val lines: List<Line>,
 ) {
     @Schema(name = "OrderLineResponse")
     data class Line(
         val id: UUID,
-        val lineNo: Int,
+        val lineNumber: Int,
         val productId: UUID,
         val productName: String,
         val quantity: Int,
@@ -30,7 +30,7 @@ data class OrderResponse(
         companion object {
             fun from(line: OrderDetails.Line) = Line(
                 id = line.id,
-                lineNo = line.lineNo,
+                lineNumber = line.lineNumber,
                 productId = line.productId,
                 productName = line.productName,
                 quantity = line.quantity,
@@ -46,7 +46,7 @@ data class OrderResponse(
             id = order.id,
             customerId = order.customerId,
             status = order.status,
-            orderedAt = order.orderedAt,
+            placedAt = order.placedAt,
             total = order.total,
             lines = order.lines.map(Line::from),
         )
