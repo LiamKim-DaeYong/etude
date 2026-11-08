@@ -2,6 +2,7 @@ package dev.etude.order.web
 
 import dev.etude.IntegrationTest
 import dev.etude.catalog.application.ProductService
+import dev.etude.inventory.application.InventoryService
 import dev.etude.shared.Money
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -19,6 +20,7 @@ import java.util.UUID
 class OrderControllerTest(
     @Autowired private val mvc: MockMvcTester,
     @Autowired private val productService: ProductService,
+    @Autowired private val inventoryService: InventoryService,
     @Autowired private val jdbcTemplate: JdbcTemplate,
 ) {
 
@@ -57,6 +59,21 @@ class OrderControllerTest(
                 }
                 """.trimIndent(),
             )
+    }
+
+    @Test
+    fun `reserves inventory for each line when placing an order`() {
+        val keyboard = product("Keyboard", "10000", "KRW", inventory = 5)
+        val mouse = product("Mouse", "2500", "KRW", inventory = 5)
+
+        val created = place(
+            lines = """[{"productId":"$keyboard","quantity":2},{"productId":"$mouse","quantity":1}]""",
+            expectedTotal = "22500",
+        )
+
+        assertThat(created).hasStatus(HttpStatus.CREATED)
+        assertThat(inventoryService.findInventoryItem(keyboard)?.availableQuantity).isEqualTo(3)
+        assertThat(inventoryService.findInventoryItem(mouse)?.availableQuantity).isEqualTo(4)
     }
 
     @Test
@@ -159,7 +176,11 @@ class OrderControllerTest(
             .isLenientlyEqualTo("""{"detail":"Order not found: $id"}""")
     }
 
-    private fun product(name: String, price: String, currency: String): UUID = productService.register(name, Money.of(BigDecimal(price), Currency.getInstance(currency))).id
+    private fun product(name: String, price: String, currency: String, inventory: Int = 100): UUID {
+        val productId = productService.register(name, Money.of(BigDecimal(price), Currency.getInstance(currency))).id
+        inventoryService.register(productId, inventory)
+        return productId
+    }
 
     private fun line(productId: UUID, quantity: Int = 1) = """[{"productId":"$productId","quantity":$quantity}]"""
 

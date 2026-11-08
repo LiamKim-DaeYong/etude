@@ -1,6 +1,8 @@
 package dev.etude.order.application
 
 import dev.etude.catalog.ProductCatalog
+import dev.etude.inventory.InventoryReservation
+import dev.etude.inventory.ReservationLine
 import dev.etude.order.application.OrderRejectedException.Reason
 import dev.etude.order.domain.Order
 import dev.etude.order.domain.OrderLine
@@ -16,6 +18,7 @@ import java.util.UUID
 class OrderService(
     private val orderRepository: OrderRepository,
     private val productCatalog: ProductCatalog,
+    private val inventoryReservation: InventoryReservation,
     private val clock: Clock,
 ) {
 
@@ -41,6 +44,8 @@ class OrderService(
                 currentTotal = order.total,
             )
         }
+
+        inventoryReservation.reserve(command.lines.map { ReservationLine(it.productId, it.quantity) })
         return OrderDetails.from(orderRepository.save(order))
     }
 
