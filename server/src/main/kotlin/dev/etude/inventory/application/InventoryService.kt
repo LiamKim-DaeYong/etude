@@ -46,4 +46,13 @@ class InventoryService(
             inventoryItem.reserve(line.quantity)
         }
     }
+
+    @Transactional
+    fun release(lines: List<ReservationLine>) {
+        lines.sortedBy { it.productId }.forEach { line ->
+            val inventoryItem = inventoryItemRepository.findByProductIdForUpdate(line.productId)
+                ?: error("No inventory item to release for product ${line.productId}")
+            inventoryItem.release(line.quantity)
+        }
+    }
 }

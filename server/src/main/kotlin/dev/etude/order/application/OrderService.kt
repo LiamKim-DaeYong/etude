@@ -3,11 +3,13 @@ package dev.etude.order.application
 import dev.etude.catalog.ProductCatalog
 import dev.etude.order.InsufficientInventoryException
 import dev.etude.order.InventoryReservation
+import dev.etude.order.OrderCanceled
 import dev.etude.order.ReservationLine
 import dev.etude.order.application.OrderRejectedException.Reason
 import dev.etude.order.domain.Order
 import dev.etude.order.domain.OrderLine
 import dev.etude.order.domain.OrderRepository
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Clock
@@ -20,6 +22,7 @@ class OrderService(
     private val orderRepository: OrderRepository,
     private val productCatalog: ProductCatalog,
     private val inventoryReservation: InventoryReservation,
+    private val events: ApplicationEventPublisher,
     private val clock: Clock,
 ) {
 
@@ -72,6 +75,11 @@ class OrderService(
             )
         }
         order.cancel(Instant.now(clock))
+
+        events.publishEvent(
+            OrderCanceled(id, order.lines.map { OrderCanceled.Line(it.productId, it.quantity) }),
+        )
+
         return OrderDetails.from(order)
     }
 }

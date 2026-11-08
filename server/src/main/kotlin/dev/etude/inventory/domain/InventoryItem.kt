@@ -30,4 +30,9 @@ class InventoryItem(
         check(canReserve(quantity)) { "Insufficient inventory for product $productId: requested $quantity, available $availableQuantity" }
         availableQuantity -= quantity
     }
+
+    fun release(quantity: Int) {
+        require(quantity > 0) { "Released quantity must be positive: $quantity" }
+        availableQuantity += quantity
+    }
 }

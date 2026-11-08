@@ -23,6 +23,7 @@ spring-boot-docker-compose = { module = "org.springframework.boot:spring-boot-do
 
 # Spring Modulith (버전은 Spring Modulith BOM이 관리)
 spring-modulith-starter-core = { module = "org.springframework.modulith:spring-modulith-starter-core" }
+spring-modulith-starter-jdbc = { module = "org.springframework.modulith:spring-modulith-starter-jdbc" }
 spring-modulith-runtime = { module = "org.springframework.modulith:spring-modulith-runtime" }
 spring-modulith-starter-test = { module = "org.springframework.modulith:spring-modulith-starter-test" }
 
