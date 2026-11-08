@@ -9,7 +9,7 @@ Etude는 저장소 주인 1명이 운영하고, 백엔드(`server/`)는 Claude, 
 ```
 
 - `type`: `feature` / `fix` / `infra` / `experiment` / `refactor` / `docs` / `test` / `chore`
-- 예: `feature/3-order-api`, `fix/7-stock-negative`, `experiment/5-lock-comparison`
+- 예: `feature/3-order-api`, `fix/7-inventory-negative`, `experiment/5-lock-comparison`
 - `main`에 직접 커밋하지 않는다. 모든 변경은 PR을 통해 들어온다.
 - 브랜치는 작업(이슈)마다 최신 `main`에서 새로 만든다. 작업 공간(worktree)의 고정 브랜치에서 직접 작업하지 않는다.
 
