@@ -14,6 +14,7 @@ import {
 } from './theme-context';
 import { TooltipProvider } from './components/tooltip';
 import { Toaster } from './components/toast';
+import { CSPProvider } from '@base-ui/react/csp-provider';
 
 function readTheme(): Theme {
   try {
@@ -67,9 +68,11 @@ export function EtudeProvider({ children }: PropsWithChildren) {
 
   return (
     <ThemeContext value={{ theme, resolvedTheme, setTheme }}>
-      <TooltipProvider delay={200}>
-        <Toaster>{children}</Toaster>
-      </TooltipProvider>
+      <CSPProvider disableStyleElements>
+        <TooltipProvider delay={200}>
+          <Toaster>{children}</Toaster>
+        </TooltipProvider>
+      </CSPProvider>
     </ThemeContext>
   );
 }

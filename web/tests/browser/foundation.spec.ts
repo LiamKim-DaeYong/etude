@@ -141,6 +141,22 @@ test('production UI renders under CSP without blocked styles or runtime errors',
   await page.keyboard.press('Escape');
   await page.getByRole('button', { name: '알림 확인' }).click();
   await expect(page.getByText('알림 미리보기', { exact: true })).toBeVisible();
+  await page.getByRole('tab', { name: '입력 폼', exact: true }).click();
+  await page.getByRole('combobox', { name: '상태 선택' }).press('ArrowDown');
+  await expect(page.getByRole('listbox')).toBeVisible();
+  await expect(page.locator('.base-ui-disable-scrollbar')).toHaveCSS(
+    'scrollbar-width',
+    'none',
+  );
+  await page.keyboard.press('Escape');
+  await page.getByRole('tab', { name: '탐색과 목록', exact: true }).click();
+  await page
+    .getByRole('button', { name: '추가 작업', exact: true })
+    .press('Enter');
+  await expect(
+    page.getByRole('menuitem', { name: '이름순 정렬' }),
+  ).toBeVisible();
+  await page.keyboard.press('Escape');
   expect(failures).toEqual([]);
 });
 

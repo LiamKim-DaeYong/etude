@@ -38,12 +38,12 @@ export function ScreenSearch() {
           <Button
             variant="outline"
             className="h-8 gap-2 bg-background text-xs text-muted-foreground sm:w-52 sm:justify-start"
-            aria-label="화면 검색"
+            aria-keyshortcuts="Control+K Meta+K"
           />
         }
       >
-        <Search className="size-3.5" />
-        <span className="hidden sm:inline">화면 검색...</span>
+        <Search className="size-3.5" aria-hidden="true" />
+        <span className="sr-only sm:not-sr-only">화면 검색</span>{' '}
         <kbd className="ml-auto hidden rounded border px-1 text-[10px] sm:inline">
           Ctrl K
         </kbd>

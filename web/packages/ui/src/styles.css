@@ -1,10 +1,19 @@
 @import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
 @import 'tailwindcss' source(none);
 @import 'tw-animate-css';
-@import 'shadcn/tailwind.css';
+@import './shadcn-tailwind.css';
 
 @source '.';
 @custom-variant dark (&:is(.dark *));
+
+/* Base UI CSPProvider disables the equivalent inline scrollbar styles. */
+.base-ui-disable-scrollbar {
+  scrollbar-width: none;
+}
+
+.base-ui-disable-scrollbar::-webkit-scrollbar {
+  display: none;
+}
 
 @theme inline {
   --font-sans:

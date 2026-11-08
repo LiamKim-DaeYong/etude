@@ -18,6 +18,7 @@ export function FeedbackExamples() {
         description="현재 상태와 다음 행동을 안내합니다."
       >
         <EmptyState
+          titleAs="h3"
           icon={<Inbox className="size-5" />}
           title="아직 등록된 항목이 없습니다"
           description="목록이 비어 있을 때 어떤 정보가 들어올지 안내합니다."
