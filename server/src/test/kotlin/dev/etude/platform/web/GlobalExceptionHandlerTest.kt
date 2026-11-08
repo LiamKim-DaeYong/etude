@@ -96,6 +96,14 @@ class GlobalExceptionHandlerTest(
         assertThat(result.response.contentAsString).doesNotContain("internal detail")
     }
 
+    @Test
+    fun `returns SERVICE_UNAVAILABLE with Retry-After when a lock is not acquired`() {
+        val result = mvc.get().uri(FailingTestController.LOCK_TIMEOUT_PATH).exchange()
+
+        assertProblem(result, HttpStatus.SERVICE_UNAVAILABLE, "SERVICE_UNAVAILABLE")
+        assertThat(result).hasHeader("Retry-After", "1")
+    }
+
     private fun postJson(uri: String, body: String): MvcTestResult = mvc.post().uri(uri)
         .contentType(MediaType.APPLICATION_JSON)
         .content(body)

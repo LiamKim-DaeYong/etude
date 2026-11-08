@@ -36,7 +36,7 @@ class InventoryService(
     @Transactional
     override fun reserve(lines: List<ReservationLine>) {
         lines.sortedBy { it.productId }.forEach { line ->
-            val inventoryItem = inventoryItemRepository.findByProductId(line.productId)
+            val inventoryItem = inventoryItemRepository.findByProductIdForUpdate(line.productId)
                 ?: throw InsufficientInventoryException(line.productId, line.quantity, availableQuantity = 0)
             inventoryItem.reserve(line.quantity)
         }

@@ -12,6 +12,7 @@
 | `INVALID_REQUEST` | 400 | Validation failure, unreadable body, malformed path variable. `errors[]` lists `{field, code, message}` |
 | `NOT_FOUND` | 404 | Unknown resource or path |
 | `INTERNAL_ERROR` | 500 | Unexpected failure |
+| `SERVICE_UNAVAILABLE` | 503 | Busy, e.g. another request holds the same inventory too long. Retry after `Retry-After` seconds |
 | Business codes | 4xx | Listed on each operation that can return them |
 | Other | 4xx | HTTP status name, e.g. `METHOD_NOT_ALLOWED` |
 
