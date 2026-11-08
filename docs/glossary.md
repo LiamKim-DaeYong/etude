@@ -54,6 +54,12 @@ Etude의 업무 용어와 이름 규칙의 기준 문서다. 코드, API, DB, �
 | 관리자 API | `*AdminController` | `/admin/v1` | 운영자가 쓰는 백오피스 API | `backoffice`, `internal` |
 | 거절 | `*RejectedException`, `Reason` | `code` | 요청은 올바르지만 업무 규칙상 처리할 수 없음 | `fail`, `error` (업무 거절에) |
 
+| 공통 오류 코드 | 정의 |
+| --- | --- |
+| `INVALID_REQUEST` | 요청 형식이나 값이 잘못됐다 (400). 필드별 오류는 `errors`에 담는다 |
+| `NOT_FOUND` | 요청한 리소스가 없다 (404) |
+| `INTERNAL_ERROR` | 예상하지 못한 서버 오류 (500). 상세 내용은 숨긴다 |
+
 ## 카탈로그 (`catalog`)
 
 판매할 상품을 정의한다. "무엇을 파는가"를 다룬다.
@@ -76,6 +82,7 @@ Etude의 업무 용어와 이름 규칙의 기준 문서다. 코드, API, DB, �
 | --- | --- | --- | --- | --- |
 | 재고 | `InventoryItem` | `/admin/v1/inventory-items/{productId}` | 상품 하나의 재고 기록. 상품마다 하나다 | `stock`, `Stock`, `stocks` (주식으로 읽힘) |
 | 판매 가능 수량 | `availableQuantity` | `availableQuantity` | 지금 주문할 수 있는 수량 | `quantity` (단독), `stockQuantity` |
+| 요청 수량 | `requestedQuantity` | — | 예약하려는 수량. 재고 부족을 알릴 때 판매 가능 수량과 함께 쓴다 | `requested` (단독) |
 | 재고 등록 | `register` | `POST /admin/v1/inventory-items` | 상품의 재고 기록을 처음 만든다 | `create` |
 | 재고 예약 | `reserve` | — | 주문에 쓸 수량을 판매 가능 수량에서 떼어 둔다. 지금은 주문할 때 예약하고 해제하지 않는다 | `deduct`, `decrease`, 예약 판매(pre-order)의 "예약" |
 | 재고 부족 | `InsufficientInventoryException` | `INSUFFICIENT_INVENTORY` | 요청 수량이 판매 가능 수량보다 많다 | `OUT_OF_STOCK`, `INSUFFICIENT_STOCK` |
