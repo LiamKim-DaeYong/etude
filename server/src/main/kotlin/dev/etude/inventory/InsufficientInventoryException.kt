@@ -1,4 +1,4 @@
-package dev.etude.inventory.domain
+package dev.etude.inventory
 
 import java.util.UUID
 
