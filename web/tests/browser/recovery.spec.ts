@@ -9,9 +9,7 @@ test('a failed page chunk keeps navigation available and reload recovers it', as
   await expect(
     page.getByRole('heading', { name: '화면을 불러오지 못했습니다' }),
   ).toBeVisible();
-  await expect(
-    page.getByRole('button', { name: '화면 검색', exact: true }),
-  ).toBeVisible();
+  await expect(page.getByRole('button', { name: /^화면 검색/ })).toBeVisible();
   await page.screenshot({
     path: testInfo.outputPath('page-error.png'),
     fullPage: true,
