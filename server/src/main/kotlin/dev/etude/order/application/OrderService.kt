@@ -81,9 +81,7 @@ class OrderService(
         }
         order.cancel(Instant.now(clock))
 
-        events.publishEvent(
-            OrderCanceled(id, order.lines.map { OrderCanceled.Line(it.productId, it.quantity) }),
-        )
+        events.publishEvent(OrderCanceled(id))
 
         return OrderDetails.from(order)
     }

@@ -8,7 +8,6 @@ import dev.etude.order.application.PlaceOrderCommand
 import dev.etude.shared.Money
 import org.assertj.core.api.Assertions.assertThat
 import org.awaitility.Awaitility.await
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.JdbcTemplate
@@ -61,7 +60,6 @@ class OrderCanceledListenerTest(
      * is marked completed, the event is delivered again. Simulated here by marking a completed publication failed.
      */
     @Test
-    @Disabled("Releases twice (10 -> 13) until releases are idempotent; step 3 of #93")
     fun `restores inventory only once when the same event is delivered again`() {
         val productId = product(inventory = 10)
         val orderId = placeOrder(productId, quantity = 3)

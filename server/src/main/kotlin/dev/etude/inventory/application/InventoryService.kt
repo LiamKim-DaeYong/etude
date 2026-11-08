@@ -6,6 +6,7 @@ import dev.etude.inventory.domain.InventoryItem
 import dev.etude.inventory.domain.InventoryItemRepository
 import dev.etude.inventory.domain.Reservation
 import dev.etude.inventory.domain.ReservationRepository
+import dev.etude.inventory.domain.ReservationStatus
 import dev.etude.order.InsufficientInventoryException
 import dev.etude.order.InventoryReservation
 import dev.etude.order.ReservationLine
@@ -52,11 +53,12 @@ class InventoryService(
     }
 
     @Transactional
-    fun release(lines: List<ReservationLine>) {
-        lines.sortedBy { it.productId }.forEach { line ->
-            val inventoryItem = inventoryItemRepository.findByProductIdForUpdate(line.productId)
-                ?: error("No inventory item to release for product ${line.productId}")
-            inventoryItem.release(line.quantity)
+    fun release(orderId: UUID) {
+        reservationRepository.findByOrderIdAndStatusForUpdate(orderId, ReservationStatus.RESERVED).forEach { reservation ->
+            val inventoryItem = inventoryItemRepository.findByProductIdForUpdate(reservation.productId)
+                ?: error("Inventory item not found: ${reservation.productId}")
+            inventoryItem.release(reservation.quantity)
+            reservation.release()
         }
     }
 }
