@@ -1,0 +1,116 @@
+# 용어집
+
+Etude의 업무 용어와 이름 규칙의 기준 문서다. 코드, API, DB, 문서, 이슈와 PR은 이 문서의 용어를 쓴다.
+
+- **한 개념에는 한 단어:** 같은 개념을 다른 단어로 부르지 않는다. "쓰지 않는 말"에 적은 동의어와 오해를 부르는 단어는 쓰지 않는다.
+- **모듈마다 뜻이 다를 수 있다:** 같은 단어라도 모듈(경계)에 따라 가리키는 대상이 다르면 모듈 절에 따로 정의한다. 예: 주문의 상품명은 주문 시점에 복사한 값이다.
+- **용어 변경은 설계 변경이다:** 용어를 추가하거나 바꾸는 PR은 같은 PR에서 이 문서를 고친다.
+- **영어 이름:** 미국 영어, 업계에서 흔히 쓰는 단어를 고른다. 영어로 읽었을 때 다른 뜻이 되는 단어는 피한다.
+
+## 이름 규칙
+
+### 동사
+
+| 동사 | 쓰는 곳 | 뜻 | 쓰지 않는 말 |
+| --- | --- | --- | --- |
+| `register` | 서비스 | 관리자가 상품·재고 같은 기준 데이터를 처음 만든다 | `create`, `add` |
+| `find` | 서비스, 모듈 공개 API | 조회한다. 없으면 `null`을 돌려준다 | 없을 수 있는 조회에 `get` |
+| `get` | 컨트롤러 핸들러 | HTTP GET 조회. `operationId`가 된다 (`getOrder`) | — |
+| `place` | 주문 | 고객이 주문한다 | `create`, `submit` |
+| `reserve` | 재고 | 주문에 쓸 수량을 판매 가능 수량에서 떼어 둔다 | `deduct`, `decrease`, `allocate`, `commit` |
+
+### 접미사
+
+| 접미사 | 뜻 | 예 |
+| --- | --- | --- |
+| `Info` | 모듈 공개 API가 다른 모듈에 돌려주는 값 (모듈 기본 패키지) | `ProductInfo` |
+| `Details` | 애플리케이션 서비스가 웹 계층에 돌려주는 값 (트랜잭션 안에서 만든다) | `OrderDetails` |
+| `Command` | 애플리케이션 서비스의 입력 | `PlaceOrderCommand` |
+| `Request`, `Response` | 웹 요청·응답 DTO. JSON 형식을 책임진다 | `PlaceOrderRequest` |
+| `RejectedException` | 업무 규칙에 따른 거절. 사유는 중첩 enum `Reason` | `OrderRejectedException` |
+| `Service`, `Repository` | 애플리케이션 서비스, 저장소 | `OrderService` |
+| `Controller`, `AdminController` | 고객 API, 관리자 API 컨트롤러 | `ProductAdminController` |
+
+### 값과 필드
+
+| 대상 | 규칙 | 예 |
+| --- | --- | --- |
+| 식별자 | 자기 자신은 `id`, 다른 엔티티는 `<엔티티>Id` | `customerId`, `productId` |
+| 상태 | 필드는 `status`, 타입은 `<엔티티>Status`. 값은 형용사나 과거분사 | `OrderStatus.PLACED` |
+| 시각 | `<과거분사>At`, `Instant`(UTC) | `placedAt`, `createdAt` |
+| 금액 | `Money` 하나로 둔다. 이름에 `amount`, `price`를 덧붙이지 않는다 | `total` (`totalAmount` 아님) |
+| 수량 | `Int`, 무엇의 수량인지 모호하면 앞에 붙인다 | `quantity`, `availableQuantity` |
+| 줄임말 | 쓰지 않는다. `id`만 예외 | `lineNumber` (`lineNo` 아님) |
+| 오류 코드 | `UPPER_SNAKE_CASE`. 이 문서의 용어로 상황을 쓴다 | `PRODUCT_NOT_FOUND`, `TOTAL_MISMATCH` |
+| DB | 테이블은 단수형 `snake_case`. `orders`만 예약어 때문에 복수형 | `order_line`, `inventory_item` |
+
+## 공통
+
+| 한글 | 코드 | API | 정의 | 쓰지 않는 말 |
+| --- | --- | --- | --- | --- |
+| 금액 | `Money` | `{"amount", "currency"}` | 금액과 ISO 4217 통화 코드의 쌍 | 금액·통화를 따로 둔 필드 |
+| 통화 | `currency` | `currency` | ISO 4217 코드 (`KRW`, `USD`) | `currencyCode` |
+| 고객 API | — | `/api/v1` | 고객이 쓰는 API | — |
+| 관리자 API | `*AdminController` | `/admin/v1` | 운영자가 쓰는 백오피스 API | `backoffice`, `internal` |
+| 거절 | `*RejectedException`, `Reason` | `code` | 요청은 올바르지만 업무 규칙상 처리할 수 없음 | `fail`, `error` (업무 거절에) |
+
+## 카탈로그 (`catalog`)
+
+판매할 상품을 정의한다. "무엇을 파는가"를 다룬다.
+
+| 한글 | 코드 | API | 정의 | 쓰지 않는 말 |
+| --- | --- | --- | --- | --- |
+| 상품 | `Product` | `/api/v1/products`, `/admin/v1/products` | 판매하는 물건 | `item`, `goods` |
+| 상품명 | `name` | `name` | 상품의 현재 이름 | `title` |
+| 가격 | `price` | `price` | 상품의 현재 판매 가격 | `amount`, `cost` |
+| 상품 상태 | `ProductStatus`, `status` | `status` | 판매 여부 | `salesStatus`, `SalesStatus` |
+| 판매 중 | `ProductStatus.ACTIVE` | `ACTIVE` | 주문할 수 있는 상태 | `ON_SALE` (할인 중으로 읽힘) |
+| 판매 중지 | `ProductStatus.SUSPENDED` | `SUSPENDED` | 운영자가 판매를 멈춘 상태 | `INACTIVE`, `STOPPED` |
+| 주문 가능 | `orderable` | — | 상품이 판매 중이라 주문할 수 있음. 재고와 무관하다 | `available`, `purchasable` |
+
+## 재고 (`inventory`)
+
+상품별로 몇 개를 팔 수 있는지 다룬다. 재고를 가리키는 영어 단어는 `inventory` 하나만 쓴다.
+
+| 한글 | 코드 | API | 정의 | 쓰지 않는 말 |
+| --- | --- | --- | --- | --- |
+| 재고 | `InventoryItem` | `/admin/v1/inventory-items/{productId}` | 상품 하나의 재고 기록. 상품마다 하나다 | `stock`, `Stock`, `stocks` (주식으로 읽힘) |
+| 판매 가능 수량 | `availableQuantity` | `availableQuantity` | 지금 주문할 수 있는 수량 | `quantity` (단독), `stockQuantity` |
+| 재고 등록 | `register` | `POST /admin/v1/inventory-items` | 상품의 재고 기록을 처음 만든다 | `create` |
+| 재고 예약 | `reserve` | — | 주문에 쓸 수량을 판매 가능 수량에서 떼어 둔다. 지금은 주문할 때 예약하고 해제하지 않는다 | `deduct`, `decrease`, 예약 판매(pre-order)의 "예약" |
+| 재고 부족 | `InsufficientInventoryException` | `INSUFFICIENT_INVENTORY` | 요청 수량이 판매 가능 수량보다 많다 | `OUT_OF_STOCK`, `INSUFFICIENT_STOCK` |
+
+| 거절 코드 | 정의 |
+| --- | --- |
+| `PRODUCT_NOT_FOUND` | 재고를 등록할 상품이 없다 |
+| `INVENTORY_ITEM_ALREADY_REGISTERED` | 상품의 재고가 이미 등록되어 있다 |
+
+재고 상태(실제 보유, 예약, 판매 가능)를 나누거나 예약을 확정·해제하는 용어는 결제 단계(#20)에서 정한다. 참고로 업계에서는 주문 시점의 동작을 reserve(Magento, commercetools)나 commit(Shopify)이라 하고, deduct는 출고할 때 실제 재고를 빼는 동작(Magento source deduction)을 가리킨다.
+
+## 주문 (`order`)
+
+고객의 주문과 주문 항목을 다룬다.
+
+| 한글 | 코드 | API | 정의 | 쓰지 않는 말 |
+| --- | --- | --- | --- | --- |
+| 주문 | `Order` | `/api/v1/orders` | 고객이 상품을 사겠다고 확정한 요청과 그 기록 | `purchase` |
+| 주문하다 | `place` | `POST /api/v1/orders` | 주문을 만든다 | `create`, `submit` |
+| 고객 | `customerId` | `customerId` | 주문한 사람 | `user`, `member`, `buyer` |
+| 주문 항목 | `OrderLine` | `lines[]` | 주문 안의 상품 한 줄. 상품마다 한 항목 | `OrderItem`, `LineItem`, 주문 라인 |
+| 항목 번호 | `lineNumber` | `lineNumber` | 주문 안에서 항목의 순번 (1부터) | `lineNo`, `seq` |
+| 주문 상태 | `OrderStatus` | `status` | 주문의 진행 단계 | — |
+| 주문됨 | `OrderStatus.PLACED`, `OrderLineStatus.PLACED` | `PLACED` | 주문이 접수된 상태 | `ORDERED`, `CREATED` |
+| 주문 시각 | `placedAt` | `placedAt` | 고객이 주문한 시각 (업무 시각). 감사용 `createdAt`과 구분한다 | `orderedAt`, `orderDate` |
+| 상품명 | `productName` | `productName` | 주문 시점에 복사한 상품명. 이후 상품명이 바뀌어도 그대로다 | — |
+| 단가 | `unitPrice` | `unitPrice` | 주문 시점에 확정한 상품 하나의 가격 | `price` (주문 항목에서) |
+| 항목 금액 | `lineTotal` | `lineTotal` | 단가 × 수량 | `subtotal`, `lineAmount` |
+| 총액 | `total` | `total` | 항목 금액의 합 | `totalAmount`, `totalPrice` |
+| 예상 총액 | `expectedTotal` | `expectedTotal` | 고객이 주문 전에 확인한 총액. 서버가 계산한 총액과 비교한다 | — |
+| 현재 총액 | `currentTotal` | `currentTotal` | 총액이 다를 때 거절 응답에 담는 서버 계산 총액 | — |
+
+| 거절 코드 | 정의 |
+| --- | --- |
+| `PRODUCT_NOT_FOUND` | 주문한 상품이 없다 |
+| `PRODUCT_NOT_ORDERABLE` | 상품이 판매 중이 아니다 |
+| `CURRENCY_MISMATCH` | 주문 항목들의 통화가 다르다 |
+| `TOTAL_MISMATCH` | 예상 총액과 현재 총액이 다르다 (`TOTAL_AMOUNT_MISMATCH` 아님) |
