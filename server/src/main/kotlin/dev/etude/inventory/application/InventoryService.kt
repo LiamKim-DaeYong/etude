@@ -1,12 +1,12 @@
 package dev.etude.inventory.application
 
 import dev.etude.catalog.ProductCatalog
-import dev.etude.inventory.InsufficientInventoryException
-import dev.etude.inventory.InventoryReservation
-import dev.etude.inventory.ReservationLine
 import dev.etude.inventory.application.InventoryRejectedException.Reason
 import dev.etude.inventory.domain.InventoryItem
 import dev.etude.inventory.domain.InventoryItemRepository
+import dev.etude.order.InsufficientInventoryException
+import dev.etude.order.InventoryReservation
+import dev.etude.order.ReservationLine
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
@@ -38,6 +38,11 @@ class InventoryService(
         lines.sortedBy { it.productId }.forEach { line ->
             val inventoryItem = inventoryItemRepository.findByProductIdForUpdate(line.productId)
                 ?: throw InsufficientInventoryException(line.productId, line.quantity, availableQuantity = 0)
+
+            if (!inventoryItem.canReserve(line.quantity)) {
+                throw InsufficientInventoryException(line.productId, line.quantity, inventoryItem.availableQuantity)
+            }
+
             inventoryItem.reserve(line.quantity)
         }
     }

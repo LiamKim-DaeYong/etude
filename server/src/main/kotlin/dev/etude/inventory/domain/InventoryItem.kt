@@ -1,6 +1,5 @@
 package dev.etude.inventory.domain
 
-import dev.etude.inventory.InsufficientInventoryException
 import dev.etude.shared.BaseEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -24,11 +23,11 @@ class InventoryItem(
         require(availableQuantity >= 0) { "Available quantity must not be negative: $availableQuantity" }
     }
 
+    fun canReserve(quantity: Int): Boolean = quantity <= availableQuantity
+
     fun reserve(quantity: Int) {
         require(quantity > 0) { "Reserved quantity must be positive: $quantity" }
-        if (quantity > availableQuantity) {
-            throw InsufficientInventoryException(productId, requestedQuantity = quantity, availableQuantity = availableQuantity)
-        }
+        check(canReserve(quantity)) { "Insufficient inventory for product $productId: requested $quantity, available $availableQuantity" }
         availableQuantity -= quantity
     }
 }

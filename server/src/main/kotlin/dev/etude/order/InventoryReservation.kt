@@ -1,4 +1,4 @@
-package dev.etude.inventory
+package dev.etude.order
 
 import java.util.UUID
 

@@ -1,9 +1,9 @@
 package dev.etude.order.application
 
 import dev.etude.catalog.ProductCatalog
-import dev.etude.inventory.InsufficientInventoryException
-import dev.etude.inventory.InventoryReservation
-import dev.etude.inventory.ReservationLine
+import dev.etude.order.InsufficientInventoryException
+import dev.etude.order.InventoryReservation
+import dev.etude.order.ReservationLine
 import dev.etude.order.application.OrderRejectedException.Reason
 import dev.etude.order.domain.Order
 import dev.etude.order.domain.OrderLine

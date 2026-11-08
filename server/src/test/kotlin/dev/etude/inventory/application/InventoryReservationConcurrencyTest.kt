@@ -2,9 +2,9 @@ package dev.etude.inventory.application
 
 import dev.etude.IntegrationTest
 import dev.etude.catalog.application.ProductService
-import dev.etude.inventory.InsufficientInventoryException
-import dev.etude.inventory.ReservationLine
 import dev.etude.inventory.domain.InventoryItemRepository
+import dev.etude.order.InsufficientInventoryException
+import dev.etude.order.ReservationLine
 import dev.etude.shared.Money
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
