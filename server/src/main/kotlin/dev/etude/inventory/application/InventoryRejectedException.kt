@@ -1,9 +1,11 @@
 package dev.etude.inventory.application
 
+import dev.etude.platform.RejectedException
+
 class InventoryRejectedException(
-    val reason: Reason,
+    override val reason: Reason,
     message: String,
-) : RuntimeException(message) {
+) : RejectedException(message) {
 
     enum class Reason {
         PRODUCT_NOT_FOUND,

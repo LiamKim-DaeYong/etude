@@ -1,6 +1,5 @@
 package dev.etude.platform.web
 
-import dev.etude.platform.RejectionStatuses
 import dev.etude.platform.Rejects
 import io.swagger.v3.oas.models.Operation
 import io.swagger.v3.oas.models.headers.Header
@@ -16,11 +15,12 @@ import org.springframework.web.method.HandlerMethod
 
 /**
  * Adds what the controller signatures do not show: the `Location` header of 201 responses, and the business error
- * codes of methods annotated with [Rejects], grouped by the status from the module's [RejectionStatuses].
+ * codes of methods annotated with [Rejects], grouped by the status from the module's
+ * [dev.etude.platform.RejectionStatuses].
  */
 @Component
 class ApiOperationCustomizer(
-    private val rejectionStatuses: List<RejectionStatuses<*>>,
+    private val rejectionStatuses: RejectionStatusRegistry,
 ) : GlobalOperationCustomizer {
 
     override fun customize(operation: Operation, handlerMethod: HandlerMethod): Operation {
@@ -34,8 +34,7 @@ class ApiOperationCustomizer(
 
     private fun addRejections(operation: Operation, rejects: Rejects) {
         val reasonType = rejects.reasons.java
-        val statuses = rejectionStatuses.find { it.reasonType == reasonType }
-            ?: error("No RejectionStatuses bean for ${reasonType.name}")
+        val statuses = rejectionStatuses.forType(reasonType)
         reasonType.enumConstants
             .groupBy { statuses.statusOfAny(it) }
             .forEach { (status, reasons) ->

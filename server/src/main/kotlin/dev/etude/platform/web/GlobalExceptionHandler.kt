@@ -1,5 +1,6 @@
 package dev.etude.platform.web
 
+import dev.etude.platform.RejectedException
 import io.swagger.v3.oas.annotations.media.Schema
 import org.slf4j.LoggerFactory
 import org.springframework.core.Ordered
@@ -21,12 +22,14 @@ import tools.jackson.core.JacksonException
 /**
  * Makes every API error a ProblemDetail with a `code` property.
  *
- * Module handlers set business codes for their own exceptions and must be ordered before this one,
- * because [handleUnexpected] matches any exception.
+ * Business rejections ([RejectedException]) get the reason as their code and the status from the module's
+ * [dev.etude.platform.RejectionStatuses]. Modules do not need exception handlers of their own.
  */
 @RestControllerAdvice
 @Order(Ordered.LOWEST_PRECEDENCE)
-class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
+class GlobalExceptionHandler(
+    private val rejectionStatuses: RejectionStatusRegistry,
+) : ResponseEntityExceptionHandler() {
 
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -77,6 +80,12 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
             problem.setProperty(CODE, codeFor(statusCode))
         }
         return response
+    }
+
+    @ExceptionHandler
+    fun handleRejected(ex: RejectedException): ProblemDetail = ProblemDetail.forStatusAndDetail(rejectionStatuses.statusOf(ex.reason), ex.message).apply {
+        setProperty(CODE, ex.reason.name)
+        ex.properties.forEach(::setProperty)
     }
 
     /** Waited too long for a row lock (or lost a deadlock); the same request may succeed when retried. */
