@@ -1,8 +1,8 @@
 package experiment.tenant
 
+import com.etude.TestcontainersConfiguration
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import dev.etude.TestcontainersConfiguration
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Table
@@ -28,7 +28,7 @@ import kotlin.test.assertTrue
 
 /**
  * Checks the assumptions of ADR-0006 before production code depends on them. Runs outside the Spring context
- * (plain Hibernate and JDBC on its own container) and lives outside `dev.etude` so entity scanning ignores it.
+ * (plain Hibernate and JDBC on its own container) and lives outside `com.etude` so entity scanning ignores it.
  * Each test prints what it observed; assertions record the observed behavior.
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
