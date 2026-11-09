@@ -1,38 +1,46 @@
 import { Suspense, useEffect, useRef } from 'react';
-import { Route, Routes, useLocation } from 'react-router-dom';
+import { matchPath, Route, Routes, useLocation } from 'react-router-dom';
 import { LoadingState } from '@etude/ui';
 import { AdminLayout } from './layout/AdminLayout';
-import { routes } from './routes';
+import { PublicLayout } from './layout/PublicLayout';
+import { publicRoute, routes } from './routes';
 import { NotFound } from '@/pages/NotFound';
 import { ErrorBoundary } from './ErrorBoundary';
 import { PageErrorFallback } from './PageErrorFallback';
 
 export function App() {
-  const { pathname } = useLocation();
-  const previousPath = useRef(pathname);
+  const { pathname, hash } = useLocation();
+  const previousLocation = useRef(pathname + hash);
+  const isAdminPage = routes.some((item) => matchPath(item.path, pathname));
+  const Layout = isAdminPage ? AdminLayout : PublicLayout;
 
   useEffect(() => {
-    const current = routes.find((item) => item.path === pathname);
+    const current = [publicRoute, ...routes].find((item) =>
+      matchPath(item.path, pathname),
+    );
     document.title = `${current?.label ?? '페이지를 찾을 수 없습니다'} · Etude`;
-    if (previousPath.current !== pathname) {
+    if (previousLocation.current !== pathname + hash && !hash) {
       document.getElementById('main-content')?.focus();
       window.scrollTo({ top: 0, behavior: 'instant' });
-      previousPath.current = pathname;
     }
-  }, [pathname]);
+    previousLocation.current = pathname + hash;
+  }, [pathname, hash]);
 
   return (
-    <AdminLayout>
-      <ErrorBoundary key={pathname} fallback={<PageErrorFallback />}>
+    <Layout>
+      <ErrorBoundary
+        key={pathname}
+        fallback={<PageErrorFallback publicPage={!isAdminPage} />}
+      >
         <Suspense fallback={<LoadingState titleAs="h1" />}>
           <Routes>
-            {routes.map(({ path, Component }) => (
+            {[publicRoute, ...routes].map(({ path, Component }) => (
               <Route key={path} path={path} element={<Component />} />
             ))}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
       </ErrorBoundary>
-    </AdminLayout>
+    </Layout>
   );
 }

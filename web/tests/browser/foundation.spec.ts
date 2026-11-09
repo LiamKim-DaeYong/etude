@@ -16,9 +16,9 @@ test('routes survive direct navigation and unknown routes provide a way home', a
   await expect(
     page.getByRole('heading', { name: '페이지를 찾을 수 없습니다' }),
   ).toBeVisible();
-  await page.getByRole('link', { name: '워크스페이스로 돌아가기' }).click();
+  await page.getByRole('link', { name: '소개 페이지로 돌아가기' }).click();
   await expect(
-    page.getByRole('heading', { level: 1, name: 'Etude 작업 공간' }),
+    page.getByRole('heading', { level: 1, name: /회사에 필요한 업무를,/ }),
   ).toBeVisible();
 });
 
@@ -46,7 +46,7 @@ test('theme choice persists and system mode follows device preferences', async (
 test('navigation works at the project viewport without horizontal overflow', async ({
   page,
 }, testInfo) => {
-  await page.goto('/');
+  await page.goto('/workspace');
   await expect(
     page.getByRole('heading', { level: 1, name: 'Etude 작업 공간' }),
   ).toBeVisible();
@@ -121,9 +121,12 @@ test('production UI renders under CSP without blocked styles or runtime errors',
       );
     });
   });
-  for (const path of ['/', '/settings', '/ui']) {
+  for (const path of ['/', '/workspace', '/settings', '/ui']) {
     await page.goto(path);
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: '화면 불러오는 중' }),
+    ).toHaveCount(0);
     if (path === '/settings') {
       await page.getByRole('radio', { name: '다크', exact: true }).check();
       await page.getByRole('radio', { name: '라이트', exact: true }).check();
@@ -238,14 +241,16 @@ test('primary action text stays readable in light and dark themes', async ({
   };
   await page.goto('/ui');
   for (const theme of ['light', 'dark']) {
-    if (theme === 'dark')
+    if (theme === 'dark') {
+      await page.goto('/ui');
       await page.getByRole('button', { name: '어두운 테마로 전환' }).click();
+    }
     for (const path of ['/ui', '/does-not-exist']) {
       await page.goto(path);
       const action =
         path === '/ui'
           ? page.getByRole('button', { name: '대화상자 열기' })
-          : page.getByRole('link', { name: '워크스페이스로 돌아가기' });
+          : page.getByRole('link', { name: '소개 페이지로 돌아가기' });
       const colors = await action.evaluate((element) => {
         const style = getComputedStyle(element);
         const canvas = document.createElement('canvas');
@@ -316,7 +321,7 @@ test('official form controls and searchable table work without a backend', async
 });
 
 test('screen search supports keyboard navigation', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/workspace');
   await page.keyboard.press('Control+k');
   await expect(page.getByRole('dialog', { name: '화면 검색' })).toBeVisible();
   await page

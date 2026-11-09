@@ -1,5 +1,5 @@
 import { useState, type PropsWithChildren } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, matchPath, useLocation } from 'react-router-dom';
 import {
   ChevronRight,
   Menu,
@@ -33,7 +33,7 @@ export function AdminLayout({ children }: PropsWithChildren) {
   const [collapsed, setCollapsed] = useState(false);
   const { resolvedTheme, setTheme } = useTheme();
   const { pathname } = useLocation();
-  const current = routes.find((item) => item.path === pathname);
+  const current = routes.find((item) => matchPath(item.path, pathname));
   return (
     <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
       <div className="min-h-dvh">
@@ -105,7 +105,10 @@ export function AdminLayout({ children }: PropsWithChildren) {
                 aria-label="현재 위치"
                 className="flex items-center gap-2 text-xs"
               >
-                <Link to="/" className="hidden text-muted-foreground sm:inline">
+                <Link
+                  to="/workspace"
+                  className="hidden text-muted-foreground sm:inline"
+                >
                   Etude
                 </Link>
                 <ChevronRight className="hidden size-3 text-muted-foreground sm:inline" />

@@ -99,13 +99,30 @@ for (const theme of ['light', 'dark'] as const) {
   test.describe(`accessibility in ${theme} theme`, () => {
     test.use({ colorScheme: theme });
 
-    test('workspace, settings and not-found pages', async ({ page }) => {
-      for (const path of ['/', '/settings', '/does-not-exist']) {
+    test('public landing, workspace, settings and not-found pages', async ({
+      page,
+    }) => {
+      for (const path of ['/', '/workspace', '/settings', '/does-not-exist']) {
         await page.goto(path);
         await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+        await expect(
+          page.getByRole('heading', { name: '화면 불러오는 중' }),
+        ).toHaveCount(0);
         await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
         await expectAccessible(page, `${theme} ${path}`);
       }
+    });
+
+    test('public landing questions remain accessible when expanded', async ({
+      page,
+    }) => {
+      await page.goto('/');
+      const question = page.getByRole('button', {
+        name: '지금 가입해서 사용할 수 있나요?',
+      });
+      await question.click();
+      await expect(question).toHaveAttribute('aria-expanded', 'true');
+      await expectAccessible(page, `${theme} public landing expanded question`);
     });
 
     test('all UI guide categories', async ({ page }) => {
