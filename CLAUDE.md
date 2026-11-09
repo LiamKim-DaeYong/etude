@@ -15,7 +15,7 @@ Run from `server/` (on Windows use `.\gradlew.bat`):
 - Run locally: `./gradlew bootRun` (activates the `local` profile and starts PostgreSQL from `compose.yaml`; Swagger UI at `http://localhost:8080/swagger-ui.html`)
 - Format Kotlin: `./gradlew ktlintFormat` (`build` runs `ktlintCheck`; style is `intellij_idea`, set in `.editorconfig`)
 
-Docker must be running: tests use Testcontainers, `bootRun` uses Docker Compose. Schema changes go in Flyway migrations under `server/src/main/resources/db/migration/<module>` (Spring Modulith runs them per module, each with its own history table and version numbers); JPA only validates the schema.
+Docker must be running: tests use Testcontainers, `bootRun` uses Docker Compose. After adding a module, run `./gradlew clean build`: a stale `build/.../META-INF/spring-modulith/application-modules.json` lists the old modules, so the new module's migrations are skipped until `ModularityTests` rewrites it. Schema changes go in Flyway migrations under `server/src/main/resources/db/migration/<module>` (Spring Modulith runs them per module, each with its own history table and version numbers); JPA only validates the schema.
 
 ## Rules
 
@@ -26,7 +26,7 @@ Docker must be running: tests use Testcontainers, `bootRun` uses Docker Compose.
 - Declare dependency versions in `server/gradle/libs.versions.toml`, not in build scripts.
 - `ModularityTests` verifies module boundaries. Fix a violation instead of bypassing the test.
 - A module's base package (`com.etude.<module>`) is its public API for other modules: interfaces, DTOs, exceptions and events that another module may use (e.g. `ProductCatalog`, `ProductInfo`). Subpackages (`application`, `domain`, `web`) are internal. Implement a public interface in the module's application service.
-- `com.etude.platform` holds cross-cutting infrastructure. Modules may use only its base package (`RejectedException`, `RejectionStatuses`, `Rejects`); its subpackages are internal: `platform.web` (errors, Money JSON, OpenAPI) and `platform.time` (`Clock`, auditing). The root package holds only `EtudeApplication`.
+- `com.etude.platform` holds cross-cutting infrastructure. Modules may use only its base package (`RejectedException`, `RejectionStatuses`, `Rejects`, `TenantContext`); its subpackages are internal: `platform.web` (errors, Money JSON, OpenAPI), `platform.time` (`Clock`, auditing) and `platform.tenant` (Hibernate tenant resolver). The root package holds only `EtudeApplication`.
 - `com.etude.shared` holds only value types that every module uses with the same meaning (e.g. `Money`) and the common persistence base `BaseEntity` (UUIDv7 id per ADR-0001, id-based `equals`/`hashCode`). Business rules and module-specific concepts stay in their own module. Entities extend `BaseEntity`.
 - Entities store money as `@CompositeType(MoneyType::class) var <name>: Money`, in columns `<name>_amount numeric(19, 4)` and `<name>_currency varchar(3)` (the component-path naming strategy derives the names). Add `@Suppress("JpaAttributeTypeInspection")`: IntelliJ's JPA inspection does not understand `@CompositeType`. Do not split money into separate amount/currency properties.
 - Application services return DTOs built inside the transaction (e.g. `OrderDetails`), never entities: `open-in-view` is off, so the web layer runs after the transaction ends. Web response DTOs map from these and own the JSON representation.
