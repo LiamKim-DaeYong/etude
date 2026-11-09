@@ -1,5 +1,6 @@
 package com.etude.platform.tenant
 
+import com.etude.platform.TenantContext
 import org.hibernate.cfg.MultiTenancySettings
 import org.hibernate.context.spi.CurrentTenantIdentifierResolver
 import org.springframework.boot.hibernate.autoconfigure.HibernatePropertiesCustomizer

@@ -6,4 +6,6 @@ import java.util.UUID
 interface TenantRepository : Repository<Tenant, UUID> {
 
     fun save(tenant: Tenant): Tenant
+
+    fun existsByCode(code: String): Boolean
 }

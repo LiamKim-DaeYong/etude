@@ -34,6 +34,7 @@ dependencies {
     implementation(libs.spring.boot.starter.webmvc)
     implementation(libs.spring.modulith.starter.core)
     implementation(libs.spring.modulith.starter.jdbc)
+    implementation(libs.spring.security.crypto)
     implementation(libs.springdoc.openapi.starter.webmvc.ui)
     implementation(libs.kotlin.reflect)
     implementation(libs.jackson.module.kotlin)

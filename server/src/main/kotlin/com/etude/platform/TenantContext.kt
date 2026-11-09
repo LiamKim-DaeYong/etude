@@ -1,7 +1,11 @@
-package com.etude.platform.tenant
+package com.etude.platform
 
 import java.util.UUID
 
+/**
+ * The tenant that the current work belongs to (ADR-0006). Bind it outside the transaction: Hibernate reads it when
+ * the transaction opens its session, so a tenant bound inside a running transaction is not seen.
+ */
 object TenantContext {
 
     /** Hibernate's root tenant: platform work outside any tenant, such as sign-up. */
