@@ -3,12 +3,13 @@ package com.etude.platform
 import java.util.UUID
 
 /**
- * The tenant that the current work belongs to (ADR-0006). Bind it outside the transaction: Hibernate reads it when
- * the transaction opens its session, so a tenant bound inside a running transaction is not seen.
+ * 현재 작업의 회사(ADR-0006).
+ *
+ * 트랜잭션 바깥에서 설정한다. Hibernate는 트랜잭션 시작 시점의 회사를 쓴다.
  */
 object TenantContext {
 
-    /** Hibernate's root tenant: platform work outside any tenant, such as sign-up. */
+    /** 회사에 속하지 않는 플랫폼 작업(회원가입, 로그인). Hibernate의 root 테넌트다. */
     val PLATFORM: UUID = UUID(0, 0)
 
     private val tenantId: ScopedValue<UUID> = ScopedValue.newInstance()

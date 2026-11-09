@@ -9,8 +9,8 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 
 /**
- * The only configuration for integration tests. Every test class that uses it shares one Spring context and
- * therefore one PostgreSQL container; a test that adds its own `@Import` or `@MockitoBean` would start another.
+ * 통합 테스트 설정. 모든 테스트가 컨텍스트와 PostgreSQL 컨테이너 하나를 공유한다.
+ * 테스트 클래스에 `@Import`, `@MockitoBean`을 더하면 컨텍스트가 하나 더 뜬다.
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
@@ -18,6 +18,7 @@ import org.springframework.test.context.ActiveProfiles
     TestcontainersConfiguration::class,
     FailingTestController::class,
     CurrentTenantTestController::class,
+    TestCompanies::class,
     OpenApiContractConfiguration::class,
 )
 @SpringBootTest

@@ -11,8 +11,7 @@ import java.io.Serializable
 import java.util.UUID
 
 /**
- * The signed-in user kept in the session. Holds the password hash only until sign-in checks it; Spring Security
- * erases it afterwards ([eraseCredentials]).
+ * 세션에 저장하는 로그인 사용자. 비밀번호 해시는 인증 후 [eraseCredentials]로 지운다.
  */
 class SignedInUser(
     val userId: UUID,

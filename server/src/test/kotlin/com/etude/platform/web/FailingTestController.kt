@@ -4,7 +4,7 @@ import org.springframework.dao.CannotAcquireLockException
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 
-/** Throws exceptions so tests can check the 500 and 503 responses. Outside the documented API paths. */
+/** 500, 503 응답 테스트용으로 예외를 던진다. */
 @RestController
 class FailingTestController {
 

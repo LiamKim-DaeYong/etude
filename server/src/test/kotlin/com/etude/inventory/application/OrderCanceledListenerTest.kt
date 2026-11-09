@@ -56,8 +56,7 @@ class OrderCanceledListenerTest(
     }
 
     /**
-     * The registry delivers at least once: if the process stops after the listener commits but before the publication
-     * is marked completed, the event is delivered again. Simulated here by marking a completed publication failed.
+     * 이벤트는 최소 한 번 전달되므로 다시 올 수 있다. 완료된 발행 기록을 실패로 바꿔 재전달을 흉내 낸다.
      */
     @Test
     fun `releases inventory only once when the same event is delivered again`() {

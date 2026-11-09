@@ -4,7 +4,7 @@ import com.etude.platform.RejectionStatuses
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 
-/** Finds the [RejectionStatuses] bean of a rejection reason enum. */
+/** 거절 사유 enum의 [RejectionStatuses] 빈을 찾는다. */
 @Component
 class RejectionStatusRegistry(statuses: List<RejectionStatuses<*>>) {
 

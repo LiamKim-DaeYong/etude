@@ -19,6 +19,7 @@ Docker must be running: tests use Testcontainers, `bootRun` uses Docker Compose.
 
 ## Rules
 
+- Write code comments and KDoc in Korean; identifiers, API names and error codes stay English.
 - Repositories extend `Repository<T, ID>` and declare only the methods they need (no `JpaRepository`: it exposes deletes and bulk reads, and Kotlin's `findByIdOrNull` bypasses a redeclared `findById` with an entity graph).
 - Integration tests use only `@IntegrationTest` (test sources, root package). Adding `@Import`, `@MockitoBean` or other context configuration to one test class creates another Spring context and another PostgreSQL container.
 - `application.yml` holds production-safe defaults. Development-only features (API docs, Swagger UI) are enabled in `application-local.yml` and, for tests, `src/test/resources/application-test.yml`.
@@ -26,7 +27,7 @@ Docker must be running: tests use Testcontainers, `bootRun` uses Docker Compose.
 - Declare dependency versions in `server/gradle/libs.versions.toml`, not in build scripts.
 - `ModularityTests` verifies module boundaries. Fix a violation instead of bypassing the test.
 - A module's base package (`com.etude.<module>`) is its public API for other modules: interfaces, DTOs, exceptions and events that another module may use (e.g. `ProductCatalog`, `ProductInfo`). Subpackages (`application`, `domain`, `web`) are internal. Implement a public interface in the module's application service.
-- `com.etude.platform` holds cross-cutting infrastructure. Modules may use only its base package (`RejectedException`, `RejectionStatuses`, `Rejects`, `TenantContext`); its subpackages are internal: `platform.web` (errors, Money JSON, OpenAPI), `platform.time` (`Clock`, auditing) and `platform.tenant` (Hibernate tenant resolver). The root package holds only `EtudeApplication`.
+- `com.etude.platform` holds cross-cutting infrastructure. Modules may use only its base package (`RejectedException`, `RejectionStatuses`, `Rejects`, `TenantContext`, `TenantPrincipal`); its subpackages are internal: `platform.web` (errors, Money JSON, OpenAPI), `platform.time` (`Clock`, auditing), `platform.tenant` (Hibernate tenant resolver) and `platform.security` (Spring Security filter chain, 401/403 problems, the filter that runs each request as the signed-in user's tenant). The root package holds only `EtudeApplication`.
 - `com.etude.shared` holds only value types that every module uses with the same meaning (e.g. `Money`) and the common persistence base `BaseEntity` (UUIDv7 id per ADR-0001, id-based `equals`/`hashCode`). Business rules and module-specific concepts stay in their own module. Entities extend `BaseEntity`.
 - Entities store money as `@CompositeType(MoneyType::class) var <name>: Money`, in columns `<name>_amount numeric(19, 4)` and `<name>_currency varchar(3)` (the component-path naming strategy derives the names). Add `@Suppress("JpaAttributeTypeInspection")`: IntelliJ's JPA inspection does not understand `@CompositeType`. Do not split money into separate amount/currency properties.
 - Application services return DTOs built inside the transaction (e.g. `OrderDetails`), never entities: `open-in-view` is off, so the web layer runs after the transaction ends. Web response DTOs map from these and own the JSON representation.

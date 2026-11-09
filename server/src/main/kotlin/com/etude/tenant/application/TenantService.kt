@@ -19,12 +19,12 @@ class TenantService(
     private val random = SecureRandom()
 
     override fun findByCode(code: String): TenantInfo? = tenantRepository.findByCode(code)
-        ?.let { TenantInfo(checkNotNull(it.id), it.name, it.code) }
+        ?.toInfo()
 
     @Transactional
     override fun register(name: String): TenantInfo {
         val tenant = tenantRepository.save(Tenant(name, issueCode()))
-        return TenantInfo(checkNotNull(tenant.id), tenant.name, tenant.code)
+        return tenant.toInfo()
     }
 
     private fun issueCode(): String {
@@ -34,6 +34,8 @@ class TenantService(
         }
         error("No unused tenant code after $MAX_ATTEMPTS attempts")
     }
+
+    private fun Tenant.toInfo() = TenantInfo(checkNotNull(id), name, code)
 
     private companion object {
         const val MAX_ATTEMPTS = 5

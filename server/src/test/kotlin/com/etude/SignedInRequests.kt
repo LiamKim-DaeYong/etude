@@ -5,7 +5,6 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.web.servlet.assertj.MockMvcTester
 
 /**
- * Sends the request as a signed-in staff member with a valid CSRF token, for tests of admin endpoints that are not
- * about sign-in. The test user belongs to no tenant, so no tenant is bound.
+ * 로그인한 직원과 CSRF 토큰으로 요청한다. 회사에 속하지 않는 사용자라 회사는 설정되지 않는다.
  */
 fun MockMvcTester.MockMvcRequestBuilder.asStaff(): MockMvcTester.MockMvcRequestBuilder = with(user("staff").roles("STAFF")).with(csrf())

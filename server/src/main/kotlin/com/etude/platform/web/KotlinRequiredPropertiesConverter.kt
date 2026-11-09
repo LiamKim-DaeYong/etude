@@ -9,8 +9,7 @@ import org.springframework.stereotype.Component
 import kotlin.reflect.full.memberProperties
 
 /**
- * Marks non-nullable Kotlin properties as `required` in the OpenAPI schema, so generated clients get
- * non-optional fields. Swagger only reads requiredness from annotations, not from Kotlin types.
+ * null이 될 수 없는 Kotlin 속성을 OpenAPI 스키마의 `required`로 표시한다. Swagger는 Kotlin 타입을 보지 않는다.
  */
 @Component
 class KotlinRequiredPropertiesConverter : ModelConverter {

@@ -10,10 +10,9 @@ import java.time.Instant
 import java.util.Optional
 
 /**
- * Single time source for the application.
+ * 애플리케이션의 시계.
  *
- * PostgreSQL `timestamptz` stores microseconds while `Instant.now()` can carry nanoseconds, so an entity's
- * in-memory time would differ from the stored one after a reload. The clock ticks in microseconds to match.
+ * PostgreSQL `timestamptz` 정밀도에 맞춰 마이크로초 단위로 끊는다.
  */
 @Configuration(proxyBeanMethods = false)
 @EnableJpaAuditing(dateTimeProviderRef = "auditingDateTimeProvider")

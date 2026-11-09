@@ -2,7 +2,7 @@ package com.etude.platform
 
 import java.util.UUID
 
-/** A signed-in principal that belongs to a tenant. The security filter runs each request as its [tenantId]. */
+/** 회사에 속한 로그인 사용자. 요청은 [tenantId]의 회사로 실행된다. */
 interface TenantPrincipal {
     val tenantId: UUID
 }

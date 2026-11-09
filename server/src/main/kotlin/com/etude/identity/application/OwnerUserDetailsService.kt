@@ -8,8 +8,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
 
 /**
- * Finds the owner for owner sign-in (email and password). Spring Security's `DaoAuthenticationProvider` calls it,
- * then checks the password against the returned hash.
+ * 이메일로 대표를 찾는다. 비밀번호 확인은 `DaoAuthenticationProvider`가 한다.
  */
 @Service
 class OwnerUserDetailsService(

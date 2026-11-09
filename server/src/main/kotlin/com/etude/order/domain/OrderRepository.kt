@@ -18,8 +18,8 @@ interface OrderRepository : Repository<Order, UUID> {
     fun findById(id: UUID): Order?
 
     /**
-     * Locks the order row until the transaction ends so concurrent state changes of the same order run one at a time.
-     * Lines are not locked: they change only through their order. Gives up after [LOCK_TIMEOUT_MILLIS]; see ADR-0003.
+     * 주문 행을 잠그고 조회한다. 주문 항목은 주문을 통해서만 바뀌므로 잠그지 않는다.
+     * [LOCK_TIMEOUT_MILLIS] 안에 잠그지 못하면 실패한다(ADR-0003).
      */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints(QueryHint(name = "jakarta.persistence.lock.timeout", value = LOCK_TIMEOUT_MILLIS))

@@ -15,9 +15,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.core.io.ClassPathResource
 
 /**
- * OpenAPI documents generated from the code: `/v3/api-docs/customer` and `/v3/api-docs/admin`, browsable at
- * `/swagger-ui.html` (local profile). The committed copies under `server/openapi/` are checked by `OpenApiSpecTest`,
- * and every integration test response is validated against them.
+ * 고객·관리자 API의 OpenAPI 문서 설정. 커밋한 사본(`server/openapi/`)은 `OpenApiSpecTest`가 검사한다.
  */
 @Configuration(proxyBeanMethods = false)
 class OpenApiConfiguration {
@@ -33,7 +31,7 @@ class OpenApiConfiguration {
     @Bean
     fun adminApi(): GroupedOpenApi = GroupedOpenApi.builder().group("admin").pathsToMatch("/admin/v1/**").build()
 
-    /** Every operation can fail with the shared error body. */
+    /** 모든 API에 공통 오류 응답을 더한다. */
     @Bean
     fun defaultErrorResponse(): GlobalOpenApiCustomizer = GlobalOpenApiCustomizer { openApi ->
         val problem = SpringDocAnnotationsUtils.extractSchema(openApi.components, ProblemBody::class.java, null, null, SpecVersion.V31)

@@ -3,8 +3,7 @@ package com.etude.platform.web
 import io.swagger.v3.oas.annotations.media.Schema
 
 /**
- * Shape of every error body (RFC 9457 problem details plus `code` and `errors`), for the API documentation.
- * The body itself is a Spring `ProblemDetail`; the contract test checks that it matches this shape.
+ * API 문서용 오류 본문 형식(RFC 9457 + `code`, `errors`). 실제 응답은 Spring `ProblemDetail`이다.
  */
 @Schema(name = "Problem")
 data class ProblemBody(

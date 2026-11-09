@@ -63,8 +63,8 @@ class Order(
         lines.forEachIndexed { index, line -> line.assignLineNumber(index + 1) }
     }
 
-    // Declared after the init block: initializers run in declaration order, so the lines are already validated.
-    @Suppress("JpaAttributeTypeInspection") // Mapped by MoneyType, which the IDE inspection does not understand
+    // 선언 순서대로 초기화되므로 init 블록의 주문 항목 검증 뒤에 계산된다.
+    @Suppress("JpaAttributeTypeInspection") // IntelliJ JPA 검사가 @CompositeType을 인식하지 못한다
     @CompositeType(MoneyType::class)
     var total: Money = lines.map(OrderLine::lineTotal).reduce(Money::plus)
         protected set

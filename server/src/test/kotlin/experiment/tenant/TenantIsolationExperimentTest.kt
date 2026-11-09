@@ -27,9 +27,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
- * Checks the assumptions of ADR-0006 before production code depends on them. Runs outside the Spring context
- * (plain Hibernate and JDBC on its own container) and lives outside `com.etude` so entity scanning ignores it.
- * Each test prints what it observed; assertions record the observed behavior.
+ * ADR-0006의 가정을 순수 Hibernate와 JDBC로 확인하는 실험. 엔티티 스캔을 피하려고 `com.etude` 밖에 둔다.
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TenantIsolationExperimentTest {
@@ -65,7 +63,7 @@ class TenantIsolationExperimentTest {
     }
 
     companion object {
-        /** Stands for platform work outside any tenant, such as sign-up. */
+        /** 플랫폼 작업(root 테넌트). */
         val ROOT = UUID(0, 0)
     }
 
@@ -209,7 +207,7 @@ class TenantIsolationExperimentTest {
                 c.createStatement().use {
                     it.execute("create table rls_note (id uuid primary key, tenant_id uuid not null, text text not null)")
                     it.execute("alter table rls_note enable row level security")
-                    // nullif: after a transaction-local set_config ends, the setting reads as '' rather than NULL.
+                    // 트랜잭션 범위 set_config가 끝나면 값이 NULL이 아니라 ''로 남는다.
                     it.execute(
                         """
                         create policy tenant_isolation on rls_note

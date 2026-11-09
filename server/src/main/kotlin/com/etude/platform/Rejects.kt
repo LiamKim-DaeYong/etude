@@ -3,8 +3,7 @@ package com.etude.platform
 import kotlin.reflect.KClass
 
 /**
- * Documents that a handler method can reject a request with the given reason enum. The OpenAPI document lists
- * every reason as a business error `code`, under the status that the module's [RejectionStatuses] assigns.
+ * 핸들러가 이 사유 enum으로 거절할 수 있음을 표시한다. API 문서에 사유가 상태별 오류 `code`로 나온다.
  */
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)

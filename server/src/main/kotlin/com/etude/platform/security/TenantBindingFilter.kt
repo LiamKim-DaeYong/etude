@@ -9,8 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
 
 /**
- * Runs the rest of each request as the signed-in user's tenant (ADR-0006). It sits after the security filters, so
- * the signed-in user is known, and before every controller and transaction, so Hibernate sees the tenant.
+ * 요청을 로그인한 사용자의 회사로 실행한다(ADR-0006). 보안 필터 뒤, 트랜잭션 앞에 있어야 한다.
  */
 class TenantBindingFilter : OncePerRequestFilter() {
 
@@ -19,7 +18,7 @@ class TenantBindingFilter : OncePerRequestFilter() {
         if (principal is TenantPrincipal) {
             TenantContext.runAs(principal.tenantId) { filterChain.doFilter(request, response) }
         } else {
-            // Sign-up and sign-in bind platform work themselves.
+            // 회원가입과 로그인은 각자 플랫폼 블록을 건다.
             filterChain.doFilter(request, response)
         }
     }

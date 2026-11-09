@@ -2,7 +2,7 @@ package com.etude.identity.application
 
 import org.springframework.security.authentication.AbstractAuthenticationToken
 
-/** A staff sign-in request: company code, username and password. [StaffAuthenticationProvider] checks it. */
+/** 직원 로그인 요청. [StaffAuthenticationProvider]가 인증한다. */
 class StaffAuthenticationToken(
     val companyCode: String,
     val username: String,

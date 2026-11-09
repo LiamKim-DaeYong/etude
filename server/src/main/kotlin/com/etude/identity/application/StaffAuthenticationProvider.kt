@@ -10,7 +10,7 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
 
-/** Checks staff sign-in: company code, then username within that company, then password. */
+/** 회사 코드, 아이디, 비밀번호로 직원을 인증한다. */
 @Component
 class StaffAuthenticationProvider(
     private val tenantDirectory: TenantDirectory,

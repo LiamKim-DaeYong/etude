@@ -21,10 +21,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import tools.jackson.core.JacksonException
 
 /**
- * Makes every API error a ProblemDetail with a `code` property.
- *
- * Business rejections ([RejectedException]) get the reason as their code and the status from the module's
- * [com.etude.platform.RejectionStatuses]. Modules do not need exception handlers of their own.
+ * 모든 API 오류를 `code`가 있는 ProblemDetail로 바꾼다. 모듈은 예외 처리기를 따로 두지 않는다.
  */
 @RestControllerAdvice
 @Order(Ordered.LOWEST_PRECEDENCE)
@@ -73,8 +70,7 @@ class GlobalExceptionHandler(
         statusCode: HttpStatusCode,
         request: WebRequest,
     ): ResponseEntity<Any>? {
-        // The parent builds the ProblemDetail itself when body is null (e.g. ResponseStatusException),
-        // so the code is added to the finished response rather than to the incoming body.
+        // body가 null이면 부모가 ProblemDetail을 만들므로, 완성된 응답에 code를 넣는다.
         val response = super.handleExceptionInternal(ex, body, headers, statusCode, request)
         val problem = response?.body as? ProblemDetail
         if (problem != null && problem.properties?.containsKey(CODE) != true) {
@@ -89,7 +85,7 @@ class GlobalExceptionHandler(
         ex.properties.forEach(::setProperty)
     }
 
-    /** Waited too long for a row lock (or lost a deadlock); the same request may succeed when retried. */
+    /** 잠금 대기 시간 초과나 데드락. 다시 시도하면 성공할 수 있다. */
     @ExceptionHandler
     fun handleLockFailure(ex: PessimisticLockingFailureException): ResponseEntity<ProblemDetail> {
         log.warn("Lock not acquired", ex)
@@ -101,7 +97,7 @@ class GlobalExceptionHandler(
             .body(problem)
     }
 
-    /** A sign-in that failed. One code for an unknown user and a wrong password, so the two cannot be told apart. */
+    /** 로그인 실패. 없는 사용자와 틀린 비밀번호를 구분하지 않는다. */
     @ExceptionHandler
     fun handleAuthenticationFailure(ex: AuthenticationException): ProblemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Invalid credentials").apply {
         setProperty(CODE, INVALID_CREDENTIALS)
@@ -134,7 +130,7 @@ class GlobalExceptionHandler(
     data class FieldViolation(val field: String?, val code: String?, val message: String?)
 
     companion object {
-        /** Code of every 400 the framework produces (validation, unreadable body); any operation can return it. */
+        /** 프레임워크가 만드는 400(검증 실패, 읽을 수 없는 본문)의 코드. */
         const val INVALID_REQUEST = "INVALID_REQUEST"
 
         const val INVALID_CREDENTIALS = "INVALID_CREDENTIALS"

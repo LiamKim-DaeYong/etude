@@ -18,6 +18,9 @@ class SignUpService(
     private val transactionTemplate: TransactionTemplate,
 ) {
 
+    /**
+     * 회사와 대표를 한 트랜잭션에서 만든다. 플랫폼 블록은 트랜잭션 바깥에 둔다([TenantContext]).
+     */
     fun signUp(command: SignUpCommand): SignUpResult = TenantContext.runAsPlatform {
         checkNotNull(
             transactionTemplate.execute {

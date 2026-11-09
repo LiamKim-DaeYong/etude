@@ -4,7 +4,7 @@ import com.etude.platform.TenantContext
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 
-/** Returns the tenant bound to the request, so tests can check [TenantBindingFilter]. Outside the documented API paths. */
+/** 요청의 현재 회사를 돌려준다. [TenantBindingFilter] 테스트용. */
 @RestController
 class CurrentTenantTestController {
 

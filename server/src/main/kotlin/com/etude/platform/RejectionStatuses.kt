@@ -3,14 +3,14 @@ package com.etude.platform
 import org.springframework.http.HttpStatus
 
 /**
- * HTTP status of each reason of a rejection enum. A module registers one bean per enum in its web package, so the
- * responses to [RejectedException] and the API documentation share one mapping.
+ * 거절 사유별 HTTP 상태. 모듈은 사유 enum마다 web 패키지에 빈을 하나 등록한다.
+ * 응답과 API 문서가 이 매핑을 함께 쓴다.
  */
 interface RejectionStatuses<E : Enum<E>> {
     val reasonType: Class<E>
 
     fun statusOf(reason: E): HttpStatus
 
-    /** [statusOf] for a reason whose type is only known at runtime. */
+    /** 타입을 모르는 사유의 [statusOf]. */
     fun statusOfAny(reason: Enum<*>): HttpStatus = statusOf(reasonType.cast(reason))
 }

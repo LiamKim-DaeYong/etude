@@ -15,7 +15,7 @@ class TestcontainersConfiguration {
     fun postgresContainer(): PostgreSQLContainer = PostgreSQLContainer(POSTGRES_IMAGE)
 
     companion object {
-        /** Read from `compose.yaml` so local runs and tests use the same PostgreSQL version. */
+        /** `compose.yaml`의 PostgreSQL 이미지. 로컬 실행과 같은 버전을 쓴다. */
         val POSTGRES_IMAGE: String = Regex("""image:\s*(postgres:\S+)""")
             .find(Files.readString(Path.of("compose.yaml")))
             ?.groupValues?.get(1)

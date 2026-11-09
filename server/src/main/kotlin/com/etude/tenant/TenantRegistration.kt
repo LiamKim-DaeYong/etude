@@ -1,8 +1,8 @@
 package com.etude.tenant
 
-/** Creates tenants. Sign-up uses it to create the company before its owner. */
+/** 회사를 등록한다. */
 interface TenantRegistration {
 
-    /** Registers a tenant with a newly issued code. Call it as platform work: the tenant does not exist yet. */
+    /** 회사 코드를 발급해 회사를 등록한다. 플랫폼 블록에서 호출한다. */
     fun register(name: String): TenantInfo
 }
