@@ -9,8 +9,7 @@ import org.springframework.stereotype.Component
 import kotlin.reflect.full.memberProperties
 
 /**
- * null이 될 수 없는 Kotlin 속성을 OpenAPI 스키마에서 `required`로 표시해, 생성한 클라이언트 타입도 필수 필드가 되게 한다.
- * Swagger는 필수 여부를 애노테이션에서만 읽고 Kotlin 타입은 보지 않는다.
+ * null이 될 수 없는 Kotlin 속성을 OpenAPI 스키마의 `required`로 표시한다. Swagger는 Kotlin 타입을 보지 않는다.
  */
 @Component
 class KotlinRequiredPropertiesConverter : ModelConverter {

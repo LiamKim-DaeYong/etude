@@ -11,8 +11,7 @@ import org.springframework.stereotype.Component
 import tools.jackson.databind.json.JsonMapper
 
 /**
- * 컨트롤러에 닿기 전에 보안 필터가 거절한 요청의 Problem 본문.
- * [com.etude.platform.web.GlobalExceptionHandler]의 본문과 같은 모양이다.
+ * 보안 필터가 거절한 요청에 Problem 본문을 쓴다. 형식은 [com.etude.platform.web.GlobalExceptionHandler]와 같다.
  */
 @Component
 class SecurityProblemWriter(

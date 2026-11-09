@@ -10,7 +10,7 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
 
-/** 직원 로그인을 확인한다. 회사 코드, 그 회사 안의 아이디, 비밀번호 순서다. */
+/** 회사 코드, 아이디, 비밀번호로 직원을 인증한다. */
 @Component
 class StaffAuthenticationProvider(
     private val tenantDirectory: TenantDirectory,

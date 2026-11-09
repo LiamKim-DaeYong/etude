@@ -56,8 +56,7 @@ class OrderCanceledListenerTest(
     }
 
     /**
-     * 발행 기록은 최소 한 번 전달한다. 리스너가 커밋한 뒤 완료 표시 전에 프로세스가 멈추면 이벤트가 다시 전달된다.
-     * 여기서는 완료된 발행 기록을 실패로 바꿔 흉내 낸다.
+     * 이벤트는 최소 한 번 전달되므로 다시 올 수 있다. 완료된 발행 기록을 실패로 바꿔 재전달을 흉내 낸다.
      */
     @Test
     fun `releases inventory only once when the same event is delivered again`() {

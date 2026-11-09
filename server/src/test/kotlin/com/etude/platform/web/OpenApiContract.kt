@@ -18,8 +18,7 @@ import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * 모든 통합 테스트의 응답을 `openapi/`에 커밋한 OpenAPI 문서로 검증한다. 상태 코드가 문서에 있어야 하고(`default` 포함)
- * 본문이 문서의 스키마와 맞아야 한다. 문서에 없는 경로(예: 테스트 전용 API)는 검사하지 않는다.
+ * 통합 테스트의 모든 응답을 커밋한 OpenAPI 문서로 검증한다. 문서에 없는 경로는 건너뛴다.
  */
 class OpenApiContract(documents: List<Path>) : ResultHandler {
 

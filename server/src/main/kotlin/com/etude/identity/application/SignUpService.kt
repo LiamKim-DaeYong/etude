@@ -19,8 +19,7 @@ class SignUpService(
 ) {
 
     /**
-     * 회사와 대표를 한 트랜잭션에서 만든다. 아직 회사가 없으므로 플랫폼 작업이고, Hibernate는 트랜잭션을 시작할 때
-     * 회사를 읽으므로 플랫폼 블록을 트랜잭션 바깥에 건다.
+     * 회사와 대표를 한 트랜잭션에서 만든다. 플랫폼 블록은 트랜잭션 바깥에 둔다([TenantContext]).
      */
     fun signUp(command: SignUpCommand): SignUpResult = TenantContext.runAsPlatform {
         checkNotNull(

@@ -71,8 +71,7 @@ class AuthController(
     fun getCsrfToken(@Parameter(hidden = true) token: CsrfToken): CsrfTokenResponse = CsrfTokenResponse(token.headerName, token.token)
 
     /**
-     * 로그인 정보를 플랫폼 작업으로 확인하고(아직 회사를 모른다) 사용자를 새 세션에 담는다.
-     * 세션 ID를 바꿔 세션 고정 공격을 막고, CSRF 토큰을 지워 클라이언트가 새 토큰을 받게 한다.
+     * 인증한 사용자를 새 세션에 저장한다. 세션 고정 공격을 막으려고 세션 ID를 바꾸고, CSRF 토큰을 새로 받게 한다.
      */
     private fun signIn(token: Authentication, request: HttpServletRequest, response: HttpServletResponse): SessionResponse {
         val authentication = TenantContext.runAsPlatform { authenticationManager.authenticate(token) }

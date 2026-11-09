@@ -19,7 +19,7 @@ class Product(
     var name: String = name
         protected set
 
-    @Suppress("JpaAttributeTypeInspection") // MoneyType으로 매핑한다. IDE 검사가 이를 이해하지 못한다
+    @Suppress("JpaAttributeTypeInspection") // IntelliJ JPA 검사가 @CompositeType을 인식하지 못한다
     @CompositeType(MoneyType::class)
     var price: Money = price
         protected set

@@ -11,8 +11,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 /**
- * `openapi/`에 커밋한 OpenAPI 문서를 코드가 생성한 문서와 같게 유지한다.
- * 다르면 파일을 다시 쓰고 테스트가 실패한다. 차이를 확인하고 커밋한다.
+ * 커밋한 OpenAPI 문서가 코드와 같은지 확인한다. 다르면 파일을 새로 쓰고 실패한다.
  */
 @IntegrationTest
 class OpenApiSpecTest(
@@ -25,7 +24,7 @@ class OpenApiSpecTest(
     @ValueSource(strings = ["customer", "admin"])
     fun `committed OpenAPI document matches the code`(group: String) {
         val generated = mvc.get().uri("/v3/api-docs/{group}", group).exchange().response.contentAsString
-        // 줄바꿈을 LF로 맞춰 Windows와 Linux에서 같은 결과가 나오게 한다.
+        // OS와 관계없이 비교하도록 줄바꿈을 LF로 맞춘다.
         val pretty = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(mapper.readTree(generated))
             .replace("\r\n", "\n") + "\n"
         val file = Path.of("openapi", "$group.json")

@@ -10,7 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 @Configuration(proxyBeanMethods = false)
 class SignInConfiguration {
 
-    /** 대표 로그인은 [OwnerUserDetailsService]로, 직원 로그인은 [StaffAuthenticationProvider]로 보낸다. */
+    /** 대표 로그인은 [OwnerUserDetailsService], 직원 로그인은 [StaffAuthenticationProvider]가 처리한다. */
     @Bean
     fun authenticationManager(
         ownerUserDetailsService: OwnerUserDetailsService,

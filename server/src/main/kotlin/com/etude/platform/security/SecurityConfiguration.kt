@@ -11,9 +11,8 @@ import org.springframework.security.web.csrf.CsrfTokenRepository
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository
 
 /**
- * 관리자 API의 서버 세션 로그인(#83). 브라우저는 세션 쿠키만 갖고, 상태를 바꾸는 요청에는 CSRF 토큰이 필요하다.
- * `/admin/v1` 경로는 로그인 API를 빼고 모두 로그인이 필요하다. 고객 API는 홈페이지 슬라이스에서 방문자 식별 방식을
- * 정할 때까지 열어 둔다.
+ * 관리자 API 보안 설정. 서버 세션과 CSRF 토큰을 쓴다(#83).
+ * 고객 API는 방문자 식별 방식을 정할 때까지 열어 둔다.
  */
 @Configuration(proxyBeanMethods = false)
 class SecurityConfiguration {
@@ -32,7 +31,7 @@ class SecurityConfiguration {
         }
         .csrf {
             it.csrfTokenRepository(csrfTokenRepository)
-                // 고객 API에는 아직 로그인이 없어서, 위조 요청이 올라탈 세션이 없다.
+                // 세션이 없는 고객 API는 CSRF 대상이 아니다.
                 .ignoringRequestMatchers("/api/v1/**")
         }
         .securityContext { it.securityContextRepository(securityContextRepository) }
@@ -47,11 +46,11 @@ class SecurityConfiguration {
         .addFilterAfter(TenantBindingFilter(), AuthorizationFilter::class.java)
         .build()
 
-    /** 로그인 API와 함께 쓴다. 로그인 API가 로그인한 사용자를 직접 세션에 저장한다. */
+    /** 로그인 API가 인증 결과를 세션에 저장할 때도 쓴다. */
     @Bean
     fun securityContextRepository(): SecurityContextRepository = HttpSessionSecurityContextRepository()
 
-    /** 로그인 API와 함께 쓴다. 로그인 API가 토큰을 지워 클라이언트가 로그인 뒤 새 토큰을 받게 한다. */
+    /** 로그인 API가 로그인 후 토큰을 지울 때도 쓴다. */
     @Bean
     fun csrfTokenRepository(): CsrfTokenRepository = HttpSessionCsrfTokenRepository()
 

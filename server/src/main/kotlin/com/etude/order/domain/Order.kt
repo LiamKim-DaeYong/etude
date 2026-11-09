@@ -63,8 +63,8 @@ class Order(
         lines.forEachIndexed { index, line -> line.assignLineNumber(index + 1) }
     }
 
-    // init 블록 뒤에 선언한다. 초기화는 선언 순서대로 실행되므로 이 시점에는 주문 항목 검증이 끝나 있다.
-    @Suppress("JpaAttributeTypeInspection") // MoneyType으로 매핑한다. IDE 검사가 이를 이해하지 못한다
+    // 선언 순서대로 초기화되므로 init 블록의 주문 항목 검증 뒤에 계산된다.
+    @Suppress("JpaAttributeTypeInspection") // IntelliJ JPA 검사가 @CompositeType을 인식하지 못한다
     @CompositeType(MoneyType::class)
     var total: Money = lines.map(OrderLine::lineTotal).reduce(Money::plus)
         protected set

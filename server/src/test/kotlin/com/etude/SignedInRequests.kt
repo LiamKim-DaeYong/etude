@@ -5,7 +5,6 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.web.servlet.assertj.MockMvcTester
 
 /**
- * 로그인한 직원으로, 올바른 CSRF 토큰과 함께 요청을 보낸다. 로그인 자체를 다루지 않는 관리자 API 테스트에 쓴다.
- * 이 테스트 사용자는 회사에 속하지 않아 회사가 걸리지 않는다.
+ * 로그인한 직원과 CSRF 토큰으로 요청한다. 회사에 속하지 않는 사용자라 회사는 설정되지 않는다.
  */
 fun MockMvcTester.MockMvcRequestBuilder.asStaff(): MockMvcTester.MockMvcRequestBuilder = with(user("staff").roles("STAFF")).with(csrf())

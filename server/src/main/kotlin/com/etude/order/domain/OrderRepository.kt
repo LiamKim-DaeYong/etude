@@ -18,8 +18,8 @@ interface OrderRepository : Repository<Order, UUID> {
     fun findById(id: UUID): Order?
 
     /**
-     * 트랜잭션이 끝날 때까지 주문 행을 잠가 같은 주문의 동시 상태 변경을 하나씩 처리한다.
-     * 주문 항목은 주문을 통해서만 바뀌므로 잠그지 않는다. [LOCK_TIMEOUT_MILLIS] 뒤에 포기한다(ADR-0003).
+     * 주문 행을 잠그고 조회한다. 주문 항목은 주문을 통해서만 바뀌므로 잠그지 않는다.
+     * [LOCK_TIMEOUT_MILLIS] 안에 잠그지 못하면 실패한다(ADR-0003).
      */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints(QueryHint(name = "jakarta.persistence.lock.timeout", value = LOCK_TIMEOUT_MILLIS))

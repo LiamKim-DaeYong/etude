@@ -37,7 +37,7 @@ class Money private constructor(
             return Money(amount.setScale(currency.defaultFractionDigits, ROUNDING), currency)
         }
 
-        /** [of]와 같지만, 통화가 허용하는 것보다 소수 자릿수가 많은 금액을 반올림하지 않고 거절한다. */
+        /** [of]와 같지만 소수 자릿수가 통화보다 많으면 반올림하지 않고 거절한다. */
         fun ofExact(amount: BigDecimal, currency: Currency): Money {
             val money = of(amount, currency)
             require(money.amount.compareTo(amount) == 0) {

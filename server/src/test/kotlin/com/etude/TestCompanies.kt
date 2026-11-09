@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component
 import org.springframework.test.web.servlet.assertj.MockMvcTester
 import java.util.UUID
 
-/** 테스트에서 쓸 회사를 만들고, 그 회사 사용자로 로그인한 세션을 돌려준다. */
+/** 테스트용 회사와 로그인 세션을 만든다. */
 @Component
 class TestCompanies(
     private val signUpService: SignUpService,
@@ -23,14 +23,14 @@ class TestCompanies(
     private val mvc: MockMvcTester,
 ) {
 
-    /** 회원가입으로 회사와 대표(아이디 `owner`)를 만든다. 이메일은 매번 다르다. */
+    /** 회사와 대표(아이디 `owner`)를 만든다. */
     fun create(name: String = "Acme Film"): TestCompany {
         val email = "owner-${UUID.randomUUID()}@example.com"
         val result = signUpService.signUp(SignUpCommand(name, email, OWNER_USERNAME, PASSWORD))
         return TestCompany(result.tenantId, result.tenantCode, result.userId, email)
     }
 
-    /** 회사에 직원을 등록한다. 직원 등록 API가 생기기 전까지 저장소로 직접 만든다. */
+    /** 직원을 등록한다. 직원 등록 API가 생기면 그 API로 바꾼다. */
     fun registerStaff(company: TestCompany, username: String): UUID = TenantContext.runAsPlatform {
         val user = User(company.tenantId, UserRole.STAFF, username, null, checkNotNull(passwordEncoder.encode(PASSWORD)))
         checkNotNull(userRepository.save(user).id)

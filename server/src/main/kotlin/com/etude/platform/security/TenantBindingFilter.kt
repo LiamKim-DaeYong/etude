@@ -9,8 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
 
 /**
- * 요청의 나머지 처리를 로그인한 사용자의 회사로 실행한다(ADR-0006). 보안 필터 뒤에 있어 로그인한 사용자를 알고,
- * 모든 컨트롤러와 트랜잭션 앞에 있어 Hibernate가 회사를 읽을 수 있다.
+ * 요청을 로그인한 사용자의 회사로 실행한다(ADR-0006). 보안 필터 뒤, 트랜잭션 앞에 있어야 한다.
  */
 class TenantBindingFilter : OncePerRequestFilter() {
 
