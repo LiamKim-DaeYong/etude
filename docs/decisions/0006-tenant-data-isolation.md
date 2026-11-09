@@ -91,7 +91,10 @@ ADR-0005로 여러 제조사가 서비스 하나를 함께 쓰게 됐다. 다른
 | HQL 조회 | `where tenantId = ?`가 자동으로 붙어 현재 테넌트 행만 나온다 |
 | 다른 테넌트 행을 `find(id)` | SQL에 `id = ? and tenantId = ?`가 붙고 `null`을 돌려준다 |
 | native query | **걸러지지 않는다.** 다른 테넌트 행까지 센다. 두 번째 방어선이 필요한 근거다 |
-| 현재 테넌트 없이 세션 사용 | `HibernateException`(no tenant identifier specified)으로 실패한다 |
+| 현재 테넌트 없이 세션 사용 | `HibernateException`(no tenant identifier specified)으로 실패한다. 테넌트에 속하지 않는 엔티티를 다룰 때도 같다 |
+| root 테넌트(`isRoot`가 참)로 HQL 조회 | 테넌트 조건이 붙지 않아 모든 테넌트의 행이 나온다 |
+| root 테넌트로 `tenantId` 없이 저장 | **오류 없이 root 값(`00000000-...`)이 `tenant_id`로 저장된다** |
+| root 테넌트로 다른 테넌트 ID를 넣고 저장 | **오류 없이 그 테넌트의 행으로 저장된다** |
 | 애플리케이션 역할로 조회 (RLS) | 현재 테넌트 행만 나온다 |
 | `FOR NO KEY UPDATE` 조회 (RLS) | 현재 테넌트 행만 잠그고 돌려준다 |
 | 다른 테넌트 행 삽입 (RLS) | `new row violates row-level security policy`로 거절 |

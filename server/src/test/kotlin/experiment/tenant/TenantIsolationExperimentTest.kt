@@ -60,6 +60,13 @@ class TenantIsolationExperimentTest {
         override fun resolveCurrentTenantIdentifier(): UUID? = value.get()
 
         override fun validateExistingCurrentSessions() = false
+
+        override fun isRoot(tenantId: UUID?) = tenantId == ROOT
+    }
+
+    companion object {
+        /** Stands for platform work outside any tenant, such as sign-up. */
+        val ROOT = UUID(0, 0)
     }
 
     private fun <T> asTenant(tenant: UUID?, block: () -> T): T {
@@ -140,10 +147,42 @@ class TenantIsolationExperimentTest {
         @Test
         fun `native query is not filtered`() {
             val count = asTenant(tenantB) {
-                sessionFactory.fromSession { it.createNativeQuery("select count(*) from note", Long::class.java).singleResult }
+                sessionFactory.fromSession { it.createNativeQuery("select count(*) from note where text in ('a', 'b')", Long::class.java).singleResult }
             }
             println("[observed] native count(*) as B -> $count")
             assertEquals(2L, count, "native SQL bypasses the @TenantId filter")
+        }
+
+        @Test
+        fun `root sees every tenant`() {
+            val texts = asTenant(ROOT) {
+                sessionFactory.fromSession { it.createSelectionQuery("select text from Note where text in ('a', 'b') order by text", String::class.java).resultList }
+            }
+            println("[observed] HQL as root -> $texts")
+            assertEquals(listOf("a", "b"), texts)
+        }
+
+        @Test
+        fun `root persists without a tenant id`() {
+            val result = runCatching { asTenant(ROOT) { sessionFactory.fromTransaction { s -> Note("root").also { s.persist(it) } } } }
+            println("[observed] persist as root without tenantId -> ${result.fold({ "saved, tenantId=${it.tenantId}" }, { "${it::class.simpleName}: ${it.message}" })}")
+            assertEquals(ROOT, result.getOrThrow().tenantId, "root silently becomes the row's tenant")
+        }
+
+        @Test
+        fun `root persists with an assigned tenant id`() {
+            val result = runCatching {
+                asTenant(ROOT) {
+                    sessionFactory.fromTransaction { s ->
+                        Note("root-assigned").also {
+                            it.tenantId = tenantB
+                            s.persist(it)
+                        }
+                    }
+                }
+            }
+            println("[observed] persist as root with tenantId=B -> ${result.fold({ "saved, tenantId=${it.tenantId}" }, { "${it::class.simpleName}: ${it.message}" })}")
+            assertEquals(tenantB, result.getOrThrow().tenantId, "root may write into any tenant")
         }
 
         @Test
