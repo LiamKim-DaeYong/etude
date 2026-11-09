@@ -21,6 +21,9 @@ spring-boot-starter-flyway = { module = "org.springframework.boot:spring-boot-st
 spring-boot-devtools = { module = "org.springframework.boot:spring-boot-devtools" }
 spring-boot-docker-compose = { module = "org.springframework.boot:spring-boot-docker-compose" }
 
+# Spring Security (버전은 Spring Boot BOM이 관리)
+spring-security-crypto = { module = "org.springframework.security:spring-security-crypto" }
+
 # Spring Modulith (버전은 Spring Modulith BOM이 관리)
 spring-modulith-starter-core = { module = "org.springframework.modulith:spring-modulith-starter-core" }
 spring-modulith-starter-jdbc = { module = "org.springframework.modulith:spring-modulith-starter-jdbc" }

@@ -13,7 +13,8 @@ Etude의 업무 용어와 이름 규칙의 기준 문서다. 코드, API, DB, �
 
 | 동사 | 쓰는 곳 | 뜻 | 쓰지 않는 말 |
 | --- | --- | --- | --- |
-| `register` | 서비스 | 관리자가 상품·재고 같은 기준 데이터를 처음 만든다 | `create`, `add` |
+| `register` | 서비스 | 관리자가 상품·재고 같은 기준 데이터를 처음 만든다. 대표가 직원을 등록할 때도 쓴다 | `create`, `add` |
+| `signUp` | 서비스 | 회원가입. 회사와 대표를 함께 만든다 | `join`, `register` (회원가입에) |
 | `find` | 서비스, 모듈 공개 API | 조회한다. 없으면 `null`을 돌려준다 (`findOrder`) | 없을 수 있는 조회에 `get` |
 | `get` | 컨트롤러 핸들러 | 조회한다. 반드시 돌려주고, 없으면 예외를 던진다(컨트롤러는 404). 핸들러 이름은 `operationId`가 된다 (`getOrder`, Google AIP-131의 Get) | `null`을 돌려주는 조회에 `get` |
 | `place` | 주문 | 고객이 주문한다 | `create`, `submit` |
@@ -46,13 +47,13 @@ Etude의 업무 용어와 이름 규칙의 기준 문서다. 코드, API, DB, �
 | 수량 | `Int`, 무엇의 수량인지 모호하면 앞에 붙인다 | `quantity`, `availableQuantity` |
 | 줄임말 | 쓰지 않는다. `id`만 예외 | `lineNumber` (`lineNo` 아님) |
 | 오류 코드 | `UPPER_SNAKE_CASE`. 이 문서의 용어로 상황을 쓴다 | `PRODUCT_NOT_FOUND`, `TOTAL_MISMATCH` |
-| DB | 테이블은 단수형 `snake_case`. `orders`만 예약어 때문에 복수형 | `order_line`, `inventory_item` |
+| DB | 테이블은 단수형 `snake_case`. 예약어인 `orders`, `users`만 복수형 | `order_line`, `inventory_item` |
 
 ## 공통
 
 | 한글 | 코드 | API | 정의 | 쓰지 않는 말 |
 | --- | --- | --- | --- | --- |
-| 테넌트 | `Tenant` | — | 서비스를 함께 쓰는 회사 하나. 각 테넌트는 자기 데이터만 본다 ([ADR-0005](decisions/0005-product-direction.md)) | 고객사, 업체, `company`, `organization` (테넌트를 가리킬 때) |
+| 테넌트 | `Tenant` | — | 서비스에 회원가입한 회사 하나. 각 테넌트는 자기 데이터만 본다 ([ADR-0005](decisions/0005-product-direction.md), [ADR-0006](decisions/0006-tenant-data-isolation.md)) | 고객사, 업체, `company`, `organization` (테넌트를 가리킬 때) |
 | 금액 | `Money` | `{"amount", "currency"}` | 금액과 ISO 4217 통화 코드의 쌍 | 금액·통화를 따로 둔 필드 |
 | 통화 | `currency` | `currency` | ISO 4217 코드 (`KRW`, `USD`) | `currencyCode` |
 | 고객 API | — | `/api/v1` | 고객이 쓰는 API | — |
@@ -64,6 +65,30 @@ Etude의 업무 용어와 이름 규칙의 기준 문서다. 코드, API, DB, �
 | `INVALID_REQUEST` | 요청 형식이나 값이 잘못됐다 (400). 필드별 오류는 `errors`에 담는다 |
 | `NOT_FOUND` | 요청한 리소스가 없다 (404) |
 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 (500). 상세 내용은 숨긴다 |
+
+## 테넌트 (`tenant`)
+
+서비스에 가입한 회사를 다룬다([ADR-0006](decisions/0006-tenant-data-isolation.md)).
+
+| 한글 | 코드 | API | 정의 | 쓰지 않는 말 |
+| --- | --- | --- | --- | --- |
+| 회사 | `Tenant` | — | 회원가입으로 생기는 테넌트. 창고와 공장을 운영한다 | `Company` (거래처도 회사라 혼동) |
+| 회사 코드 | `code` | — | 직원이 로그인할 때 입력하는, 시스템이 발급한 고정 번호. 테넌트 ID와 다르다 | `alias` (홈페이지 별칭과 구분) |
+
+## 사용자 (`identity`)
+
+회사에 속해 로그인하는 사람과 그 사람의 역할을 다룬다([ADR-0007](decisions/0007-module-layers.md)).
+
+| 한글 | 코드 | API | 정의 | 쓰지 않는 말 |
+| --- | --- | --- | --- | --- |
+| 사용자 | `User` | — | 회사에 속해 로그인하는 사람. 회사 하나에만 속한다 | `Account`, 계정 (회계의 계정과목, 결제의 계좌와 혼동), `Member` (쇼핑몰 회원과 혼동) |
+| 역할 | `UserRole`, `role` | — | 사용자가 회사 안에서 할 수 있는 일의 범위 | — |
+| 대표 | `UserRole.OWNER` | — | 회원가입한 사용자. 이메일로 로그인하고, 직원을 등록하고 비밀번호를 재설정한다 | `ADMIN`, `MASTER` |
+| 직원 | `UserRole.STAFF` | — | 대표가 등록한 사용자. 회사 코드와 아이디로 로그인한다 | `EMPLOYEE` (인사·생산의 작업자와 구분) |
+| 아이디 | `username` | — | 회사 안에서 유일한 로그인 이름 | `loginId`, `userId` (식별자 규칙과 혼동) |
+| 회원가입 | `signUp` | — | 회사와 대표를 함께 만든다 | `join`, `register` |
+
+생산 현장의 작업자처럼 로그인하지 않고 기록에만 남는 사람은 사용자가 아니다. 해당 모듈에서 따로 정한다.
 
 ## 카탈로그 (`catalog`)
 
