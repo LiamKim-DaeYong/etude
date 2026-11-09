@@ -1,8 +1,10 @@
 package com.etude.identity.application
 
 import com.etude.identity.domain.UserRepository
+import com.etude.identity.domain.UserRole
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
 
 /**
@@ -14,13 +16,10 @@ class OwnerUserDetailsService(
     private val userRepository: UserRepository,
 ) : UserDetailsService {
 
-    /**
-     * 1. Find the user by the lowercased email with `userRepository.findByEmail(...)`.
-     * 2. Only an owner may sign in this way.
-     * 3. Return `SignedInUser.of(user)`; otherwise throw `UsernameNotFoundException`.
-     *    Spring Security reports it as a wrong password, so callers cannot tell which emails exist.
-     */
     override fun loadUserByUsername(email: String): UserDetails {
-        TODO("Find the owner by email")
+        val user = userRepository.findByEmail(email.lowercase())
+            ?.takeIf { it.role == UserRole.OWNER }
+            ?: throw UsernameNotFoundException("Invalid credentials")
+        return SignedInUser.of(user)
     }
 }

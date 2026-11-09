@@ -1,8 +1,11 @@
 package com.etude.identity.application
 
 import com.etude.identity.domain.UserRepository
+import com.etude.identity.domain.UserRole
 import com.etude.tenant.TenantDirectory
 import org.springframework.security.authentication.AuthenticationProvider
+import org.springframework.security.authentication.BadCredentialsException
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
@@ -15,20 +18,20 @@ class StaffAuthenticationProvider(
     private val passwordEncoder: PasswordEncoder,
 ) : AuthenticationProvider {
 
-    /**
-     * 1. Find the company with `tenantDirectory.findByCode(token.companyCode)`.
-     * 2. Find the user with `userRepository.findByTenantIdAndUsername(...)`. Only staff may sign in this way.
-     * 3. Check the password with `passwordEncoder.matches(token.password, user.passwordHash)`.
-     * 4. On success return `UsernamePasswordAuthenticationToken.authenticated(principal, null, principal.authorities)`
-     *    with `principal = SignedInUser.of(user)`.
-     *
-     * When any step fails, throw `BadCredentialsException("Invalid credentials")`: the same exception for every
-     * failure, so callers cannot tell a wrong company code from a wrong password.
-     */
     override fun authenticate(authentication: Authentication): Authentication {
         val token = authentication as StaffAuthenticationToken
-        TODO("Check the company code, username and password")
+
+        val tenant = tenantDirectory.findByCode(token.companyCode) ?: throw invalidCredentials()
+        val user = userRepository.findByTenantIdAndUsername(tenant.id, token.username)
+            ?.takeIf { it.role == UserRole.STAFF }
+            ?: throw invalidCredentials()
+        if (!passwordEncoder.matches(token.password, user.passwordHash)) throw invalidCredentials()
+
+        val principal = SignedInUser.of(user)
+        return UsernamePasswordAuthenticationToken.authenticated(principal, null, principal.authorities)
     }
 
     override fun supports(authentication: Class<*>): Boolean = StaffAuthenticationToken::class.java.isAssignableFrom(authentication)
+
+    private fun invalidCredentials() = BadCredentialsException("Invalid credentials")
 }

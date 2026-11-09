@@ -1,8 +1,11 @@
 package com.etude.platform.security
 
+import com.etude.platform.TenantContext
+import com.etude.platform.TenantPrincipal
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
 
 /**
@@ -12,10 +15,12 @@ import org.springframework.web.filter.OncePerRequestFilter
 class TenantBindingFilter : OncePerRequestFilter() {
 
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
-        // TODO: Run the rest of the request as the signed-in user's tenant.
-        //  - The signed-in user: SecurityContextHolder.getContext().authentication?.principal
-        //  - If it is a TenantPrincipal, call filterChain.doFilter(request, response) inside TenantContext.runAs(it.tenantId) { }
-        //  - Otherwise call filterChain.doFilter(request, response) as is: sign-up and sign-in bind platform work themselves.
-        filterChain.doFilter(request, response)
+        val principal = SecurityContextHolder.getContext().authentication?.principal
+        if (principal is TenantPrincipal) {
+            TenantContext.runAs(principal.tenantId) { filterChain.doFilter(request, response) }
+        } else {
+            // Sign-up and sign-in bind platform work themselves.
+            filterChain.doFilter(request, response)
+        }
     }
 }
