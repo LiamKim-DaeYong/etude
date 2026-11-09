@@ -2,7 +2,7 @@
 
 Multi-tenant business system (orders, inventory, production) and website for small manufacturers, built to explore design problems in data isolation, concurrency and external integration. Direction: `docs/decisions/0005-product-direction.md`.
 
-- `server/`: backend. Kotlin, Spring Boot 4.1, Java 25, PostgreSQL. Modular monolith on Spring Modulith, package `dev.etude`
+- `server/`: backend. Kotlin, Spring Boot 4.1, Java 25, PostgreSQL. Modular monolith on Spring Modulith, package `com.etude`
 - `web/`: frontend. Area rules in `web/AGENTS.md`
 - `docs/`: ADRs in `docs/decisions/`, concept notes in `docs/learning/`
 

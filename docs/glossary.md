@@ -102,7 +102,7 @@ Etude의 업무 용어와 이름 규칙의 기준 문서다. 코드, API, DB, �
 | `PRODUCT_NOT_FOUND` | 재고를 등록할 상품이 없다 |
 | `INVENTORY_ITEM_ALREADY_REGISTERED` | 상품의 재고가 이미 등록되어 있다 |
 
-예약 포트 `InventoryReservation`, `ReservationLine`과 재고 부족 예외 `InsufficientInventoryException`은 쓰는 쪽인 주문 모듈(`dev.etude.order`)이 정의하고 재고 모듈이 구현한다([ADR-0004](decisions/0004-module-dependency-direction.md)).
+예약 포트 `InventoryReservation`, `ReservationLine`과 재고 부족 예외 `InsufficientInventoryException`은 쓰는 쪽인 주문 모듈(`com.etude.order`)이 정의하고 재고 모듈이 구현한다([ADR-0004](decisions/0004-module-dependency-direction.md)).
 
 재고 상태(실제 보유, 예약, 판매 가능)를 나누거나 예약을 확정하는 용어는 결제 단계(#20)에서 정한다. 참고로 업계에서는 주문 시점의 동작을 reserve(Magento, commercetools)나 commit(Shopify)이라 하고, deduct는 출고할 때 실제 재고를 빼는 동작(Magento source deduction)을 가리킨다.
 
