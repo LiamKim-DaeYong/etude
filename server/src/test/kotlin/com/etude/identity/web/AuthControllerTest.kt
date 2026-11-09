@@ -3,6 +3,7 @@ package com.etude.identity.web
 import com.etude.IntegrationTest
 import com.etude.TestCompanies
 import com.etude.TestCompanies.Companion.PASSWORD
+import com.etude.assertProblem
 import com.etude.platform.security.CurrentTenantTestController
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -144,8 +145,4 @@ class AuthControllerTest(
     private fun jsonField(result: MvcTestResult, name: String): String = Regex(""""$name":"([^"]+)"""").find(result.mvcResult.response.contentAsString)!!.groupValues[1]
 
     private fun assertInvalidCredentials(result: MvcTestResult) = assertProblem(result, HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS")
-
-    private fun assertProblem(result: MvcTestResult, status: HttpStatus, code: String) = assertThat(result)
-        .hasStatus(status)
-        .bodyJson().isLenientlyEqualTo("""{"code":"$code"}""")
 }
