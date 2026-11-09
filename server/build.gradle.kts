@@ -7,7 +7,7 @@ plugins {
     alias(libs.plugins.ktlint)
 }
 
-group = "dev.etude"
+group = "com.etude"
 version = "0.0.1-SNAPSHOT"
 description = "etude"
 
