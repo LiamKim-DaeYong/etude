@@ -9,8 +9,8 @@ import jakarta.persistence.Table
 import java.util.UUID
 
 /**
- * A person who signs in to a tenant. Not tenant-scoped: sign-in finds the user before the tenant is known,
- * so the tenant is an ordinary column (ADR-0006).
+ * 회사에 속해 로그인하는 사람. 테넌트 데이터가 아니다. 로그인할 때는 회사를 알기 전에 사용자를 찾아야 해서
+ * 소속 회사를 일반 칼럼으로 가진다(ADR-0006).
  */
 @Entity
 @Table(name = "users")

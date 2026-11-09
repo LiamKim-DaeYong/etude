@@ -69,7 +69,7 @@ class OrderService(
 
     fun findOrder(id: UUID): OrderDetails? = orderRepository.findById(id)?.let(OrderDetails::from)
 
-    /** Returns null when the order does not exist. */
+    /** 주문이 없으면 null을 돌려준다. */
     @Transactional
     fun cancel(id: UUID): OrderDetails? {
         val order = orderRepository.findByIdForUpdate(id) ?: return null

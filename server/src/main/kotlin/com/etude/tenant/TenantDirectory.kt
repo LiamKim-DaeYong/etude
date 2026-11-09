@@ -1,6 +1,6 @@
 package com.etude.tenant
 
-/** Looks up tenants. Staff sign-in uses it to find the company of a company code. */
+/** 회사를 찾는다. 직원 로그인이 회사 코드로 회사를 찾을 때 쓴다. */
 interface TenantDirectory {
 
     fun findByCode(code: String): TenantInfo?

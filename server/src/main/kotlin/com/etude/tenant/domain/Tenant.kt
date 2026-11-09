@@ -14,7 +14,7 @@ class Tenant(
     var name: String = name
         protected set
 
-    /** Issued by the system and never changed; staff type it to sign in. Not the tenant id (ADR-0006). */
+    /** 시스템이 발급하고 바꾸지 않는다. 직원이 로그인할 때 입력한다. 테넌트 ID와 다르다(ADR-0006). */
     @Column(nullable = false, updatable = false, length = 8)
     var code: String = code
         protected set

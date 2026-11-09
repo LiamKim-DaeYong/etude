@@ -8,7 +8,7 @@ import io.swagger.v3.core.util.Json
 import io.swagger.v3.oas.models.media.Schema
 import org.springframework.stereotype.Component
 
-/** Documents [Money] with the type that [MoneyJson] actually writes, [MoneyJson.Body]. */
+/** [Money]를 [MoneyJson]이 실제로 쓰는 타입인 [MoneyJson.Body]로 문서화한다. */
 @Component
 class MoneySchemaConverter : ModelConverter {
 

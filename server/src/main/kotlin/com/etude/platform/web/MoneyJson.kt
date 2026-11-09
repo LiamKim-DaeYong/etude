@@ -14,15 +14,15 @@ import java.math.BigDecimal
 import java.util.Currency
 
 /**
- * JSON form of [Money] for the whole API: `{"amount": "12.50", "currency": "USD"}`.
+ * API 전체에서 쓰는 [Money]의 JSON 형식: `{"amount": "12.50", "currency": "USD"}`.
  *
- * The amount is a decimal string so clients do not lose precision to floating point. Reading accepts a string or
- * a number, and rejects unknown currencies and amounts with more decimal places than the currency allows.
+ * 금액은 10진 문자열이라 클라이언트가 부동소수점으로 정밀도를 잃지 않는다. 읽을 때는 문자열과 숫자를 모두 받고,
+ * 모르는 통화와 통화가 허용하는 것보다 소수 자릿수가 많은 금액은 거절한다.
  */
 @JacksonComponent
 class MoneyJson {
 
-    /** The JSON object written for a [Money]; also the source of its OpenAPI schema. */
+    /** [Money]를 쓸 때 만드는 JSON 객체. OpenAPI 스키마도 이 클래스에서 만든다. */
     @Schema(name = "Money")
     data class Body(
         @field:Schema(description = "Decimal string in the currency's minor units", example = "12.50")

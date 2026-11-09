@@ -7,12 +7,12 @@ import java.math.BigDecimal
 import java.util.Currency
 
 /**
- * Stores a [Money] attribute in two columns, `<attribute>_amount` and `<attribute>_currency`
- * (column names come from the component-path naming strategy). Use with `@CompositeType(MoneyType::class)`.
+ * [Money] 속성을 `<attribute>_amount`, `<attribute>_currency` 두 칼럼에 저장한다
+ * (칼럼 이름은 component-path 이름 전략이 만든다). `@CompositeType(MoneyType::class)`와 함께 쓴다.
  */
 class MoneyType : CompositeUserType<Money> {
 
-    /** Mapping shape only. Hibernate orders its attributes alphabetically: amount (0), currency (1). */
+    /** 매핑 모양만 정한다. Hibernate는 속성을 알파벳 순서로 둔다: amount(0), currency(1). */
     class Columns {
         var amount: BigDecimal? = null
         var currency: Currency? = null

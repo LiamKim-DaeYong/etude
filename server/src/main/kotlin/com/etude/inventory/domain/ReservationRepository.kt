@@ -14,8 +14,8 @@ interface ReservationRepository : Repository<Reservation, UUID> {
     fun save(reservation: Reservation): Reservation
 
     /**
-     * Locks the order's reservations still to release, so a redelivered event waits and then finds none.
-     * Gives up after [LOCK_TIMEOUT_MILLIS]; see ADR-0003.
+     * 주문의 해제할 예약 기록을 잠근다. 같은 이벤트가 다시 오면 기다린 뒤 해제할 기록을 찾지 못한다.
+     * [LOCK_TIMEOUT_MILLIS] 뒤에 포기한다(ADR-0003).
      */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints(QueryHint(name = "jakarta.persistence.lock.timeout", value = LOCK_TIMEOUT_MILLIS))

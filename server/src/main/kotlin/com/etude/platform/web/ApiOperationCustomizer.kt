@@ -14,9 +14,8 @@ import org.springframework.stereotype.Component
 import org.springframework.web.method.HandlerMethod
 
 /**
- * Adds what the controller signatures do not show: the `Location` header of 201 responses, and the business error
- * codes of methods annotated with [Rejects], grouped by the status from the module's
- * [com.etude.platform.RejectionStatuses].
+ * 컨트롤러 시그니처에 드러나지 않는 것을 문서에 더한다. 201 응답의 `Location` 헤더, 그리고 [Rejects]를 붙인 메서드의
+ * 업무 오류 코드를 모듈의 [com.etude.platform.RejectionStatuses]가 정한 상태별로 묶어 넣는다.
  */
 @Component
 class ApiOperationCustomizer(
@@ -38,7 +37,7 @@ class ApiOperationCustomizer(
         reasonType.enumConstants
             .groupBy { statuses.statusOfAny(it) }
             .forEach { (status, reasons) ->
-                // A 400 can also be the framework's INVALID_REQUEST, so its documented codes include it.
+                // 400은 프레임워크의 INVALID_REQUEST일 수도 있어서 문서의 코드 목록에 함께 넣는다.
                 val codes = reasons.map { it.name } + listOfNotNull(GlobalExceptionHandler.INVALID_REQUEST.takeIf { status.value() == 400 })
                 val schema = Schema<Any>().allOf(
                     listOf(

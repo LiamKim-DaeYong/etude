@@ -21,10 +21,10 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import tools.jackson.core.JacksonException
 
 /**
- * Makes every API error a ProblemDetail with a `code` property.
+ * 모든 API 오류를 `code` 필드가 있는 ProblemDetail로 만든다.
  *
- * Business rejections ([RejectedException]) get the reason as their code and the status from the module's
- * [com.etude.platform.RejectionStatuses]. Modules do not need exception handlers of their own.
+ * 업무 거절([RejectedException])은 사유를 코드로, 상태는 모듈의 [com.etude.platform.RejectionStatuses]에서 가져온다.
+ * 모듈은 따로 예외 처리기를 두지 않는다.
  */
 @RestControllerAdvice
 @Order(Ordered.LOWEST_PRECEDENCE)
@@ -73,8 +73,8 @@ class GlobalExceptionHandler(
         statusCode: HttpStatusCode,
         request: WebRequest,
     ): ResponseEntity<Any>? {
-        // The parent builds the ProblemDetail itself when body is null (e.g. ResponseStatusException),
-        // so the code is added to the finished response rather than to the incoming body.
+        // body가 null이면(예: ResponseStatusException) 부모가 ProblemDetail을 직접 만든다.
+        // 그래서 들어온 body가 아니라 완성된 응답에 코드를 넣는다.
         val response = super.handleExceptionInternal(ex, body, headers, statusCode, request)
         val problem = response?.body as? ProblemDetail
         if (problem != null && problem.properties?.containsKey(CODE) != true) {
@@ -89,7 +89,7 @@ class GlobalExceptionHandler(
         ex.properties.forEach(::setProperty)
     }
 
-    /** Waited too long for a row lock (or lost a deadlock); the same request may succeed when retried. */
+    /** 행 잠금을 너무 오래 기다렸다(또는 데드락에서 졌다). 같은 요청을 다시 보내면 성공할 수 있다. */
     @ExceptionHandler
     fun handleLockFailure(ex: PessimisticLockingFailureException): ResponseEntity<ProblemDetail> {
         log.warn("Lock not acquired", ex)
@@ -101,7 +101,7 @@ class GlobalExceptionHandler(
             .body(problem)
     }
 
-    /** A sign-in that failed. One code for an unknown user and a wrong password, so the two cannot be told apart. */
+    /** 로그인 실패. 없는 사용자와 틀린 비밀번호를 같은 코드로 응답해 둘을 구분할 수 없게 한다. */
     @ExceptionHandler
     fun handleAuthenticationFailure(ex: AuthenticationException): ProblemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Invalid credentials").apply {
         setProperty(CODE, INVALID_CREDENTIALS)
@@ -134,7 +134,7 @@ class GlobalExceptionHandler(
     data class FieldViolation(val field: String?, val code: String?, val message: String?)
 
     companion object {
-        /** Code of every 400 the framework produces (validation, unreadable body); any operation can return it. */
+        /** 프레임워크가 만드는 모든 400(검증 실패, 읽을 수 없는 본문)의 코드. 어떤 API든 돌려줄 수 있다. */
         const val INVALID_REQUEST = "INVALID_REQUEST"
 
         const val INVALID_CREDENTIALS = "INVALID_CREDENTIALS"

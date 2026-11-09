@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component
 import tools.jackson.databind.json.JsonMapper
 
 /**
- * Problem bodies for requests that the security filters reject before a controller runs, in the same shape as the
- * bodies of [com.etude.platform.web.GlobalExceptionHandler].
+ * 컨트롤러에 닿기 전에 보안 필터가 거절한 요청의 Problem 본문.
+ * [com.etude.platform.web.GlobalExceptionHandler]의 본문과 같은 모양이다.
  */
 @Component
 class SecurityProblemWriter(

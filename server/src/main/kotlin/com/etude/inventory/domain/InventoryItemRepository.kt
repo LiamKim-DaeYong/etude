@@ -16,8 +16,8 @@ interface InventoryItemRepository : Repository<InventoryItem, UUID> {
     fun findByProductId(productId: UUID): InventoryItem?
 
     /**
-     * Locks the row until the transaction ends so concurrent reservations of the same product run one at a time.
-     * Gives up after [LOCK_TIMEOUT_MILLIS] instead of waiting indefinitely; see ADR-0003.
+     * 트랜잭션이 끝날 때까지 행을 잠가 같은 상품의 동시 예약을 하나씩 처리한다.
+     * 끝없이 기다리지 않고 [LOCK_TIMEOUT_MILLIS] 뒤에 포기한다(ADR-0003).
      */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints(QueryHint(name = "jakarta.persistence.lock.timeout", value = LOCK_TIMEOUT_MILLIS))
