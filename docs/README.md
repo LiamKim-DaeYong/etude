@@ -20,6 +20,8 @@ Etude는 여러 중소 제조사가 함께 쓰는 업무 시스템과 홈페이�
 | ADR-0003 | [재고 예약의 동시성 제어](decisions/0003-inventory-concurrency-control.md) | 비관적 락, 락 대기 2초 후 503 | 채택 | 초과 판매 재현·해결 통합 테스트 완료, 방식별 성능은 미측정 |
 | ADR-0004 | [모듈 의존 방향과 주문 취소 이벤트 전달](decisions/0004-module-dependency-direction.md) | 쓰는 쪽이 포트 소유(재고 → 주문 한 방향), 이벤트 발행 기록과 예약 기록으로 한 번만 해제 | 채택 | 순환·중복 취소·중복 전달 재현·해결 통합 테스트 완료, 처리량·지연은 미측정 |
 | ADR-0005 | [중소 제조사용 멀티테넌트 업무 시스템으로 방향 전환](decisions/0005-product-direction.md) | 여러 제조사가 함께 쓰는 업무 시스템과 홈페이지, 중심은 직접 만들고 주변은 연결, 단계별 확장 | 채택 | 구현 전, 실제 사용과 운영 비용 미확인 |
+| ADR-0006 | [테넌트 데이터 격리와 식별](decisions/0006-tenant-data-isolation.md) | 테이블 공유와 `tenant_id`, Hibernate `@TenantId`와 RLS 두 겹 방어, 테넌트=회원가입한 회사 | 채택 | 실험 테스트로 동작 확인, 회원가입까지 구현. RLS·로그인은 구현 전 |
+| ADR-0007 | [모듈 층과 의존 방향](decisions/0007-module-layers.md) | 층 구조와 의존 규칙, 평평한 패키지, 수직 슬라이스 개발 | 채택 | 지금 모듈의 의존 선언에 적용, `ModularityTests`로 검사 |
 
 ## 개념 노트
 
