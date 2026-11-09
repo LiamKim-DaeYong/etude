@@ -8,4 +8,6 @@ interface TenantRepository : Repository<Tenant, UUID> {
     fun save(tenant: Tenant): Tenant
 
     fun existsByCode(code: String): Boolean
+
+    fun findByCode(code: String): Tenant?
 }

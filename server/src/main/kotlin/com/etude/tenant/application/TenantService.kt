@@ -1,5 +1,6 @@
 package com.etude.tenant.application
 
+import com.etude.tenant.TenantDirectory
 import com.etude.tenant.TenantInfo
 import com.etude.tenant.TenantRegistration
 import com.etude.tenant.domain.Tenant
@@ -12,9 +13,13 @@ import java.security.SecureRandom
 @Transactional(readOnly = true)
 class TenantService(
     private val tenantRepository: TenantRepository,
-) : TenantRegistration {
+) : TenantRegistration,
+    TenantDirectory {
 
     private val random = SecureRandom()
+
+    override fun findByCode(code: String): TenantInfo? = tenantRepository.findByCode(code)
+        ?.let { TenantInfo(checkNotNull(it.id), it.name, it.code) }
 
     @Transactional
     override fun register(name: String): TenantInfo {

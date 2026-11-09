@@ -1,5 +1,6 @@
 package com.etude
 
+import com.etude.platform.security.CurrentTenantTestController
 import com.etude.platform.web.FailingTestController
 import com.etude.platform.web.OpenApiContractConfiguration
 import org.springframework.boot.test.context.SpringBootTest
@@ -13,7 +14,12 @@ import org.springframework.test.context.ActiveProfiles
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
-@Import(TestcontainersConfiguration::class, FailingTestController::class, OpenApiContractConfiguration::class)
+@Import(
+    TestcontainersConfiguration::class,
+    FailingTestController::class,
+    CurrentTenantTestController::class,
+    OpenApiContractConfiguration::class,
+)
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")

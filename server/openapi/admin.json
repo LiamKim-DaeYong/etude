@@ -9,6 +9,167 @@
     "url" : "/"
   } ],
   "paths" : {
+    "/admin/v1/auth/csrf" : {
+      "get" : {
+        "description" : "Send it in the given header with every state-changing request.",
+        "operationId" : "getCsrfToken",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CsrfTokenResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error. Branch on `code`."
+          }
+        },
+        "summary" : "Get a CSRF token",
+        "tags" : [ "Auth" ]
+      }
+    },
+    "/admin/v1/auth/logout" : {
+      "post" : {
+        "operationId" : "logout",
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error. Branch on `code`."
+          }
+        },
+        "summary" : "Sign out",
+        "tags" : [ "Auth" ]
+      }
+    },
+    "/admin/v1/auth/owner-login" : {
+      "post" : {
+        "description" : "Email and password. Fetch a new CSRF token afterwards.",
+        "operationId" : "loginAsOwner",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/OwnerLoginRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SessionResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error. Branch on `code`."
+          }
+        },
+        "summary" : "Sign in as an owner",
+        "tags" : [ "Auth" ]
+      }
+    },
+    "/admin/v1/auth/session" : {
+      "get" : {
+        "operationId" : "getSession",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SessionResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error. Branch on `code`."
+          }
+        },
+        "summary" : "Get the signed-in user",
+        "tags" : [ "Auth" ]
+      }
+    },
+    "/admin/v1/auth/staff-login" : {
+      "post" : {
+        "description" : "Company code, username and password. Fetch a new CSRF token afterwards.",
+        "operationId" : "loginAsStaff",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/StaffLoginRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SessionResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error. Branch on `code`."
+          }
+        },
+        "summary" : "Sign in as staff",
+        "tags" : [ "Auth" ]
+      }
+    },
     "/admin/v1/inventory-items" : {
       "post" : {
         "operationId" : "registerInventoryItem",
@@ -186,6 +347,18 @@
   },
   "components" : {
     "schemas" : {
+      "CsrfTokenResponse" : {
+        "type" : "object",
+        "properties" : {
+          "headerName" : {
+            "type" : "string"
+          },
+          "token" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "headerName", "token" ]
+      },
       "FieldViolation" : {
         "type" : "object",
         "properties" : {
@@ -229,6 +402,22 @@
           }
         },
         "required" : [ "amount", "currency" ]
+      },
+      "OwnerLoginRequest" : {
+        "type" : "object",
+        "properties" : {
+          "email" : {
+            "type" : "string",
+            "format" : "email",
+            "maxLength" : 254,
+            "minLength" : 0
+          },
+          "password" : {
+            "type" : "string",
+            "minLength" : 1
+          }
+        },
+        "required" : [ "email", "password" ]
       },
       "Problem" : {
         "type" : "object",
@@ -312,6 +501,42 @@
           }
         },
         "required" : [ "name", "price" ]
+      },
+      "SessionResponse" : {
+        "type" : "object",
+        "properties" : {
+          "role" : {
+            "type" : "string",
+            "enum" : [ "OWNER", "STAFF" ]
+          },
+          "userId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "username" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "role", "userId", "username" ]
+      },
+      "StaffLoginRequest" : {
+        "type" : "object",
+        "properties" : {
+          "companyCode" : {
+            "type" : "string",
+            "pattern" : "[0-9]{8}"
+          },
+          "password" : {
+            "type" : "string",
+            "minLength" : 1
+          },
+          "username" : {
+            "type" : "string",
+            "maxLength" : 50,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "companyCode", "password", "username" ]
       }
     }
   }
