@@ -1,6 +1,6 @@
 create table users (
     id            uuid         primary key,
-    tenant_id     uuid         not null references tenant (id),
+    tenant_id     uuid         not null,
     role          varchar(20)  not null,
     username      varchar(50)  not null,
     email         varchar(254) unique,
