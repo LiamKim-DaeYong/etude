@@ -1,5 +1,6 @@
 package dev.etude.inventory.domain
 
+import dev.etude.platform.LOCK_TIMEOUT_MILLIS
 import jakarta.persistence.LockModeType
 import jakarta.persistence.QueryHint
 import org.springframework.data.jpa.repository.Lock
@@ -22,8 +23,4 @@ interface InventoryItemRepository : Repository<InventoryItem, UUID> {
     @QueryHints(QueryHint(name = "jakarta.persistence.lock.timeout", value = LOCK_TIMEOUT_MILLIS))
     @Query("select i from InventoryItem i where i.productId = :productId")
     fun findByProductIdForUpdate(productId: UUID): InventoryItem?
-
-    companion object {
-        const val LOCK_TIMEOUT_MILLIS = "2000"
-    }
 }

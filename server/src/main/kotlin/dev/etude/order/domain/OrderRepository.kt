@@ -1,5 +1,6 @@
 package dev.etude.order.domain
 
+import dev.etude.platform.LOCK_TIMEOUT_MILLIS
 import jakarta.persistence.LockModeType
 import jakarta.persistence.QueryHint
 import org.springframework.data.jpa.repository.EntityGraph
@@ -24,8 +25,4 @@ interface OrderRepository : Repository<Order, UUID> {
     @QueryHints(QueryHint(name = "jakarta.persistence.lock.timeout", value = LOCK_TIMEOUT_MILLIS))
     @Query("select o from Order o where o.id = :id")
     fun findByIdForUpdate(id: UUID): Order?
-
-    companion object {
-        const val LOCK_TIMEOUT_MILLIS = "2000"
-    }
 }

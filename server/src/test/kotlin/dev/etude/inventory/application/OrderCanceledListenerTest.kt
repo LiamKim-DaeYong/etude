@@ -27,8 +27,8 @@ class OrderCanceledListenerTest(
 ) {
 
     @Test
-    fun `restores reserved inventory after an order is canceled`() {
-        val productId = product(inventory = 10)
+    fun `releases reserved inventory after an order is canceled`() {
+        val productId = product(availableQuantity = 10)
         val orderId = placeOrder(productId, quantity = 3)
         assertThat(availableQuantity(productId)).isEqualTo(7)
 
@@ -39,8 +39,8 @@ class OrderCanceledListenerTest(
     }
 
     @Test
-    fun `keeps the publication incomplete when releasing fails and restores inventory on resubmission`() {
-        val productId = product(inventory = 10)
+    fun `keeps the publication incomplete when release fails and releases inventory on resubmission`() {
+        val productId = product(availableQuantity = 10)
         val orderId = placeOrder(productId, quantity = 3)
         jdbcTemplate.update("delete from inventory_item where product_id = ?", productId)
 
@@ -60,8 +60,8 @@ class OrderCanceledListenerTest(
      * is marked completed, the event is delivered again. Simulated here by marking a completed publication failed.
      */
     @Test
-    fun `restores inventory only once when the same event is delivered again`() {
-        val productId = product(inventory = 10)
+    fun `releases inventory only once when the same event is delivered again`() {
+        val productId = product(availableQuantity = 10)
         val orderId = placeOrder(productId, quantity = 3)
         orderService.cancel(orderId)
         awaitPublication(orderId, status = "COMPLETED")
@@ -76,9 +76,9 @@ class OrderCanceledListenerTest(
         assertThat(availableQuantity(productId)).isEqualTo(10)
     }
 
-    private fun product(inventory: Int): UUID {
+    private fun product(availableQuantity: Int): UUID {
         val productId = productService.register("Keyboard", PRICE).id
-        inventoryService.register(productId, inventory)
+        inventoryService.register(productId, availableQuantity)
         return productId
     }
 
