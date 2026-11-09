@@ -6,7 +6,7 @@
 | 결정일 | — |
 | 적용 범위 | 테넌트에 속한 모든 업무 데이터의 저장·조회, 데이터베이스 연결 권한, 요청의 테넌트 식별 |
 | 구현 상태 | 구현 전(#105) |
-| 검증 상태 | 검증 전. 아래 "구현 전에 확인할 것"을 테스트로 확인한 뒤 채택한다 |
+| 검증 상태 | Hibernate `@TenantId`와 RLS의 동작을 실험 테스트로 확인(4절). 애플리케이션에 적용한 통합 검증은 구현 단계에서 한다 |
 
 ## 요약
 
@@ -44,6 +44,7 @@ ADR-0005로 여러 제조사가 서비스 하나를 함께 쓰게 됐다. 다른
 ### 2.3 두 번째 방어선: 데이터베이스 행 수준 보안
 
 - 테넌트에 속한 모든 테이블에 RLS를 켜고, `tenant_id`가 현재 테넌트와 같은 행만 읽고(`USING`) 쓰게(`WITH CHECK`) 하는 정책을 둔다.
+- 정책은 `tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid`로 쓴다(4절).
 - 현재 테넌트는 트랜잭션마다 `set_config('app.tenant_id', ?, true)`로 알린다. 세 번째 인자 `true`는 트랜잭션이 끝나면 값이 사라지게 해서, 커넥션 풀이 연결을 다른 요청에 넘겨도 값이 남지 않는다.
 - 값이 없으면 어떤 행도 보이지 않게 한다. 테넌트를 모르는 요청은 실패해야 한다.
 - 테이블 소유자와 슈퍼유저는 RLS를 우회한다. 애플리케이션은 테이블 소유자가 아니고 `BYPASSRLS` 권한이 없는 역할로 접속한다. 마이그레이션(Flyway)은 소유자 역할로 따로 접속한다.
@@ -77,16 +78,31 @@ ADR-0005로 여러 제조사가 서비스 하나를 함께 쓰게 됐다. 다른
 - **데이터베이스 역할이 둘이 된다:** 애플리케이션 역할과 마이그레이션 역할을 로컬·테스트·운영 설정에 모두 둬야 한다.
 - **테넌트 정보가 요청 밖으로 전달되지 않는다:** 비동기 이벤트 리스너(ADR-0004)는 다른 스레드와 트랜잭션에서 실행된다. 리스너에도 테넌트를 알려 주지 않으면 RLS가 모든 행을 막는다.
 
-## 4. 구현 전에 확인할 것
+## 4. 구현 전 확인 결과
 
-아래는 문서나 기억만으로 판단하지 않고 테스트로 확인한다.
+`TenantIsolationExperimentTest`(테스트 소스 `experiment.tenant`)로 확인했다. Spring 컨텍스트 없이 순수 Hibernate와 JDBC로 실행한다.
 
-- `@TenantId`가 JPQL·Criteria 조회와 `findById`에 테넌트 조건을 붙이는지
-- native query는 걸러지지 않고 RLS가 막는지
-- `set_config(..., true)`로 정한 값이 커넥션 풀에 돌려준 뒤 다음 트랜잭션에 남지 않는지
-- 비관적 락 조회(ADR-0003)와 RLS를 함께 쓸 때 동작이 같은지
-- 테넌트를 정하지 않은 요청이 실패하는지
-- 직원 세션과 요청 주소로 식별한 테넌트가 두 방어선에 같은 값으로 전달되는지
+환경: Windows 11, Docker(Testcontainers) PostgreSQL 18.6, Hibernate ORM 7.4.13, HikariCP 7.0.2(풀 크기 1).
+
+| 확인한 것 | 결과 |
+| --- | --- |
+| `@TenantId` 엔티티 저장 | 현재 테넌트 ID가 자동으로 채워진다 |
+| 애플리케이션이 다른 테넌트 ID를 넣고 저장 | `PropertyValueException`(assigned tenant id differs from current tenant id)으로 거절 |
+| HQL 조회 | `where tenantId = ?`가 자동으로 붙어 현재 테넌트 행만 나온다 |
+| 다른 테넌트 행을 `find(id)` | SQL에 `id = ? and tenantId = ?`가 붙고 `null`을 돌려준다 |
+| native query | **걸러지지 않는다.** 다른 테넌트 행까지 센다. 두 번째 방어선이 필요한 근거다 |
+| 현재 테넌트 없이 세션 사용 | `HibernateException`(no tenant identifier specified)으로 실패한다 |
+| 애플리케이션 역할로 조회 (RLS) | 현재 테넌트 행만 나온다 |
+| `FOR NO KEY UPDATE` 조회 (RLS) | 현재 테넌트 행만 잠그고 돌려준다 |
+| 다른 테넌트 행 삽입 (RLS) | `new row violates row-level security policy`로 거절 |
+| `set_config(..., true)` 뒤 같은 풀 연결의 다음 트랜잭션 | 값이 `NULL`이 아니라 **빈 문자열**로 남고, 행은 보이지 않는다 |
+| 위 상황에서 `current_setting(...)::uuid`를 그대로 쓴 정책 | `invalid input syntax for type uuid: ""`로 쿼리가 실패한다. 정책은 `nullif(current_setting('app.tenant_id', true), '')::uuid`로 쓴다 |
+| 슈퍼유저로 조회 | 정책을 우회해 모든 행이 보인다. 애플리케이션 역할을 따로 둬야 하는 근거다 |
+
+아직 확인하지 않은 것:
+
+- Spring 트랜잭션 안에서 `set_config`를 부르는 위치와 `CurrentTenantIdentifierResolver`를 같은 값으로 묶는 방법. 구현 단계에서 통합 테스트로 확인한다.
+- 트랜잭션마다 늘어나는 `set_config` 호출과 RLS 정책의 성능 비용.
 
 ## 5. 열린 질문
 
