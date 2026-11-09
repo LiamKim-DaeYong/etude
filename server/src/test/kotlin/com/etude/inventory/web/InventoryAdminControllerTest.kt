@@ -1,6 +1,7 @@
 package com.etude.inventory.web
 
 import com.etude.IntegrationTest
+import com.etude.asStaff
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -25,7 +26,7 @@ class InventoryAdminControllerTest(
         val location = requireNotNull(created.response.getHeader("Location"))
         assertThat(location).isEqualTo("/admin/v1/inventory-items/$productId")
 
-        assertThat(mvc.get().uri(location).exchange())
+        assertThat(mvc.get().uri(location).asStaff().exchange())
             .hasStatusOk()
             .bodyJson()
             .isLenientlyEqualTo("""{"productId":"$productId","availableQuantity":100}""")
@@ -71,12 +72,12 @@ class InventoryAdminControllerTest(
     fun `returns 404 problem for unregistered inventory`() {
         val productId = UUID.randomUUID()
 
-        assertProblem(mvc.get().uri("/admin/v1/inventory-items/{productId}", productId).exchange(), HttpStatus.NOT_FOUND)
+        assertProblem(mvc.get().uri("/admin/v1/inventory-items/{productId}", productId).asStaff().exchange(), HttpStatus.NOT_FOUND)
             .isLenientlyEqualTo("""{"detail":"Inventory item not found: $productId"}""")
     }
 
     private fun registerProduct(): UUID {
-        val result = mvc.post().uri("/admin/v1/products")
+        val result = mvc.post().uri("/admin/v1/products").asStaff()
             .contentType(MediaType.APPLICATION_JSON)
             .content("""{"name":"Sneakers","price":{"amount":"10000","currency":"KRW"}}""")
             .exchange()
@@ -84,7 +85,7 @@ class InventoryAdminControllerTest(
         return UUID.fromString(location.substringAfterLast('/'))
     }
 
-    private fun register(body: String): MvcTestResult = mvc.post().uri("/admin/v1/inventory-items")
+    private fun register(body: String): MvcTestResult = mvc.post().uri("/admin/v1/inventory-items").asStaff()
         .contentType(MediaType.APPLICATION_JSON)
         .content(body)
         .exchange()

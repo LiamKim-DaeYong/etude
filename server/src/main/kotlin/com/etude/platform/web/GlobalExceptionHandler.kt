@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatusCode
 import org.springframework.http.ProblemDetail
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.security.core.AuthenticationException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -100,6 +101,12 @@ class GlobalExceptionHandler(
             .body(problem)
     }
 
+    /** A sign-in that failed. One code for an unknown user and a wrong password, so the two cannot be told apart. */
+    @ExceptionHandler
+    fun handleAuthenticationFailure(ex: AuthenticationException): ProblemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Invalid credentials").apply {
+        setProperty(CODE, INVALID_CREDENTIALS)
+    }
+
     @ExceptionHandler
     fun handleUnexpected(ex: Exception): ProblemDetail {
         log.error("Unexpected error", ex)
@@ -129,6 +136,8 @@ class GlobalExceptionHandler(
     companion object {
         /** Code of every 400 the framework produces (validation, unreadable body); any operation can return it. */
         const val INVALID_REQUEST = "INVALID_REQUEST"
+
+        const val INVALID_CREDENTIALS = "INVALID_CREDENTIALS"
 
         private const val CODE = "code"
         private const val SERVICE_UNAVAILABLE = "SERVICE_UNAVAILABLE"

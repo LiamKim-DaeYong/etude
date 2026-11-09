@@ -65,6 +65,10 @@ Etude의 업무 용어와 이름 규칙의 기준 문서다. 코드, API, DB, �
 | `INVALID_REQUEST` | 요청 형식이나 값이 잘못됐다 (400). 필드별 오류는 `errors`에 담는다 |
 | `NOT_FOUND` | 요청한 리소스가 없다 (404) |
 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 (500). 상세 내용은 숨긴다 |
+| `AUTHENTICATION_REQUIRED` | 로그인이 필요한 API를 로그인하지 않고(또는 세션이 끝난 뒤) 불렀다 (401) |
+| `INVALID_CREDENTIALS` | 로그인 정보가 맞지 않는다 (401). 없는 사용자와 틀린 비밀번호를 구분하지 않는다 |
+| `ACCESS_DENIED` | 로그인했지만 이 사용자에게 허용되지 않은 요청이다 (403) |
+| `CSRF_TOKEN_INVALID` | 상태를 바꾸는 요청에 CSRF 토큰이 없거나 맞지 않다 (403) |
 
 ## 테넌트 (`tenant`)
 
@@ -87,6 +91,9 @@ Etude의 업무 용어와 이름 규칙의 기준 문서다. 코드, API, DB, �
 | 직원 | `UserRole.STAFF` | — | 대표가 등록한 사용자. 회사 코드와 아이디로 로그인한다 | `EMPLOYEE` (인사·생산의 작업자와 구분) |
 | 아이디 | `username` | — | 회사 안에서 유일한 로그인 이름 | `loginId`, `userId` (식별자 규칙과 혼동) |
 | 회원가입 | `signUp` | — | 회사와 대표를 함께 만든다 | `join`, `register` |
+| 로그인 | `login` | `POST /admin/v1/auth/owner-login`, `POST /admin/v1/auth/staff-login` | 대표는 이메일, 직원은 회사 코드와 아이디로 세션을 연다 | `signIn` (로그인 API·코드에서) |
+| 로그아웃 | `logout` | `POST /admin/v1/auth/logout` | 세션을 끝낸다 | `signOut` |
+| 로그인한 사용자 | `SignedInUser` | `GET /admin/v1/auth/session` | 세션에 담긴 사용자. 소속 회사로 요청마다 테넌트를 정한다 | — |
 
 생산 현장의 작업자처럼 로그인하지 않고 기록에만 남는 사람은 사용자가 아니다. 해당 모듈에서 따로 정한다.
 

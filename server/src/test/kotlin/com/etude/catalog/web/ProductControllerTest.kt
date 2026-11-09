@@ -1,6 +1,7 @@
 package com.etude.catalog.web
 
 import com.etude.IntegrationTest
+import com.etude.asStaff
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -89,7 +90,7 @@ class ProductControllerTest(
         assertProblem(register("""{"name":"""), HttpStatus.BAD_REQUEST)
     }
 
-    private fun register(body: String): MvcTestResult = mvc.post().uri("/admin/v1/products")
+    private fun register(body: String): MvcTestResult = mvc.post().uri("/admin/v1/products").asStaff()
         .contentType(MediaType.APPLICATION_JSON)
         .content(body)
         .exchange()
