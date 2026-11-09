@@ -1,14 +1,21 @@
 package dev.etude.order.application
 
+import dev.etude.platform.RejectedException
 import dev.etude.shared.Money
 import java.util.UUID
 
 class OrderRejectedException(
-    val reason: Reason,
+    override val reason: Reason,
     message: String,
     val currentTotal: Money? = null,
     val productId: UUID? = null,
-) : RuntimeException(message) {
+) : RejectedException(message) {
+
+    override val properties: Map<String, Any>
+        get() = buildMap {
+            currentTotal?.let { put("currentTotal", it) }
+            productId?.let { put("productId", it) }
+        }
 
     enum class Reason {
         PRODUCT_NOT_FOUND,
