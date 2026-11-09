@@ -52,6 +52,7 @@ Etude의 업무 용어와 이름 규칙의 기준 문서다. 코드, API, DB, �
 
 | 한글 | 코드 | API | 정의 | 쓰지 않는 말 |
 | --- | --- | --- | --- | --- |
+| 테넌트 | `Tenant` | — | 서비스를 함께 쓰는 회사 하나. 각 테넌트는 자기 데이터만 본다 ([ADR-0005](decisions/0005-product-direction.md)) | 고객사, 업체, `company`, `organization` (테넌트를 가리킬 때) |
 | 금액 | `Money` | `{"amount", "currency"}` | 금액과 ISO 4217 통화 코드의 쌍 | 금액·통화를 따로 둔 필드 |
 | 통화 | `currency` | `currency` | ISO 4217 코드 (`KRW`, `USD`) | `currencyCode` |
 | 고객 API | — | `/api/v1` | 고객이 쓰는 API | — |
