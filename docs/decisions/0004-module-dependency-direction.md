@@ -35,7 +35,7 @@ Cycle detected: Slice inventory -> Slice order -> Slice inventory
 
 ## 2. 결정
 
-1. `InventoryReservation`, `ReservationLine`, `InsufficientInventoryException`을 `dev.etude.inventory`에서 `dev.etude.order`로 옮긴다. 주문 모듈은 "재고가 이런 기능을 줘야 한다"를 정하고, 재고 모듈(`InventoryService`)이 구현한다. 주문 모듈은 재고 모듈을 전혀 참조하지 않는다.
+1. `InventoryReservation`, `ReservationLine`, `InsufficientInventoryException`을 `com.etude.inventory`에서 `com.etude.order`로 옮긴다. 주문 모듈은 "재고가 이런 기능을 줘야 한다"를 정하고, 재고 모듈(`InventoryService`)이 구현한다. 주문 모듈은 재고 모듈을 전혀 참조하지 않는다.
 2. 주문 모듈은 주문을 취소한 트랜잭션에서 `OrderCanceled(orderId)`를 발행한다. 이벤트는 발행한 모듈의 공개 패키지에 두고, 다른 모듈이 조회할 수 있는 식별자만 담는다.
 3. 이벤트는 `spring-modulith-starter-jdbc`의 발행 기록(`event_publication` 테이블, 공식 v2 스키마)에 남긴다. 리스너는 `@ApplicationModuleListener`로, 발행 트랜잭션이 커밋된 뒤 새 트랜잭션에서 비동기로 실행된다. 리스너가 실패하면 기록이 `FAILED`로 남고 `IncompleteEventPublications`로 다시 제출할 수 있다.
 4. 재고를 예약할 때 주문·상품마다 예약 기록(`reservation` 테이블, `(order_id, product_id)` 유일)을 남긴다. 이를 위해 주문 모듈은 주문을 먼저 저장해 ID를 받고 예약한다. 같은 트랜잭션이므로 예약이 실패하면 주문 저장도 롤백된다.
