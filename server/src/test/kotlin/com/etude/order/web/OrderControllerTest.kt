@@ -1,6 +1,7 @@
 package com.etude.order.web
 
 import com.etude.IntegrationTest
+import com.etude.assertProblem
 import com.etude.catalog.application.ProductService
 import com.etude.inventory.application.InventoryService
 import com.etude.shared.Money
@@ -262,10 +263,4 @@ class OrderControllerTest(
             """.trimIndent(),
         )
         .exchange()
-
-    private fun assertProblem(result: MvcTestResult, status: HttpStatus) = assertThat(result)
-        .hasStatus(status)
-        .hasContentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
-        .bodyJson()
-        .isLenientlyEqualTo("""{"status":${status.value()},"title":"${status.reasonPhrase}"}""")
 }

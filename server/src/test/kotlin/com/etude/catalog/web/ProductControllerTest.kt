@@ -2,6 +2,7 @@ package com.etude.catalog.web
 
 import com.etude.IntegrationTest
 import com.etude.asStaff
+import com.etude.assertProblem
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -94,10 +95,4 @@ class ProductControllerTest(
         .contentType(MediaType.APPLICATION_JSON)
         .content(body)
         .exchange()
-
-    private fun assertProblem(result: MvcTestResult, status: HttpStatus) = assertThat(result)
-        .hasStatus(status)
-        .hasContentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
-        .bodyJson()
-        .isLenientlyEqualTo("""{"status":${status.value()},"title":"${status.reasonPhrase}"}""")
 }
