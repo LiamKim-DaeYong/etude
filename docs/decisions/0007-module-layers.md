@@ -5,7 +5,7 @@
 | 상태 | 채택 |
 | 결정일 | 2026-11-09 |
 | 적용 범위 | 백엔드 모듈의 층 구분, 모듈 사이 의존 규칙, 판매 채널과 주문의 관계 |
-| 구현 상태 | 지금 모듈(`shared`, `platform`, `tenant`, `identity`, `catalog`, `order`, `inventory`)의 의존 선언은 이 규칙을 따른다. 나머지 모듈은 구현 전 |
+| 구현 상태 | 지금 모듈(`shared`, `platform`, `tenant`, `identity`, `catalog`, `board`, `order`, `inventory`)의 의존 선언은 이 규칙을 따른다. `board`(게시판)는 서비스 공통 층이다([ADR-0008](0008-tenant-isolation-foundation-and-board.md)). 나머지 모듈은 구현 전 |
 | 검증 상태 | `ModularityTests`가 지금 모듈의 의존 선언을 검사한다. 새 층의 모듈은 아직 없다 |
 
 ## 요약

@@ -9,6 +9,10 @@
   browser keeps only the session cookie; send requests from the same origin with credentials. Every state-changing
   request carries the CSRF token in the returned header. Fetch a new token after signing in. Every other
   `/admin/v1` operation needs a signed-in session.
+- **Company:** every `/admin/v1` operation works on the signed-in user's company. Requests never carry a company id;
+  ids that belong to another company are reported as `404 NOT_FOUND`, the same as unknown ids.
+- **Paging:** paged lists take `page` (zero-based, default `0`) and `size` and return
+  `{items, page, size, totalElements, totalPages}`. Each operation states its default and maximum `size`.
 - **Errors:** `application/problem+json` (schema `Problem`) with a `code`. Branch on `code`; `detail` is English text
   for developers.
 

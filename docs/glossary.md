@@ -21,6 +21,11 @@ Etude의 업무 용어와 이름 규칙의 기준 문서다. 코드, API, DB, �
 | `reserve` | 재고 | 주문에 쓸 수량을 판매 가능 수량에서 떼어 둔다 | `deduct`, `decrease`, `allocate`, `commit` |
 | `cancel` | 주문 | 고객이 주문을 취소한다 | `abort`, `void`, `revoke` |
 | `release` | 재고 | 예약한 수량을 판매 가능 수량으로 되돌린다 | `restore`, `rollback`, `unreserve`, `increase` |
+| `list` | 컨트롤러 핸들러, 서비스 | 여러 건을 조회한다. 없으면 빈 목록이다 (`listPosts`) | `getAll`, `search` (검색이 아닌 목록에) |
+| `write` | 게시판 | 사용자가 게시글을 쓴다 | `create`, `post` (동사로) |
+| `edit` | 게시판 | 작성자가 게시글의 제목·본문을 고친다 | `update`, `modify` |
+| `delete` | 게시판 | 작성자가 게시글을 지운다. 삭제 시각을 남기고 목록·상세에서 뺀다 | `remove` |
+| `prepare` | 서비스 | 없으면 만들고 있으면 그대로 두는 멱등 준비 (`prepareDefaultBoard`) | `ensure`, `init` |
 
 ### 접미사
 
@@ -78,6 +83,8 @@ Etude의 업무 용어와 이름 규칙의 기준 문서다. 코드, API, DB, �
 | --- | --- | --- | --- | --- |
 | 회사 | `Tenant` | — | 회원가입으로 생기는 테넌트. 창고와 공장을 운영한다 | `Company` (거래처도 회사라 혼동) |
 | 회사 코드 | `code` | — | 직원이 로그인할 때 입력하는, 시스템이 발급한 고정 번호. 테넌트 ID와 다르다 | `alias` (홈페이지 별칭과 구분) |
+| 회사 등록됨 | `TenantRegistered` | — | 회사를 등록한 트랜잭션에서 발행하는 이벤트. 회사 ID만 담는다. 다른 모듈이 회사의 초기 데이터를 준비한다 | `TenantCreated`, `CompanySignedUp` |
+| 회사 미지정 | `NONE` (`platform.tenant` 내부) | — | 회사가 정해지지 않은 작업. root(플랫폼 블록)도 실제 회사도 아니며 테넌트 데이터를 읽고 쓸 수 없다 ([ADR-0008](decisions/0008-tenant-isolation-foundation-and-board.md)) | `UNKNOWN`, `DEFAULT` (테넌트에) |
 
 ## 사용자 (`identity`)
 
@@ -96,6 +103,31 @@ Etude의 업무 용어와 이름 규칙의 기준 문서다. 코드, API, DB, �
 | 로그인한 사용자 | `SignedInUser` | `GET /admin/v1/auth/session` | 세션에 담긴 사용자. 소속 회사로 요청마다 테넌트를 정한다 | — |
 
 생산 현장의 작업자처럼 로그인하지 않고 기록에만 남는 사람은 사용자가 아니다. 해당 모듈에서 따로 정한다.
+
+## 게시판 (`board`)
+
+회사 안에서 사용자가 글을 남기고 읽는 게시판을 다룬다([ADR-0008](decisions/0008-tenant-isolation-foundation-and-board.md)). 게시판과 게시글은 테넌트 데이터다.
+
+| 한글 | 코드 | API | 정의 | 쓰지 않는 말 |
+| --- | --- | --- | --- | --- |
+| 게시판 | `Board` | `/admin/v1/boards` | 회사의 글 모음 하나. 첫 버전은 회사마다 기본 게시판 하나다 | `forum`, `channel`, `category` |
+| 기본 게시판 | `isDefault` | `default` | 회사를 등록하면 준비되는 게시판. 이름이 없고(`name: null`) 클라이언트가 언어에 맞게 보여 준다 | `main`, `general` |
+| 게시판 이름 | `name` | `name` | 사용자가 정한 게시판 이름. 기본 게시판은 `null` | `title` (게시판에) |
+| 게시글 | `Post` | `/admin/v1/boards/{boardId}/posts` | 게시판에 쓴 글 하나. 본문은 일반 텍스트다 | `Article`, `Message`, `Thread` |
+| 제목 | `title` | `title` | 게시글의 제목 (최대 200자) | `subject`, `name` (게시글에) |
+| 본문 | `body` | `body` | 게시글의 일반 텍스트 내용 (최대 20,000자). HTML로 해석하지 않는다 | `content`, `text` |
+| 작성자 | `authorId`, `authorUsername` | `authorId`, `authorUsername` | 게시글을 쓴 사용자와 그 아이디 | `writer`, `userId` (게시글에) |
+| 작성 시각 | `postedAt` | `postedAt` | 게시글을 쓴 시각 (업무 시각). 감사용 `createdAt`과 구분한다 | `writtenAt`, `createdAt` (API에) |
+| 수정 시각 | `editedAt` | `editedAt` | 마지막으로 고친 시각. 고친 적 없으면 `null` | `modifiedAt`, `updatedAt` (API에) |
+| 삭제 시각 | `deletedAt` | — | 게시글을 지운 시각. 지운 글은 목록·상세에서 빠진다 | `removedAt`, `isDeleted` |
+| 수정 가능 | `editable` | `editable` | 조회한 사용자가 작성자라 고치거나 지울 수 있음 | `canEdit`, `mine` |
+| 최근 글 | `listRecentPosts` | `GET /admin/v1/posts` | 회사의 모든 게시판에서 최신 게시글 몇 건 | `latest`, `feed` |
+
+| 거절 코드 | 정의 |
+| --- | --- |
+| `NOT_POST_AUTHOR` | 작성자가 아닌 사용자가 게시글을 수정하거나 삭제하려 했다 (403). 대표도 같다 |
+
+다른 회사의 게시판·게시글 ID와 다른 게시판의 게시글 ID는 없는 것과 같게 `NOT_FOUND`(404)다.
 
 ## 카탈로그 (`catalog`)
 
