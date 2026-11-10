@@ -1,3 +1,8 @@
+spring:
+  # TestcontainersConfiguration connects the application as etude_app; Flyway uses the container's owner role.
+  flyway:
+    user: test
+    password: test
 springdoc:
   api-docs:
     # OpenApiSpecTest compares the generated documents with the committed ones.

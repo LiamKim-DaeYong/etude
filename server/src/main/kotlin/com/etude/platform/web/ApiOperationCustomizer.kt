@@ -1,6 +1,7 @@
 package com.etude.platform.web
 
 import com.etude.platform.Rejects
+import com.etude.platform.security.SecurityProblemWriter
 import io.swagger.v3.oas.models.Operation
 import io.swagger.v3.oas.models.headers.Header
 import io.swagger.v3.oas.models.media.Content
@@ -36,8 +37,8 @@ class ApiOperationCustomizer(
         reasonType.enumConstants
             .groupBy { statuses.statusOfAny(it) }
             .forEach { (status, reasons) ->
-                // 400에는 프레임워크의 INVALID_REQUEST도 포함한다.
-                val codes = reasons.map { it.name } + listOfNotNull(GlobalExceptionHandler.INVALID_REQUEST.takeIf { status.value() == 400 })
+                // 같은 상태의 프레임워크 코드도 포함한다: 400은 INVALID_REQUEST, 403은 보안 필터의 코드.
+                val codes = reasons.map { it.name } + FRAMEWORK_CODES[status.value()].orEmpty()
                 val schema = Schema<Any>().allOf(
                     listOf(
                         Schema<Any>().`$ref`("Problem"),
@@ -51,5 +52,12 @@ class ApiOperationCustomizer(
                         .content(Content().addMediaType(OpenApiConfiguration.PROBLEM_JSON, MediaType().schema(schema))),
                 )
             }
+    }
+
+    private companion object {
+        val FRAMEWORK_CODES = mapOf(
+            400 to listOf(GlobalExceptionHandler.INVALID_REQUEST),
+            403 to listOf(SecurityProblemWriter.CSRF_TOKEN_INVALID, SecurityProblemWriter.ACCESS_DENIED),
+        )
     }
 }

@@ -2,9 +2,11 @@ package com.etude.tenant.application
 
 import com.etude.tenant.TenantDirectory
 import com.etude.tenant.TenantInfo
+import com.etude.tenant.TenantRegistered
 import com.etude.tenant.TenantRegistration
 import com.etude.tenant.domain.Tenant
 import com.etude.tenant.domain.TenantRepository
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.security.SecureRandom
@@ -13,6 +15,7 @@ import java.security.SecureRandom
 @Transactional(readOnly = true)
 class TenantService(
     private val tenantRepository: TenantRepository,
+    private val events: ApplicationEventPublisher,
 ) : TenantRegistration,
     TenantDirectory {
 
@@ -24,6 +27,7 @@ class TenantService(
     @Transactional
     override fun register(name: String): TenantInfo {
         val tenant = tenantRepository.save(Tenant(name, issueCode()))
+        events.publishEvent(TenantRegistered(checkNotNull(tenant.id)))
         return tenant.toInfo()
     }
 
