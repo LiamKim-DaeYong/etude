@@ -15,6 +15,11 @@ spring:
   modulith:
     runtime:
       flyway-enabled: true
+    events:
+      jdbc:
+        schema-initialization:
+          # Flyway (db/migration/__root) creates event_publication. The application role cannot create tables.
+          enabled: false
 # Defaults are production-safe; the local and test profiles turn development features on.
 springdoc:
   api-docs:

@@ -1,4 +1,14 @@
 # Local development (bootRun activates this profile).
+spring:
+  # compose.yaml's PostgreSQL. The application connects as the non-owner role etude_app so that row-level security
+  # applies; Flyway connects as the owner etude (ADR-0006).
+  datasource:
+    url: jdbc:postgresql://localhost:5432/etude
+    username: etude_app
+    password: etude_app
+  flyway:
+    user: etude
+    password: etude
 springdoc:
   api-docs:
     enabled: true

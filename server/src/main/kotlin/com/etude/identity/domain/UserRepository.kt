@@ -12,4 +12,6 @@ interface UserRepository : Repository<User, UUID> {
     fun findByEmail(email: String): User?
 
     fun findByTenantIdAndUsername(tenantId: UUID, username: String): User?
+
+    fun findAllByIdIn(ids: Collection<UUID>): List<User>
 }

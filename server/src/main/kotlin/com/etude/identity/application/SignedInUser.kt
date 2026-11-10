@@ -14,7 +14,7 @@ import java.util.UUID
  * 세션에 저장하는 로그인 사용자. 비밀번호 해시는 인증 후 [eraseCredentials]로 지운다.
  */
 class SignedInUser(
-    val userId: UUID,
+    override val userId: UUID,
     override val tenantId: UUID,
     val role: UserRole,
     private val name: String,

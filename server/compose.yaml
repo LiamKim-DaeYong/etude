@@ -7,3 +7,15 @@ services:
       POSTGRES_PASSWORD: etude
     ports:
       - "5432:5432"
+    volumes:
+      # 새 데이터베이스를 만들 때 애플리케이션 역할(etude_app)을 만든다.
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      # 초기화 스크립트가 끝나고 TCP로 접속할 수 있을 때 준비된 것으로 본다.
+      test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "etude", "-d", "etude"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    labels:
+      # 접속 정보는 application-local.yml에 둔다. 앱은 etude_app, Flyway는 소유자 etude로 접속한다.
+      org.springframework.boot.ignore: "true"
