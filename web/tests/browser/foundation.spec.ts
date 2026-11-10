@@ -1,112 +1,234 @@
 import { expect, test } from '@playwright/test';
 
-test('routes survive direct navigation and unknown routes provide a way home', async ({
+const home = '/preview';
+const board = '/preview/boards/general';
+const post = `${board}/posts/welcome`;
+const title = '함께 쓰는 게시판을 시작합니다';
+
+test('explicit preview entry, sample labels and removal of demo routes', async ({
   page,
 }) => {
-  await page.goto('/settings');
-  await expect(
-    page.getByRole('heading', { level: 1, name: '화면 설정' }),
-  ).toBeVisible();
-  await expect(page).toHaveTitle('화면 설정 · Etude');
-  await page.reload();
-  await expect(
-    page.getByRole('radio', { name: '시스템 설정', exact: true }),
-  ).toBeChecked();
-  await page.goto('/does-not-exist');
-  await expect(
-    page.getByRole('heading', { name: '페이지를 찾을 수 없습니다' }),
-  ).toBeVisible();
-  await page.getByRole('link', { name: '워크스페이스로 돌아가기' }).click();
-  await expect(
-    page.getByRole('heading', { level: 1, name: 'Etude 작업 공간' }),
-  ).toBeVisible();
-});
-
-test('theme choice persists and system mode follows device preferences', async ({
-  page,
-}, testInfo) => {
-  await page.goto('/settings');
-  await page.getByRole('radio', { name: '다크', exact: true }).check();
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-  await page.reload();
-  await expect(
-    page.getByRole('radio', { name: '다크', exact: true }),
-  ).toBeChecked();
-  await page.getByRole('radio', { name: '시스템 설정', exact: true }).check();
-  await page.emulateMedia({ colorScheme: 'light' });
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
-  await page.emulateMedia({ colorScheme: 'dark' });
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-  await page.screenshot({
-    path: testInfo.outputPath('settings-dark.png'),
-    fullPage: true,
+  const apiRequests: string[] = [];
+  page.on('request', (request) => {
+    if (request.method() !== 'GET' || /\/(admin|api)\/v1\//.test(request.url()))
+      apiRequests.push(request.url());
   });
-});
-
-test('navigation works at the project viewport without horizontal overflow', async ({
-  page,
-}, testInfo) => {
   await page.goto('/');
+  await expect(page).toHaveURL(/\/preview$/);
   await expect(
-    page.getByRole('heading', { level: 1, name: 'Etude 작업 공간' }),
+    page.getByRole('heading', { name: '홈', exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('region', { name: '화면 검토 안내' }),
+  ).toContainText('실제 로그인이나 서버 저장은 연결되지 않았습니다.');
+  await expect(
+    page.getByRole('button', { name: '샘플 글', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('input[type="password"]')).toHaveCount(0);
+  await expect(
+    page.getByRole('button', { name: /로그인|글쓰기|게시판 추가/ }),
+  ).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /^화면 검색/ })).toHaveCount(0);
+  for (const path of [
+    '/ui',
+    '/settings',
+    '/workspace',
+    '/process',
+    '/products',
+  ]) {
+    await page.goto(path);
+    await expect(
+      page.getByRole('heading', { name: '페이지를 찾을 수 없습니다' }),
+    ).toBeVisible();
+  }
+  await page.getByRole('link', { name: '홈으로 돌아가기' }).click();
+  await expect(page).toHaveURL(/\/preview$/);
+  expect(apiRequests).toEqual([]);
+});
+
+test('home to board to post works with direct reload, back and recovery', async ({
+  page,
+}, testInfo) => {
+  await page.goto(home);
+  await expect(
+    page.getByRole('heading', { name: '최근 게시글' }),
   ).toBeVisible();
   await page.screenshot({
-    path: testInfo.outputPath('workspace.png'),
+    path: testInfo.outputPath('home-light.png'),
     fullPage: true,
   });
+  await page.getByRole('link', { name: /^게시판 바로가기/ }).click();
+  await expect(page).toHaveURL(new RegExp(`${board}$`));
+  await expect(
+    page.getByRole('heading', { level: 1, name: '게시판', exact: true }),
+  ).toBeVisible();
+  await expect(page).toHaveTitle('게시판 · Etude');
+  await page.screenshot({
+    path: testInfo.outputPath('board-light.png'),
+    fullPage: true,
+  });
+  await page
+    .getByRole('link', { name: new RegExp(`^${title}`) })
+    .press('Enter');
+  await expect(
+    page.getByRole('heading', { level: 1, name: title }),
+  ).toBeVisible();
+  await expect(page.locator('#main-content')).toBeFocused();
+  await expect(page).toHaveTitle('글 상세 · Etude');
+  await page.reload();
+  await expect(page.getByRole('heading', { name: title })).toBeVisible();
+  await expect(page.locator('article')).toContainText(
+    '실제 회사의 공지나 저장된 업무 기록이 아닙니다.',
+  );
+  await page.screenshot({
+    path: testInfo.outputPath('post-light.png'),
+    fullPage: true,
+  });
+  await page
+    .getByRole('link', { name: '목록으로 돌아가기', exact: true })
+    .click();
+  await expect(
+    page.getByRole('heading', { level: 1, name: '게시판', exact: true }),
+  ).toBeVisible();
+  await page.goBack();
+  await expect(page.getByRole('heading', { name: title })).toBeVisible();
+  for (const path of ['/preview/boards/missing', `${board}/posts/missing`]) {
+    await page.goto(path);
+    await expect(
+      page.getByRole('heading', { level: 1, name: /찾을 수 없습니다/ }),
+    ).toBeVisible();
+    await page.getByRole('link', { name: '게시판 목록으로' }).click();
+    await expect(page).toHaveURL(new RegExp(`${board}$`));
+  }
+});
+
+test('empty example survives menu navigation, deep links and browser history', async ({
+  page,
+}, testInfo) => {
+  await page.goto(home);
+  await page
+    .getByRole('button', { name: '글 없음', exact: true })
+    .press('Enter');
+  await expect(page).toHaveURL(/\/preview\?data=empty$/);
+  await expect(
+    page.getByRole('heading', { name: '아직 게시글이 없어요' }),
+  ).toBeVisible();
+  await expect(page.getByRole('link', { name: new RegExp(title) })).toHaveCount(
+    0,
+  );
+  await page.screenshot({
+    path: testInfo.outputPath('home-empty.png'),
+    fullPage: true,
+  });
+  await page.getByRole('link', { name: '게시판 전체 보기' }).click();
+  await expect(page).toHaveURL(/\/boards\/general\?data=empty$/);
+  await page.reload();
+  await expect(
+    page.getByRole('heading', { name: '아직 게시글이 없어요' }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: '글 없음', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true');
+  await page.screenshot({
+    path: testInfo.outputPath('board-empty.png'),
+    fullPage: true,
+  });
+  await page
+    .getByRole('button', { name: '샘플 글', exact: true })
+    .press('Enter');
+  await expect(
+    page.getByRole('link', { name: new RegExp(title) }),
+  ).toBeVisible();
+  await page.goBack();
+  await expect(
+    page.getByRole('heading', { name: '아직 게시글이 없어요' }),
+  ).toBeVisible();
+});
+
+test('navigation has only home and board and keeps keyboard focus', async ({
+  page,
+}, testInfo) => {
+  await page.goto(home);
+  await expect(
+    page.getByRole('heading', { name: '홈', exact: true }),
+  ).toBeVisible();
   if (testInfo.project.name === 'mobile') {
-    await page.getByRole('button', { name: '메뉴 열기' }).click();
-    const drawer = page.getByRole('dialog');
+    const trigger = page.getByRole('button', { name: '메뉴 열기' });
+    await trigger.press('Enter');
+    const drawer = page.getByRole('dialog', { name: '샘플 회사', exact: true });
     await expect(drawer).toBeVisible();
-    await drawer.getByRole('link', { name: 'UI 가이드', exact: true }).click();
+    await expect(
+      drawer.getByRole('navigation', { name: '주 메뉴' }).getByRole('link'),
+    ).toHaveCount(2);
+    await page.keyboard.press('Escape');
+    await expect(trigger).toBeFocused();
+    await trigger.press('Enter');
+    await drawer
+      .getByRole('link', { name: '게시판', exact: true })
+      .press('Enter');
     await expect(drawer).not.toBeVisible();
   } else {
     await page.getByRole('button', { name: '사이드바 접기' }).click();
+    await expect(
+      page.getByRole('link', { name: '홈', exact: true }),
+    ).toBeVisible();
     await page.getByRole('button', { name: '사이드바 펼치기' }).click();
-    await page
-      .getByRole('navigation', { name: '주 메뉴' })
-      .getByRole('link', { name: 'UI 가이드', exact: true })
-      .click();
+    const navigation = page.getByRole('navigation', { name: '주 메뉴' });
+    await expect(navigation.getByRole('link')).toHaveCount(2);
+    await navigation
+      .getByRole('link', { name: '게시판', exact: true })
+      .press('Enter');
   }
   await expect(
-    page.getByRole('heading', { level: 1, name: 'UI 가이드' }),
+    page.getByRole('heading', { level: 1, name: '게시판', exact: true }),
   ).toBeVisible();
   await expect(page.locator('#main-content')).toBeFocused();
   expect(
     await page.evaluate(
-      () => document.documentElement.scrollWidth <= window.innerWidth,
+      () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBe(true);
+  await page.goto(post);
+  if (testInfo.project.name === 'desktop')
+    await expect(
+      page
+        .getByRole('navigation', { name: '주 메뉴' })
+        .getByRole('link', { name: '게시판', exact: true }),
+    ).toHaveAttribute('aria-current', 'page');
+});
+
+test('theme selection persists and system mode follows device preferences', async ({
+  page,
+}, testInfo) => {
+  await page.goto(home);
+  const trigger = page.getByRole('button', { name: '화면 테마 선택' });
+  await trigger.press('Enter');
+  await page.getByRole('menuitemradio', { name: '다크', exact: true }).click();
+  await expect(page.getByRole('menu')).not.toBeVisible();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await page.reload();
+  await expect(
+    page.getByRole('heading', { level: 1, name: '홈', exact: true }),
+  ).toBeVisible();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await page.screenshot({
-    path: testInfo.outputPath('ui-guide.png'),
+    path: testInfo.outputPath('home-dark.png'),
     fullPage: true,
   });
-});
-
-test('dialog supports keyboard dismissal and notifications are usable', async ({
-  page,
-}) => {
-  await page.goto('/ui');
-  const trigger = page.getByRole('button', { name: '대화상자 열기' });
-  await trigger.click();
+  await trigger.press('Enter');
   await expect(
-    page.getByRole('dialog', { name: '대화상자 미리보기' }),
-  ).toBeVisible();
-  expect(
-    await page.evaluate(() =>
-      [document.body, document.documentElement].some(
-        (element) => getComputedStyle(element).overflow === 'hidden',
-      ),
-    ),
-  ).toBe(true);
-  await page.keyboard.press('Escape');
-  await expect(page.getByRole('dialog')).not.toBeVisible();
-  await expect(trigger).toBeFocused();
-  await page.getByRole('button', { name: '알림 확인' }).click();
-  await expect(page.getByText('알림 미리보기', { exact: true })).toBeVisible();
+    page.getByRole('menuitemradio', { name: '다크', exact: true }),
+  ).toBeChecked();
+  await page
+    .getByRole('menuitemradio', { name: '시스템 설정', exact: true })
+    .click();
+  await page.emulateMedia({ colorScheme: 'light' });
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
 });
 
-test('production UI renders under CSP without blocked styles or runtime errors', async ({
+test('production screens and overlays work under CSP without runtime errors', async ({
   page,
 }) => {
   const failures: string[] = [];
@@ -114,79 +236,52 @@ test('production UI renders under CSP without blocked styles or runtime errors',
   page.on('console', (message) => {
     if (message.type() === 'error') failures.push(message.text());
   });
-  await page.addInitScript(() => {
-    document.addEventListener('securitypolicyviolation', (event) => {
+  await page.addInitScript(() =>
+    document.addEventListener('securitypolicyviolation', (event) =>
       console.error(
         `CSP violation: ${event.violatedDirective} ${event.blockedURI}`,
-      );
-    });
-  });
-  for (const path of ['/', '/settings', '/ui']) {
+      ),
+    ),
+  );
+  for (const path of [
+    home,
+    board,
+    post,
+    `${home}?data=empty`,
+    `${board}?data=empty`,
+    '/missing',
+  ]) {
     await page.goto(path);
+    await expect(page.getByRole('heading', { level: 1 })).not.toHaveText(
+      '화면 불러오는 중',
+    );
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-    if (path === '/settings') {
-      await page.getByRole('radio', { name: '다크', exact: true }).check();
-      await page.getByRole('radio', { name: '라이트', exact: true }).check();
-    }
   }
+  await page.getByRole('button', { name: '화면 테마 선택' }).click();
+  await page.getByRole('menuitemradio', { name: '다크', exact: true }).click();
+  await expect(page.getByRole('menu')).not.toBeVisible();
   const menu = page.getByRole('button', { name: '메뉴 열기' });
   if (await menu.isVisible()) {
     await menu.click();
     await expect(page.getByRole('dialog')).toBeVisible();
     await page.keyboard.press('Escape');
-    await expect(page.getByRole('dialog')).not.toBeVisible();
   }
-  await page.getByRole('button', { name: '대화상자 열기' }).click();
-  await expect(page.getByRole('dialog')).toBeVisible();
-  await page.keyboard.press('Escape');
-  await page.getByRole('button', { name: '알림 확인' }).click();
-  await expect(page.getByText('알림 미리보기', { exact: true })).toBeVisible();
-  await page.getByRole('tab', { name: '입력 폼', exact: true }).click();
-  await page.getByRole('combobox', { name: '상태 선택' }).press('ArrowDown');
-  await expect(page.getByRole('listbox')).toBeVisible();
-  await expect(page.locator('.base-ui-disable-scrollbar')).toHaveCSS(
-    'scrollbar-width',
-    'none',
-  );
-  await page.keyboard.press('Escape');
-  await page.getByRole('tab', { name: '탐색과 목록', exact: true }).click();
-  await page
-    .getByRole('button', { name: '추가 작업', exact: true })
-    .press('Enter');
-  await expect(
-    page.getByRole('menuitem', { name: '이름순 정렬' }),
-  ).toBeVisible();
-  await page.keyboard.press('Escape');
-  await page.getByRole('tab', { name: '입력 폼', exact: true }).click();
-  await page
-    .getByRole('button', { name: '입력값 확인', exact: true })
-    .press('Enter');
-  await expect(
-    page.getByRole('textbox', { name: '이름', exact: true }),
-  ).toHaveAttribute('aria-invalid', 'true');
-  await page.getByRole('tab', { name: '상태와 피드백', exact: true }).click();
-  await page
-    .getByRole('button', { name: '복구 예시 확인', exact: true })
-    .press('Enter');
-  await expect(
-    page.getByRole('heading', { name: '화면 표시를 복구했습니다' }),
-  ).toBeVisible();
-  await page
-    .getByRole('button', { name: '오류 예시 다시 보기', exact: true })
-    .press('Enter');
   expect(failures).toEqual([]);
 });
 
-test('production policy blocks inline script execution', async ({
+test('production headers block inline script execution', async ({
   page,
   request,
 }) => {
-  const response = await request.get('/');
-  const policy = response.headers()['content-security-policy'];
-  expect(policy).toContain("script-src 'self'");
-  expect(policy).toContain("frame-ancestors 'none'");
+  const response = await request.get(home);
+  expect(response.headers()['content-security-policy']).toContain(
+    "script-src 'self'",
+  );
+  expect(response.headers()['content-security-policy']).toContain(
+    "frame-ancestors 'none'",
+  );
   expect(response.headers()['x-content-type-options']).toBe('nosniff');
-  await page.goto('/');
+  await page.goto(home);
   const blocked = await page.evaluate(
     () =>
       new Promise<boolean>((resolve) => {
@@ -210,127 +305,19 @@ test('production policy blocks inline script execution', async ({
   );
 });
 
-test('keyboard users can skip navigation', async ({ page }) => {
-  await page.goto('/');
+test('skip link and self-hosted Korean font remain available', async ({
+  page,
+}) => {
+  await page.goto(home);
+  await expect(
+    page.getByRole('heading', { name: '홈', exact: true }),
+  ).toBeVisible();
   await page.keyboard.press('Tab');
   await expect(
     page.getByRole('link', { name: '본문으로 건너뛰기' }),
   ).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(page.locator('#main-content')).toBeFocused();
-});
-
-test('primary action text stays readable in light and dark themes', async ({
-  page,
-}) => {
-  const luminance = (color: string) => {
-    const channels = color
-      .match(/[\d.]+/g)
-      ?.slice(0, 3)
-      .map((value) => Number(value) / 255);
-    if (!channels || channels.length !== 3)
-      throw new Error(`Unexpected color: ${color}`);
-    return channels.reduce((sum, value, index) => {
-      const linear =
-        value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
-      return sum + linear * [0.2126, 0.7152, 0.0722][index]!;
-    }, 0);
-  };
-  await page.goto('/ui');
-  for (const theme of ['light', 'dark']) {
-    if (theme === 'dark')
-      await page.getByRole('button', { name: '어두운 테마로 전환' }).click();
-    for (const path of ['/ui', '/does-not-exist']) {
-      await page.goto(path);
-      const action =
-        path === '/ui'
-          ? page.getByRole('button', { name: '대화상자 열기' })
-          : page.getByRole('link', { name: '워크스페이스로 돌아가기' });
-      const colors = await action.evaluate((element) => {
-        const style = getComputedStyle(element);
-        const canvas = document.createElement('canvas');
-        canvas.width = canvas.height = 1;
-        const context = canvas.getContext('2d')!;
-        const rgb = (color: string) => {
-          context.clearRect(0, 0, 1, 1);
-          context.fillStyle = color;
-          context.fillRect(0, 0, 1, 1);
-          const [red, green, blue, alpha] = context.getImageData(
-            0,
-            0,
-            1,
-            1,
-          ).data;
-          return { color: `rgb(${red}, ${green}, ${blue})`, alpha };
-        };
-        const background = rgb(style.backgroundColor);
-        return {
-          background: background.color,
-          text: rgb(style.color).color,
-          alpha: background.alpha,
-        };
-      });
-      expect(colors.alpha).toBe(255);
-      const light = Math.max(
-        luminance(colors.background),
-        luminance(colors.text),
-      );
-      const dark = Math.min(
-        luminance(colors.background),
-        luminance(colors.text),
-      );
-      expect(
-        (light + 0.05) / (dark + 0.05),
-        `${theme} ${path}: ${JSON.stringify(colors)}`,
-      ).toBeGreaterThanOrEqual(4.5);
-    }
-  }
-});
-
-test('official form controls and searchable table work without a backend', async ({
-  page,
-}) => {
-  await page.goto('/ui');
-  await page.getByRole('tab', { name: '입력 폼', exact: true }).click();
-  await page.getByRole('combobox', { name: '상태 선택' }).click();
-  await page.getByRole('option', { name: '완료', exact: true }).click();
-  await expect(page.getByRole('combobox', { name: '상태 선택' })).toContainText(
-    '완료',
-  );
-  await page.getByRole('switch', { name: '알림 받기' }).check();
-  await expect(page.getByRole('switch', { name: '알림 받기' })).toBeChecked();
-  await page.getByRole('tab', { name: '탐색과 목록', exact: true }).click();
-  await page.getByRole('textbox', { name: '컴포넌트 검색' }).fill('Dialog');
-  await expect(
-    page.getByRole('row').filter({ hasText: 'Dialog' }),
-  ).toBeVisible();
-  await expect(page.getByRole('row').filter({ hasText: 'Button' })).toHaveCount(
-    0,
-  );
-  await page
-    .getByRole('textbox', { name: '컴포넌트 검색' })
-    .fill('no-matching-component');
-  await expect(
-    page.getByText('검색 결과가 없습니다.', { exact: true }),
-  ).toBeVisible();
-});
-
-test('screen search supports keyboard navigation', async ({ page }) => {
-  await page.goto('/');
-  await page.keyboard.press('Control+k');
-  await expect(page.getByRole('dialog', { name: '화면 검색' })).toBeVisible();
-  await page
-    .getByRole('combobox', { name: '화면 이름 검색' })
-    .fill('화면 설정');
-  await page.keyboard.press('Enter');
-  await expect(page).toHaveURL(/\/settings$/);
-  await expect(
-    page.getByRole('heading', { level: 1, name: '화면 설정' }),
-  ).toBeVisible();
-});
-
-test('Korean variable font loads from the app origin', async ({ page }) => {
-  await page.goto('/');
   await page.evaluate(() => document.fonts.ready);
   expect(
     await page.evaluate(() =>
@@ -344,13 +331,13 @@ test('Korean variable font loads from the app origin', async ({ page }) => {
     'font-family',
     /Pretendard/,
   );
-  const fontUrls = await page.evaluate(() =>
+  const fonts = await page.evaluate(() =>
     performance
       .getEntriesByType('resource')
       .map((entry) => entry.name)
       .filter((name) => name.includes('.woff2')),
   );
-  expect(fontUrls.length).toBeGreaterThan(0);
-  for (const url of fontUrls)
+  expect(fonts.length).toBeGreaterThan(0);
+  for (const url of fonts)
     expect(new URL(url).origin).toBe('http://127.0.0.1:4173');
 });
