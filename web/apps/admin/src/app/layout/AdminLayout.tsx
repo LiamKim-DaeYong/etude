@@ -1,11 +1,6 @@
 import { useState, type PropsWithChildren } from 'react';
-import { Link, matchPath, useLocation } from 'react-router-dom';
-import {
-  ChevronRight,
-  Menu,
-  PanelLeftClose,
-  PanelLeftOpen,
-} from 'lucide-react';
+import { matchPath, useLocation } from 'react-router-dom';
+import { Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import {
   Button,
   Sheet,
@@ -16,8 +11,7 @@ import {
   SheetTrigger,
   cn,
 } from '@etude/ui';
-import { previewPaths, routes } from '../routes';
-import { usePreviewContent } from '@/pages/preview/preview-data';
+import { routes } from '../routes';
 import { Brand } from './Brand';
 import { AdminNavigation } from './AdminNavigation';
 import { PreviewNotice } from './PreviewNotice';
@@ -27,7 +21,6 @@ export function AdminLayout({ children }: PropsWithChildren) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const { pathname } = useLocation();
-  const { href } = usePreviewContent();
   const current = routes.find((route) => matchPath(route.path, pathname));
   return (
     <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
@@ -46,34 +39,10 @@ export function AdminLayout({ children }: PropsWithChildren) {
           )}
         >
           <Brand compact={collapsed} />
-          {!collapsed && (
-            <div className="mx-1 mt-7 mb-6 rounded-lg border bg-background px-3 py-3">
-              <p className="text-sm font-semibold">샘플 회사</p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                회사 정보 예시
-              </p>
-            </div>
-          )}
-          <div className={cn(collapsed && 'mt-6')}>
+          <div className="mt-6">
             <AdminNavigation compact={collapsed} />
           </div>
           <div className="mt-auto space-y-3 border-t pt-4">
-            {!collapsed && (
-              <div className="flex items-center gap-3 px-2 pb-2">
-                <span
-                  className="grid size-9 shrink-0 place-items-center rounded-full bg-muted text-xs font-semibold"
-                  aria-hidden="true"
-                >
-                  김
-                </span>
-                <div>
-                  <p className="text-sm font-medium">김담당</p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    직원 · 샘플 사용자
-                  </p>
-                </div>
-              </div>
-            )}
             <Button
               variant="ghost"
               size={collapsed ? 'icon' : 'default'}
@@ -116,27 +85,24 @@ export function AdminLayout({ children }: PropsWithChildren) {
               </SheetTrigger>
               <nav
                 aria-label="현재 위치"
-                className="flex min-w-0 items-center gap-2 text-xs"
+                className="min-w-0 text-sm font-medium"
               >
-                <Link
-                  to={href(previewPaths.home)}
-                  className="text-muted-foreground"
-                >
-                  샘플 회사
-                </Link>
-                <ChevronRight
-                  className="size-3 shrink-0 text-muted-foreground"
-                  aria-hidden="true"
-                />
                 <span aria-current="page" className="truncate">
                   {current?.label ?? '페이지 없음'}
                 </span>
               </nav>
             </div>
             <div className="flex shrink-0 items-center gap-3">
-              <span className="hidden text-xs text-muted-foreground sm:inline">
-                김담당 · 직원 예시
-              </span>
+              <div
+                role="group"
+                aria-label="회사와 사용자"
+                className="text-right"
+              >
+                <p className="text-sm font-medium">샘플 회사</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  김담당 · 직원
+                </p>
+              </div>
               <ThemeMenu />
             </div>
           </header>
@@ -144,18 +110,15 @@ export function AdminLayout({ children }: PropsWithChildren) {
           <main
             id="main-content"
             tabIndex={-1}
-            className="mx-auto w-full max-w-5xl flex-1 px-5 py-7 outline-none sm:px-8 sm:py-9"
+            className="mx-auto w-full max-w-5xl flex-1 px-5 py-6 outline-none sm:px-8 sm:py-8"
           >
             {children}
           </main>
-          <footer className="px-5 py-5 text-center text-xs text-muted-foreground">
-            Etude · 화면 검토용
-          </footer>
         </div>
         <SheetContent side="left" className="w-72! gap-0 p-3">
           <SheetHeader className="mb-6 px-2">
-            <SheetTitle>샘플 회사</SheetTitle>
-            <SheetDescription>김담당 · 직원 · 샘플 사용자</SheetDescription>
+            <SheetTitle>메뉴</SheetTitle>
+            <SheetDescription>홈과 게시판으로 이동합니다.</SheetDescription>
           </SheetHeader>
           <AdminNavigation close={() => setMobileOpen(false)} />
         </SheetContent>
