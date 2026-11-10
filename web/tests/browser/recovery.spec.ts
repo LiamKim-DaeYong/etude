@@ -1,75 +1,88 @@
 import { expect, test } from '@playwright/test';
 
-test('a failed page chunk keeps navigation available and reload recovers it', async ({
+test('failed board chunk keeps the shell and reload recovers it', async ({
   page,
 }, testInfo) => {
-  const failedChunk = '**/assets/Settings-*.js';
+  const failedChunk = '**/assets/Board-*.js';
   await page.route(failedChunk, (route) => route.abort('failed'));
-  await page.goto('/settings');
+  await page.goto('/preview/boards/general');
   await expect(
     page.getByRole('heading', { name: '화면을 불러오지 못했습니다' }),
   ).toBeVisible();
-  await expect(page.getByRole('button', { name: /^화면 검색/ })).toBeVisible();
+  await expect(
+    page.getByRole('region', { name: '화면 검토 안내' }),
+  ).toBeVisible();
   await page.screenshot({
     path: testInfo.outputPath('page-error.png'),
     fullPage: true,
   });
-
-  await page.keyboard.press('Control+k');
-  await page
-    .getByRole('combobox', { name: '화면 이름 검색' })
-    .fill('UI 가이드');
-  await page.keyboard.press('Enter');
+  await page.getByRole('link', { name: '홈으로 이동' }).press('Enter');
   await expect(
-    page.getByRole('heading', { level: 1, name: 'UI 가이드' }),
+    page.getByRole('heading', { name: '홈', exact: true }),
   ).toBeVisible();
   await expect(page.locator('#main-content')).toBeFocused();
-
-  await page.keyboard.press('Control+k');
-  await page
-    .getByRole('combobox', { name: '화면 이름 검색' })
-    .fill('화면 설정');
-  await page.keyboard.press('Enter');
-  await expect(
-    page.getByRole('heading', { name: '화면을 불러오지 못했습니다' }),
-  ).toBeVisible();
-  await page.getByRole('link', { name: '워크스페이스로 이동' }).click();
-  await expect(
-    page.getByRole('heading', { level: 1, name: 'Etude 작업 공간' }),
-  ).toBeVisible();
-
-  await page.goto('/settings');
+  await page.getByRole('link', { name: /^게시판 바로가기/ }).click();
   await expect(
     page.getByRole('heading', { name: '화면을 불러오지 못했습니다' }),
   ).toBeVisible();
   await page.unroute(failedChunk);
   await page.getByRole('button', { name: '다시 불러오기' }).click();
   await expect(
-    page.getByRole('heading', { level: 1, name: '화면 설정' }),
+    page.getByRole('heading', { level: 1, name: '게시판', exact: true }),
   ).toBeVisible();
-  await expect(
-    page.getByRole('radio', { name: '시스템 설정', exact: true }),
-  ).toBeChecked();
 });
 
-test('a provider render failure shows a fallback without UI providers', async ({
+test('loading state honors reduced motion before the actual screen appears', async ({
+  page,
+}, testInfo) => {
+  const chunk = '**/assets/Board-*.js';
+  let release!: () => void;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route(chunk, async (route) => {
+    await gate;
+    await route.continue();
+  });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  try {
+    await page.goto('/preview/boards/general', {
+      waitUntil: 'domcontentloaded',
+    });
+    await expect(
+      page.getByRole('heading', { level: 1, name: '화면 불러오는 중' }),
+    ).toBeVisible();
+    await expect(page.getByRole('status')).toContainText(
+      '잠시만 기다려 주세요.',
+    );
+    for (const skeleton of await page.locator('[data-slot="skeleton"]').all())
+      await expect(skeleton).toHaveCSS('animation-name', 'none');
+    await page.screenshot({
+      path: testInfo.outputPath('page-loading.png'),
+      fullPage: true,
+    });
+  } finally {
+    release();
+  }
+  await expect(
+    page.getByRole('heading', { level: 1, name: '게시판', exact: true }),
+  ).toBeVisible();
+});
+
+test('provider failure has recovery without providers or raw exception text', async ({
   page,
 }, testInfo) => {
   await page.addInitScript(() => {
     const matchMedia = window.matchMedia.bind(window);
     window.matchMedia = (query) => {
-      // Bootstrap runs in the head; fail only after the React root exists.
       if (document.getElementById('root'))
         throw new Error('Simulated provider failure');
       return matchMedia(query);
     };
   });
-  await page.goto('/');
+  await page.goto('/preview');
   await expect(
-    page.getByRole('heading', { level: 1, name: '앱을 불러오지 못했습니다' }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole('button', { name: '다시 불러오기' }),
+    page.getByRole('heading', { name: '앱을 불러오지 못했습니다' }),
   ).toBeVisible();
   await expect(page.getByText('Simulated provider failure')).toHaveCount(0);
   await page.screenshot({

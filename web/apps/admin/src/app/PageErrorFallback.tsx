@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Button, ErrorState, buttonVariants } from '@etude/ui';
+import { previewPaths } from './routes';
 
 export function PageErrorFallback() {
   return (
@@ -9,8 +10,11 @@ export function PageErrorFallback() {
       description="다른 메뉴로 이동하거나 페이지를 다시 불러와 주세요."
       action={
         <div className="flex flex-wrap justify-center gap-3">
-          <Link to="/" className={buttonVariants({ variant: 'outline' })}>
-            워크스페이스로 이동
+          <Link
+            to={previewPaths.home}
+            className={buttonVariants({ variant: 'outline' })}
+          >
+            홈으로 이동
           </Link>
           <Button onClick={() => window.location.reload()}>
             다시 불러오기

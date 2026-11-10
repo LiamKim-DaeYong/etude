@@ -1,23 +1,21 @@
 import { Link } from 'react-router-dom';
 import { Layers2 } from 'lucide-react';
+import { previewPaths } from '../routes';
+import { usePreviewContent } from '@/pages/preview/preview-data';
 
 export function Brand({ compact = false }: { compact?: boolean }) {
+  const { href } = usePreviewContent();
   return (
     <Link
-      to="/"
+      to={href(previewPaths.home)}
       className="flex min-h-10 items-center gap-2.5 rounded-lg p-1"
-      aria-label={compact ? 'Etude workspace' : undefined}
+      aria-label="Etude 홈"
     >
-      <span className="grid size-8 shrink-0 place-items-center rounded-[9px] bg-violet-600 text-white shadow-sm">
-        <Layers2 className="size-[18px]" strokeWidth={1.8} />
+      <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-violet-600 text-white">
+        <Layers2 className="size-[18px]" strokeWidth={1.8} aria-hidden="true" />
       </span>
       {!compact && (
-        <span className="text-[17px] font-semibold tracking-tight">
-          etude{' '}
-          <span className="ml-2 rounded border bg-background px-1 py-0.5 text-[9px] font-medium tracking-normal text-muted-foreground">
-            workspace
-          </span>
-        </span>
+        <span className="text-lg font-semibold tracking-tight">etude</span>
       )}
     </Link>
   );
