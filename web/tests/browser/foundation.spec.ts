@@ -20,7 +20,9 @@ test('explicit preview entry, sample labels and removal of demo routes', async (
   ).toBeVisible();
   await expect(
     page.getByRole('region', { name: '화면 검토 안내' }),
-  ).toContainText('실제 로그인이나 서버 저장은 연결되지 않았습니다.');
+  ).toContainText(
+    '회사·사용자·글은 예시이며 로그인·서버 저장은 연결되지 않았습니다.',
+  );
   await expect(
     page.getByRole('button', { name: '샘플 글', exact: true }),
   ).toHaveAttribute('aria-pressed', 'true');
@@ -57,7 +59,14 @@ test('home to board to post works with direct reload, back and recovery', async 
     path: testInfo.outputPath('home-light.png'),
     fullPage: true,
   });
-  await page.getByRole('link', { name: /^게시판 바로가기/ }).click();
+  await expect(
+    page.getByRole('group', { name: '회사와 사용자' }),
+  ).toBeVisible();
+  await expect(page.getByText('샘플 회사', { exact: true })).toHaveCount(1);
+  await expect(
+    page.getByRole('link', { name: new RegExp(`^${title}`) }),
+  ).toBeInViewport({ ratio: 1 });
+  await page.getByRole('link', { name: '게시판 전체 보기' }).click();
   await expect(page).toHaveURL(new RegExp(`${board}$`));
   await expect(
     page.getByRole('heading', { level: 1, name: '게시판', exact: true }),
@@ -155,7 +164,7 @@ test('navigation has only home and board and keeps keyboard focus', async ({
   if (testInfo.project.name === 'mobile') {
     const trigger = page.getByRole('button', { name: '메뉴 열기' });
     await trigger.press('Enter');
-    const drawer = page.getByRole('dialog', { name: '샘플 회사', exact: true });
+    const drawer = page.getByRole('dialog', { name: '메뉴', exact: true });
     await expect(drawer).toBeVisible();
     await expect(
       drawer.getByRole('navigation', { name: '주 메뉴' }).getByRole('link'),

@@ -1,12 +1,26 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 
+async function settleUI(page: Page) {
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+    await Promise.all(
+      document
+        .getAnimations()
+        .filter(
+          (animation) => animation.effect?.getTiming().iterations !== Infinity,
+        )
+        .map((animation) => animation.finished.catch(() => undefined)),
+    );
+  });
+}
+
 async function expectAccessible(page: Page, state: string) {
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   await expect(page.getByRole('heading', { level: 1 })).not.toHaveText(
     '화면 불러오는 중',
   );
-  await page.evaluate(() => document.fonts.ready);
+  await settleUI(page);
   const results = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
     .analyze();
@@ -63,8 +77,9 @@ for (const theme of ['light', 'dark'] as const) {
         const trigger = page.getByRole('button', { name: '메뉴 열기' });
         await trigger.press('Enter');
         await expect(
-          page.getByRole('dialog', { name: '샘플 회사', exact: true }),
+          page.getByRole('dialog', { name: '메뉴', exact: true }),
         ).toBeVisible();
+        await settleUI(page);
         const results = await new AxeBuilder({ page })
           .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
           .analyze();

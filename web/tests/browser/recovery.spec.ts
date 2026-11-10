@@ -21,7 +21,7 @@ test('failed board chunk keeps the shell and reload recovers it', async ({
     page.getByRole('heading', { name: '홈', exact: true }),
   ).toBeVisible();
   await expect(page.locator('#main-content')).toBeFocused();
-  await page.getByRole('link', { name: /^게시판 바로가기/ }).click();
+  await page.getByRole('link', { name: '게시판 전체 보기' }).click();
   await expect(
     page.getByRole('heading', { name: '화면을 불러오지 못했습니다' }),
   ).toBeVisible();

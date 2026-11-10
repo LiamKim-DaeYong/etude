@@ -17,15 +17,11 @@ export default function Board() {
         description={previewBoard.description}
       />
       <Card>
-        <CardHeader className="border-b px-6">
+        <CardHeader className="flex flex-row items-center justify-between gap-3 border-b px-5">
           <h2 className="text-sm font-semibold">전체 게시글</h2>
-          <p className="mt-1 text-xs text-muted-foreground">
-            {posts.length
-              ? `샘플 게시글 ${posts.length}개`
-              : '등록된 게시글이 없습니다.'}
-          </p>
+          <p className="text-xs text-muted-foreground">{posts.length}개</p>
         </CardHeader>
-        <CardContent className="px-2 sm:px-2">
+        <CardContent className="px-0">
           <PostList posts={posts} />
         </CardContent>
       </Card>
