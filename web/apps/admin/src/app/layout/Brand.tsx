@@ -4,7 +4,7 @@ import { Layers2 } from 'lucide-react';
 export function Brand({ compact = false }: { compact?: boolean }) {
   return (
     <Link
-      to="/"
+      to="/workspace"
       className="flex min-h-10 items-center gap-2.5 rounded-lg p-1"
       aria-label={compact ? 'Etude workspace' : undefined}
     >

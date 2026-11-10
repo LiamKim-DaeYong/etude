@@ -1,9 +1,15 @@
 import { lazy } from 'react';
 import { Blocks, LayoutDashboard, Settings2 } from 'lucide-react';
 
+export const publicRoute = {
+  path: '/',
+  label: '서비스 소개',
+  Component: lazy(() => import('@/pages/landing/Landing')),
+} as const;
+
 export const routes = [
   {
-    path: '/',
+    path: '/workspace',
     label: '워크스페이스',
     icon: LayoutDashboard,
     Component: lazy(() => import('@/pages/Workspace')),
